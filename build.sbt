@@ -1,63 +1,75 @@
 import bintray.Keys._
 import com.typesafe.sbt.SbtGit._
+import sbt.Keys._
 
-organization := "com.productfoundry"
+lazy val commonSettings = Seq(
+  organization := "com.productfoundry",
+  version := "0.1.1",
 
-name := "akka-cqrs"
+  scalaVersion := "2.11.5",
 
-version := "0.1"
+  scalacOptions ++= Seq(
+    "-encoding", "UTF-8",
+    "-feature",
+    "-unchecked",
+    "-deprecation",
+    "-Xlint",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Yinline",
+    "-Xfuture"
+  ),
 
-// Git
+  // Bintray
+  repository in bintray := "maven",
+  licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
+  bintrayOrganization in bintray := Some("productfoundry"),
 
-versionWithGit
+  // Test execution
+  parallelExecution in Test := false,
+  fork in Test := true,
 
-git.baseVersion := "0.1"
+  // Resolvers
+  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
 
-// Bintray
-
-bintrayPublishSettings
-
-repository in bintray := "maven"
-
-licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
-
-bintrayOrganization in bintray := Some("productfoundry")
-
-// Resolvers
-
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-
-
-// Build
-
-scalaVersion := "2.11.5"
-
-fork in Test := true
-
-scalacOptions ++= Seq(
-  "-encoding", "UTF-8",
-  "-feature",
-  "-unchecked",
-  "-deprecation",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Yinline",
-  "-Xfuture"
+  // Dependencies
+  libraryDependencies ++= Seq(
+    "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
+    "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
+    "org.scala-stm"          %% "scala-stm"                         % "0.7",
+    "org.scalaz"             %% "scalaz-core"                       % "7.0.6"    % "optional",
+    "org.scalatest"          %% "scalatest"                         % "2.2.4"    % "test",
+    "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9"    % "test",
+    "org.scalacheck"         %% "scalacheck"                        % "1.12.2"   % "test"
+  )
 )
 
-parallelExecution in Test := false
+lazy val root = (project in file("."))
+  .aggregate(core, test)
+  .settings(commonSettings: _*)
+  .settings(
+    name := "akka-cqrs-root"
+  )
+  .settings(bintrayPublishSettings: _*)
 
-libraryDependencies ++= Seq(
-  "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
-  "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
-  "org.scala-stm"          %% "scala-stm"                         % "0.7",
-  "org.scalaz"             %% "scalaz-core"                       % "7.0.6",
-  "org.specs2"             %% "specs2-core"                       % "2.3.13"   % "test",
-  "org.specs2"             %% "specs2-mock"                       % "2.3.13"   % "test",
-  "org.specs2"             %% "specs2-matcher-extra"              % "2.3.13"   % "test",
-  "org.specs2"             %% "specs2-scalacheck"                 % "2.3.13"   % "test",
-  "org.scalacheck"         %% "scalacheck"                        % "1.11.6"   % "test"
-)
+lazy val core = project
+  .settings(commonSettings: _*)
+  .settings(
+    name := "akka-cqrs"
+  )
+  .settings(bintrayPublishSettings: _*)
+
+lazy val test = project
+  .dependsOn(core)
+  .settings(commonSettings: _*)
+  .settings(
+    name := "akka-cqrs-test",
+    libraryDependencies ++= Seq(
+      "org.scalatest"          %% "scalatest"                         % "2.2.4",
+      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
+      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"
+    )
+  )
+  .settings(bintrayPublishSettings: _*)
 
