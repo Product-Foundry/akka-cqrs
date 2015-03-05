@@ -1,5 +1,6 @@
 package com.productfoundry.akka.cqrs
 
+import akka.actor.ActorRef
 import akka.persistence.PersistentActor
 
 /**
@@ -48,5 +49,7 @@ class DomainAggregator extends PersistentActor {
 
 object DomainAggregator {
 
-  case object Get
+  case object GetDomainAggregator
+
+  case class DomainAggregatorRef(ref: ActorRef)
 }

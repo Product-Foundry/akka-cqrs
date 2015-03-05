@@ -2,10 +2,8 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.persistence.PersistentActor
-import akka.util.Timeout
 import com.productfoundry.akka.GracefulPassivation
-
-import scala.concurrent.Await
+import com.productfoundry.akka.cqrs.DomainAggregator._
 
 /**
  * Aggregate.
@@ -19,6 +17,37 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
   with GracefulPassivation
   with CommitHandler
   with ActorLogging {
+
+  /**
+   * Aggregates the commit to a domain wide log in a journal independent manner.
+   *
+   * Sends the commit revision back to the original sender on success.
+   */
+  class CommitAggregator(aggregateSupervisor: ActorRef, originalSender: ActorRef, commit: Commit[E]) extends Actor {
+
+    import scala.concurrent.duration._
+
+    // TODO [AK] Handle failure
+
+    override def preStart(): Unit = {
+      // TODO [AK] Make timeout configurable?
+      context.setReceiveTimeout(30.seconds)
+      aggregateSupervisor ! GetDomainAggregator
+    }
+
+    override def receive: Actor.Receive = {
+      case DomainAggregatorRef(ref) =>
+        ref ! commit
+
+      case domainRevision: DomainRevision =>
+        originalSender ! AggregateStatus.Success(CommitResult(commit.revision, domainRevision))
+        self ! PoisonPill
+
+      case ReceiveTimeout =>
+        log.error("Unable to aggregate commit: {}", commit)
+        throw new AggregateException("Unable to aggregate commit")
+    }
+  }
 
   /**
    * All domain entities have an id.
@@ -266,39 +295,20 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
     // No exception thrown, persist and update state for real
     persist(commit) {
       commit =>
-        val domainRevision = aggregateCommit(commit)
+        // Updating state should never fail, since we already performed a dry run
         updateState(commit)
-        handleCommit(commit)
-        onCommit(CommitResult(commit.revision, domainRevision))
-    }
-  }
 
-  /**
-   * Aggregates the commit to a domain wide log in a journal independent manner.
-   * @param commit from this aggregate.
-   * @return aggregator result.
-   */
-  private def aggregateCommit(commit: Commit[E]): DomainRevision = {
-    try {
-      import akka.pattern.ask
-      import context.dispatcher
+        // Aggregate commit to domain
+        val supervisor = context.parent
+        val originalSender = sender()
+        context.actorOf(Props(new CommitAggregator(supervisor, originalSender, commit)))
 
-      import scala.concurrent.duration._
-
-      implicit val duration = 1.minute
-      implicit val timeout = Timeout(duration)
-
-      // Send the commit to the aggregator and get the aggregator commit revision
-      val domainRevisionFuture = (context.parent ? DomainAggregator.Get).mapTo[ActorRef].flatMap { domainAggregatorRef =>
-        (domainAggregatorRef ? commit).mapTo[DomainRevision]
-      }
-
-      // We are blocking to make sure no messages are processed until we received a revision from the commit aggregator
-      Await.result(domainRevisionFuture, duration)
-    } catch {
-      case e: Exception =>
-        log.error(e, "Commit aggregation failed for: {}", commit)
-        throw AggregateException("Commit aggregation failed")
+        // Commit handler is outside our control, so we don't want it to crash our aggregate
+        try {
+          handleCommit(commit)
+        } catch {
+          case e: Exception => log.error(e, "Handling commit: {}", commit)
+        }
     }
   }
 

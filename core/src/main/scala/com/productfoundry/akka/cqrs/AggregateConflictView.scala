@@ -13,6 +13,7 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
   var commits: Vector[Commit[DomainEvent]] = Vector.empty
 
   override def preStart(): Unit = {
+    // TODO [AK] Make timeout configurable?
     context.setReceiveTimeout(30.seconds)
     self ! Recover(toSequenceNr = conflict.actual.value)
   }
