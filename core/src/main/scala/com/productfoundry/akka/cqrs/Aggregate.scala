@@ -297,7 +297,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
       Await.result(domainRevisionFuture, duration)
     } catch {
       case e: Exception =>
-        log.error("Commit aggregation failed for: {}", commit, e)
+        log.error(e, "Commit aggregation failed for: {}", commit)
         throw AggregateException("Commit aggregation failed")
     }
   }
