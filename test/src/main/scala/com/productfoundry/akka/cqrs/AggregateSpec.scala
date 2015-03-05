@@ -5,8 +5,6 @@ import akka.testkit.{ImplicitSender, TestKit}
 import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
-import org.scalatest.time.Millis
-import org.scalatest.time.Second
 import org.scalatest.time.{Millis, Second, Span}
 
 import scala.concurrent.duration._
@@ -41,7 +39,7 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
   /**
    * Test local entities by default, requires implicit entity factory.
    */
-  implicit val supervisorFactory = new LocalEntitySystem().entitySupervisorFactory[A]
+  implicit val supervisorFactory = new LocalDomainContext(system).entitySupervisorFactory[A]
 
   /**
    * Entity supervisor for the actor under test.

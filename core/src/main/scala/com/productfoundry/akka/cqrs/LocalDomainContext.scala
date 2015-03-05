@@ -1,8 +1,10 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
+import akka.util.Timeout
 import com.productfoundry.akka.{ActorContextCreationSupport, Passivate, PassivationConfig}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
@@ -21,8 +23,8 @@ case class BufferedMessage(sender: ActorRef, message: EntityMessage)
  * @param entityFactory to create the entity.
  * @tparam E Entity type.
  */
-class LocalEntitySupervisor[E <: Entity](commitAggregatorRef: ActorRef, inactivityTimeout: Duration = 30.minutes)(implicit classTag: ClassTag[E],
-                                                                                                                  entityFactory: EntityFactory[E])
+class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minutes)(implicit classTag: ClassTag[E],
+                                                                                   entityFactory: EntityFactory[E])
   extends ActorContextCreationSupport
   with Actor
   with ActorLogging {
@@ -50,7 +52,7 @@ class LocalEntitySupervisor[E <: Entity](commitAggregatorRef: ActorRef, inactivi
       bufferedMessagesByPath = bufferedMessagesByPath - childPath
 
     case GlobalAggregator.Get =>
-      sender ! commitAggregatorRef
+      context.parent forward GlobalAggregator.Get
 
     case msg: EntityMessage =>
       // Buffer messages when required
@@ -77,17 +79,37 @@ class LocalEntitySupervisor[E <: Entity](commitAggregatorRef: ActorRef, inactivi
 }
 
 /**
- * Creates only local entities.
- * @param system used to create entities.
+ * Creates only local entity supervisor factories.
+ *
+ * Can only be initialized once per actorRefFactory.
+ *
+ * @param actorRefFactory used to create entities supervisor factories.
  */
-class LocalEntitySystem(implicit system: ActorSystem) extends EntitySystem {
+class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
 
-  val commitAggregatorRef = system.actorOf(Props(new GlobalAggregator), "CommitAggregator")
+  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalEntitySystemActor), "Domain")
+
+  class LocalEntitySystemActor extends Actor with ActorContextCreationSupport with ActorLogging {
+    val globalAggregatorRef = context.actorOf(Props(new GlobalAggregator), "GlobalAggregator")
+
+    override def receive: Actor.Receive = {
+      case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
+      case GlobalAggregator.Get => sender() ! globalAggregatorRef
+    }
+  }
+
+  case class GetOrCreateSupervisor(props: Props, name: String)
 
   override def entitySupervisorFactory[E <: Entity : EntityFactory : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
       override def getOrCreate: ActorRef = {
-        system.actorOf(Props(new LocalEntitySupervisor[E](commitAggregatorRef)), supervisorName)
+        import akka.pattern.ask
+        import scala.concurrent.duration._
+
+        implicit val timeout = Timeout(30.seconds)
+
+        val supervisorRefFuture = (entitySystemRef ? GetOrCreateSupervisor(Props(new LocalEntitySupervisor[E]), supervisorName)).mapTo[ActorRef]
+        Await.result(supervisorRefFuture, timeout.duration)
       }
     }
   }

@@ -31,10 +31,12 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    */
   override val persistenceId: String = PersistenceId(self.path).value
 
+  type StateFactory = PartialFunction[E, S]
+
   /**
    * Creates aggregate state.
    */
-  val factory: PartialFunction[E, S]
+  val factory: StateFactory
 
   /**
    * Aggregate is created before state is initialized and is therefore optional.
