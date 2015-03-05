@@ -16,7 +16,7 @@ import akka.persistence.PersistentActor
  *
  * Unfortunately there is no better journal-independent solution for rebuilding projections right now.
  */
-class GlobalAggregator extends PersistentActor {
+class DomainAggregator extends PersistentActor {
 
   /**
    * Persistence id is based on the actor path.
@@ -26,15 +26,15 @@ class GlobalAggregator extends PersistentActor {
   /**
    * @return the current revision of this aggregate.
    */
-  def revision = GlobalRevision(lastSequenceNr)
+  def revision = DomainRevision(lastSequenceNr)
 
   /**
    * Simply persists all received commits.
    */
   override def receiveCommand: Receive = {
     case commit: Commit[DomainEvent] =>
-      persist(GlobalCommit(revision.next, System.currentTimeMillis(), commit)) { globalCommit =>
-        sender() ! globalCommit.revision
+      persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
+        sender() ! domainCommit.revision
       }
   }
 
@@ -46,6 +46,7 @@ class GlobalAggregator extends PersistentActor {
   }
 }
 
-object GlobalAggregator {
+object DomainAggregator {
+
   case object Get
 }

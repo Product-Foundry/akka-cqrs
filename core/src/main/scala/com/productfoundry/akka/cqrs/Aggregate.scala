@@ -266,19 +266,19 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
     // No exception thrown, persist and update state for real
     persist(commit) {
       commit =>
-        val globalRevision = persistGlobal(commit)
+        val domainRevision = aggregateCommit(commit)
         updateState(commit)
         handleCommit(commit)
-        onCommit(CommitResult(commit.revision, globalRevision))
+        onCommit(CommitResult(commit.revision, domainRevision))
     }
   }
 
   /**
-   * Aggregates the commit to a global log using in a journal independent manner.
+   * Aggregates the commit to a domain wide log in a journal independent manner.
    * @param commit from this aggregate.
    * @return aggregator result.
    */
-  private def persistGlobal(commit: Commit[E]): GlobalRevision = {
+  private def aggregateCommit(commit: Commit[E]): DomainRevision = {
     try {
       import akka.pattern.ask
       import context.dispatcher
@@ -289,12 +289,12 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
       implicit val timeout = Timeout(duration)
 
       // Send the commit to the aggregator and get the aggregator commit revision
-      val globalRevisionFuture = (context.parent ? GlobalAggregator.Get).mapTo[ActorRef].flatMap { globalAggregatorRef =>
-        (globalAggregatorRef ? commit).mapTo[GlobalRevision]
+      val domainRevisionFuture = (context.parent ? DomainAggregator.Get).mapTo[ActorRef].flatMap { domainAggregatorRef =>
+        (domainAggregatorRef ? commit).mapTo[DomainRevision]
       }
 
       // We are blocking to make sure no messages are processed until we received a revision from the commit aggregator
-      Await.result(globalRevisionFuture, duration)
+      Await.result(domainRevisionFuture, duration)
     } catch {
       case e: Exception =>
         log.error("Commit aggregation failed for: {}", commit, e)

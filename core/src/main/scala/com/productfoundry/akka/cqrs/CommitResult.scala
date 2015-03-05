@@ -4,6 +4,6 @@ package com.productfoundry.akka.cqrs
  * Indicates a successful commit.
  *
  * @param aggregateRevision of the aggregate.
- * @param globalRevision of the global aggregator.
+ * @param domainRevision of the domain.
  */
-case class CommitResult(aggregateRevision: AggregateRevision, globalRevision: GlobalRevision)
+case class CommitResult(aggregateRevision: AggregateRevision, domainRevision: DomainRevision)

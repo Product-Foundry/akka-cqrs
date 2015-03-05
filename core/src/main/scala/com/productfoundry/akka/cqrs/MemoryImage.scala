@@ -17,7 +17,7 @@ object MemoryImage {
  */
 class MemoryImage[State, -Event <: DomainEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) {
   private val state: Ref[State] = Ref(initialState)
-  private val revision: Ref[GlobalRevision] = Ref(GlobalRevision.Initial)
+  private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
   private val ref = actorRefFactory.actorOf(Props(new MemoryImageActor(persistenceId)))
 
   /**
@@ -31,7 +31,7 @@ class MemoryImage[State, -Event <: DomainEvent] private (actorRefFactory: ActorR
    * @param minimum revision.
    * @return state with actual revision, where actual >= minimum.
    */
-  def getWithRevision(minimum: GlobalRevision): (State, GlobalRevision) = {
+  def getWithRevision(minimum: DomainRevision): (State, DomainRevision) = {
     ref ! Update(replayMax = minimum.value)
 
     atomic { implicit txn =>
@@ -46,12 +46,12 @@ class MemoryImage[State, -Event <: DomainEvent] private (actorRefFactory: ActorR
 
   /**
    * Applies the given commit to the memory image.
-   * @param globalCommit to apply.
+   * @param domainCommit to apply.
    */
-  def update(globalCommit: GlobalCommit[Event]): Unit = {
+  def update(domainCommit: DomainCommit[Event]): Unit = {
     atomic { implicit txn =>
-      state.transform(s => update(s, globalCommit.commit))
-      revision.update(globalCommit.revision)
+      state.transform(s => update(s, domainCommit.commit))
+      revision.update(domainCommit.revision)
     }
   }
 
@@ -59,7 +59,7 @@ class MemoryImage[State, -Event <: DomainEvent] private (actorRefFactory: ActorR
     override val viewId: String = s"$persistenceId-view"
 
     override def receive: Receive = {
-      case g: GlobalCommit[Event] => update(g)
+      case g: DomainCommit[Event] => update(g)
     }
   }
 }

@@ -51,8 +51,8 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
       // Remove all buffered messages for this actor, so it doesn't continue buffering when it is recreated
       bufferedMessagesByPath = bufferedMessagesByPath - childPath
 
-    case GlobalAggregator.Get =>
-      context.parent forward GlobalAggregator.Get
+    case DomainAggregator.Get =>
+      context.parent forward DomainAggregator.Get
 
     case msg: EntityMessage =>
       // Buffer messages when required
@@ -87,14 +87,16 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  */
 class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
 
-  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalEntitySystemActor), "Domain")
+  import LocalDomainContext._
 
-  class LocalEntitySystemActor extends Actor with ActorContextCreationSupport with ActorLogging {
-    val globalAggregatorRef = context.actorOf(Props(new GlobalAggregator), "GlobalAggregator")
+  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalDomainContextActor), domainName)
 
+  private val domainAggregatorRef = actorRefFactory.actorOf(Props(new DomainAggregator), domainAggregatorName)
+
+  class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
     override def receive: Actor.Receive = {
       case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
-      case GlobalAggregator.Get => sender() ! globalAggregatorRef
+      case DomainAggregator.Get => sender() ! domainAggregatorRef
     }
   }
 
@@ -113,4 +115,10 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
       }
     }
   }
+}
+
+object LocalDomainContext {
+  val domainName = "Domain"
+
+  val domainAggregatorName = "DomainAggregator"
 }
