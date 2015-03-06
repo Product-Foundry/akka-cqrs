@@ -6,7 +6,7 @@ import com.productfoundry.akka.cqrs.TestAggregate._
 import play.api.libs.json.Json
 
 case class TestId(uuid: Uuid) extends AggregateId
-object TestId extends AggregateIdIdCompanion[TestId]
+object TestId extends AggregateIdCompanion[TestId]
 
 class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[AggregateEvent, TestState] {
 

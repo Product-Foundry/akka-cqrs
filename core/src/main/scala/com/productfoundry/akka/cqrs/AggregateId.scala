@@ -7,4 +7,4 @@ import scala.reflect.ClassTag
  */
 trait AggregateId extends EntityId
 
-abstract class AggregateIdIdCompanion[I <: AggregateId : ClassTag] extends EntityIdCompanion[I]
+abstract class AggregateIdCompanion[I <: AggregateId : ClassTag] extends EntityIdCompanion[I]
