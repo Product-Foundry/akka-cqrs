@@ -19,37 +19,6 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
   with ActorLogging {
 
   /**
-   * Aggregates the commit to a domain wide log in a journal independent manner.
-   *
-   * Sends the commit revision back to the original sender on success.
-   */
-  class CommitAggregator(aggregateSupervisor: ActorRef, originalSender: ActorRef, commit: Commit[E]) extends Actor {
-
-    import scala.concurrent.duration._
-
-    // TODO [AK] Handle failure
-
-    override def preStart(): Unit = {
-      // TODO [AK] Make timeout configurable?
-      context.setReceiveTimeout(30.seconds)
-      aggregateSupervisor ! GetDomainAggregator
-    }
-
-    override def receive: Actor.Receive = {
-      case DomainAggregatorRef(ref) =>
-        ref ! commit
-
-      case domainRevision: DomainRevision =>
-        originalSender ! AggregateStatus.Success(CommitResult(commit.revision, domainRevision))
-        self ! PoisonPill
-
-      case ReceiveTimeout =>
-        log.error("Unable to aggregate commit: {}", commit)
-        throw new AggregateException("Unable to aggregate commit")
-    }
-  }
-
-  /**
    * All domain entities have an id.
    * @return The id of the domain entity.
    */
@@ -174,18 +143,31 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    *
    * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
-   * @param changesHandler callback handler for the specified changes.
    */
-  def tryCommit(expected: AggregateRevision)(changesAttempt: Either[AggregateError, Changes[E]])(implicit changesHandler: ChangesHandler = DefaultChangesHandler): Unit = {
+  def tryCommit(expected: AggregateRevision)(changesAttempt: Either[AggregateError, Changes[E]]): Unit = {
     changesAttempt match {
       case Right(changes) =>
         if (expected != revision) {
-          changesHandler.onConflict(RevisionConflict(id, expected, revision))
+          handleConflict(RevisionConflict(id, expected, revision))
         } else {
-          commit(changes)(changesHandler.onCommit)
+          commit(changes)
         }
       case Left(cause) =>
-        changesHandler.onFailure(cause)
+        sender() ! AggregateStatus.Failure(cause)
+    }
+  }
+
+  /**
+   * Launches a new actor to collect all changes since the expected version and send them back to the sender.
+   * @param conflict in the aggregate.
+   */
+  private def handleConflict(conflict: RevisionConflict): Unit = {
+    val originalSender = sender()
+
+    if (conflict.expected < conflict.actual) {
+      context.actorOf(Props(new AggregateConflictView(persistenceId, originalSender, conflict)))
+    } else {
+      originalSender ! AggregateStatus.Failure(conflict)
     }
   }
 
@@ -194,11 +176,10 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    *
    * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
-   * @param changesHandler callback handler for the specified changes.
    */
-  def tryCreate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]])(implicit changesHandler: ChangesHandler = DefaultChangesHandler): Unit = {
+  def tryCreate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
-      changesHandler.onFailure(AggregateAlreadyExists(id))
+      sender() ! AggregateStatus.Failure(AggregateAlreadyExists(id))
     } else {
       tryCommit(expected)(changesAttempt)
     }
@@ -209,83 +190,20 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    *
    * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
-   * @param changesHandler callback handler for the specified changes.
    */
-  def tryUpdate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]])(implicit changesHandler: ChangesHandler = DefaultChangesHandler): Unit = {
+  def tryUpdate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
       tryCommit(expected)(changesAttempt)
     } else {
-      changesHandler.onFailure(AggregateUnknown(id))
+      sender() ! AggregateStatus.Failure(AggregateUnknown(id))
     }
   }
-
-  /**
-   * Specifies handling behavior for offered changes.
-   */
-  trait ChangesHandler {
-
-    /**
-     * Invoked on successful commit.
-     * @param commit with persistence details and events.
-     */
-    def onCommit(commit: CommitResult): Unit
-
-    /**
-     * Invoked on failure, no changes are persisted.
-     * @param cause of failure.
-     */
-    def onFailure(cause: AggregateError): Unit
-
-    /**
-     * Invoked when a revision conflict occurs.
-     * @param conflict information.
-     */
-    def onConflict(conflict: RevisionConflict): Unit
-  }
-
-  /**
-   * Default changes handler.
-   */
-  trait DefaultChangesHandler extends ChangesHandler {
-
-    /**
-     * Replies a success status with the new revision to the sender.
-     * @param commitResult with revisions.
-     */
-    override def onCommit(commitResult: CommitResult): Unit = sender() ! AggregateStatus.Success(commitResult)
-
-    /**
-     * Replies a failure status with the cause to the sender.
-     * @param cause of failure.
-     */
-    override def onFailure(cause: AggregateError): Unit = sender() ! AggregateStatus.Failure(cause)
-
-    /**
-     * Replies a failure status with the conflict message to the sender.
-     * @param conflict information.
-     */
-    override def onConflict(conflict: RevisionConflict): Unit = {
-      val originalSender = sender()
-
-      if (conflict.expected < conflict.actual) {
-        context.actorOf(Props(new AggregateConflictView(persistenceId, originalSender, conflict)))
-      } else {
-        originalSender ! AggregateStatus.Failure(conflict)
-      }
-    }
-  }
-
-  /**
-   * Used by default to handle all changes.
-   */
-  object DefaultChangesHandler extends DefaultChangesHandler
 
   /**
    * Commit changes.
    * @param changes to commit.
-   * @param onCommit invoked when commit is persisted successfully.
    */
-  private def commit(changes: Changes[E])(onCommit: CommitResult => Unit): Unit = {
+  private def commit(changes: Changes[E]): Unit = {
     // Construct commit to persist
     val commit = Commit(id, revision.next, System.currentTimeMillis(), changes.events, changes.headers)
 
@@ -293,23 +211,57 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
     applyCommit(stateOpt, commit)
 
     // No exception thrown, persist and update state for real
-    persist(commit) {
-      commit =>
-        // Updating state should never fail, since we already performed a dry run
-        updateState(commit)
+    persist(commit) { persistedCommit =>
+      // Updating state should never fail, since we already performed a dry run
+      updateState(persistedCommit)
+      aggregateCommitToDomain(persistedCommit)
 
-        // Aggregate commit to domain
-        val supervisor = context.parent
-        val originalSender = sender()
-        context.actorOf(Props(new CommitAggregator(supervisor, originalSender, commit)))
-
-        // Commit handler is outside our control, so we don't want it to crash our aggregate
-        try {
-          handleCommit(commit)
-        } catch {
-          case e: Exception => log.error(e, "Handling commit: {}", commit)
-        }
+      // Commit handler is outside our control, so we don't want it to crash our aggregate
+      try {
+        handleCommit(persistedCommit)
+      } catch {
+        case e: Exception => log.error(e, "Handling commit: {}", persistedCommit)
+      }
     }
+  }
+
+  /**
+   * Aggregates the commit to a domain wide log in a journal independent manner.
+   *
+   * Sends the commit revision back to the original sender on success.
+   */
+  class CommitAggregator(aggregateSupervisor: ActorRef, originalSender: ActorRef, commit: Commit[E]) extends Actor {
+
+    import scala.concurrent.duration._
+
+    override def preStart(): Unit = {
+      context.setReceiveTimeout(1.minute)
+      aggregateSupervisor ! GetDomainAggregator
+    }
+
+    override def receive: Actor.Receive = {
+      case DomainAggregatorRef(ref) =>
+        ref ! commit
+
+      case domainRevision: DomainRevision =>
+        originalSender ! AggregateStatus.Success(CommitResult(commit.revision, domainRevision))
+        self ! PoisonPill
+
+      case ReceiveTimeout =>
+        log.error("Unable to aggregate commit: {}", commit)
+        originalSender ! AggregateStatus.Failure(DomainAggregatorFailed(commit.revision))
+        self ! PoisonPill
+    }
+  }
+
+  /**
+   * Launches a new actor to also persist the commit globally and sends back a global domain revision to the sender.
+   * @param commit to aggregate.
+   */
+  private def aggregateCommitToDomain(commit: Commit[E]): Unit = {
+    val supervisor = context.parent
+    val originalSender = sender()
+    context.actorOf(Props(new CommitAggregator(supervisor, originalSender, commit)))
   }
 
   /**
