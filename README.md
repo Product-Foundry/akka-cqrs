@@ -3,6 +3,8 @@ Akka CQRS
 
 [![Build Status](https://travis-ci.org/Product-Foundry/akka-cqrs.svg?branch=master)](https://travis-ci.org/Product-Foundry/akka-cqrs)
 
+[![Coverage Status](https://coveralls.io/repos/Product-Foundry/akka-cqrs/badge.svg)](https://coveralls.io/r/Product-Foundry/akka-cqrs)
+
 Dependency
 ----------
 
