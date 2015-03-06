@@ -13,8 +13,7 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
   var commits: Vector[Commit[DomainEvent]] = Vector.empty
 
   override def preStart(): Unit = {
-    // TODO [AK] Make timeout configurable?
-    context.setReceiveTimeout(30.seconds)
+    context.setReceiveTimeout(5.seconds)
     self ! Recover(toSequenceNr = conflict.actual.value)
   }
 
@@ -25,14 +24,12 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
       }
 
       if (AggregateRevision(lastSequenceNr) == conflict.actual) {
+        originalSender ! AggregateStatus.Failure(conflict.copy(commits = commits.toSeq))
         self ! PoisonPill
       }
 
     case ReceiveTimeout =>
+      originalSender ! AggregateStatus.Failure(conflict)
       self ! PoisonPill
-  }
-
-  override def postStop(): Unit = {
-    originalSender ! AggregateStatus.Failure(conflict.copy(commits = commits.toSeq))
   }
 }
