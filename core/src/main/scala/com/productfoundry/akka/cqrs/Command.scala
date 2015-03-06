@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs
 /**
  * Base command marker trait.
  */
-trait Command extends EntityMessage
+trait Command extends AggregateMessage
 
 /**
  * Command message.
@@ -11,6 +11,6 @@ trait Command extends EntityMessage
  * @param expected revision.
  * @param command to execute.
  */
-case class CommandMessage(expected: AggregateRevision, command: Command) extends EntityMessage {
-  override def entityId: EntityId = command.entityId
+case class CommandMessage(expected: AggregateRevision, command: Command) extends AggregateMessage {
+  override def aggregateId: AggregateId = command.aggregateId
 }

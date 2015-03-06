@@ -1,21 +1,23 @@
 package com.productfoundry.akka.cqrs
 
 import com.productfoundry.akka.PassivationConfig
+import com.productfoundry.akka.cqrs.JsonMapping.TypeChoiceFormat
 import com.productfoundry.akka.cqrs.TestAggregate._
+import play.api.libs.json.Json
 
 class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[DomainEvent, TestState] {
 
   override val factory = TestState.apply
 
   override def handleCommand(expected: AggregateRevision): Receive = {
-    case Create(entityId) =>
+    case Create(aggregateId) =>
       tryCreate(revision) {
-        Right(Changes(Created(entityId)))
+        Right(Changes(Created(aggregateId)))
       }
 
-    case Count(entityId) =>
+    case Count(aggregateId) =>
       tryUpdate(revision) {
-        Right(Changes(Counted(entityId, state.count + 1)))
+        Right(Changes(Counted(aggregateId, state.count + 1)))
       }
 
     case GetCount(_) =>
@@ -24,11 +26,18 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
 }
 
 object TestAggregate {
-  case class Create(entityId: EntityId) extends Command
-  case class Count(entityId: EntityId) extends Command
+  sealed trait TestCommand extends Command
+  case class Create(aggregateId: AggregateId) extends TestCommand
+  case class Count(aggregateId: AggregateId) extends TestCommand
 
-  case class Created(entityId: EntityId) extends DomainEvent
-  case class Counted(entityId: EntityId, count: Int) extends DomainEvent
+  sealed trait TestEvent extends DomainEvent
+  case class Created(aggregateId: AggregateId) extends TestEvent
+  case class Counted(aggregateId: AggregateId, count: Int) extends TestEvent
+
+  implicit val TestEventFormat: TypeChoiceFormat[TestEvent] = TypeChoiceFormat(
+    "Created" -> Json.format[Created],
+    "Counted" -> Json.format[Counted]
+  )
 
   case class GetCount(entityId: EntityId) extends EntityMessage
 }

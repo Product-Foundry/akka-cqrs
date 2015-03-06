@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs
 
+import play.api.libs.json.Format
+
 /**
  * The revision of the aggregator.
  */
@@ -15,4 +17,6 @@ final case class DomainRevision(value: Long) extends Proxy with Ordered[DomainRe
 
 object DomainRevision {
   val Initial = DomainRevision(0)
+
+  implicit val JsonFormat: Format[DomainRevision] = JsonMapping.valueFormat(apply)(_.value)
 }

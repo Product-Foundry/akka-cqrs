@@ -2,6 +2,8 @@ package com.productfoundry.akka.cqrs
 
 import java.util.UUID
 
+import play.api.libs.json.Format
+
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -35,6 +37,8 @@ abstract class EntityIdCompanion[I <: EntityId: ClassTag] {
   }
 
   implicit val EntityIdCompanionObject: EntityIdCompanion[I] = this
+
+  implicit val EntityIdFormat: Format[I] = JsonMapping.valueFormat[I, Uuid](apply)(_.uuid)
 
   private val EntityIdRegex = """([a-fA-F0-9-]{36})""".r
 }

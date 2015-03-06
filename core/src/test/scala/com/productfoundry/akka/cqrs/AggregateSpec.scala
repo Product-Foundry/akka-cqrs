@@ -42,27 +42,27 @@ class AggregateSpec
     }
 
     "update aggregate revision on update" in new TestAggregateFixture {
-      val entityId = AggregateId.generate()
-      supervisor ! TestAggregate.Create(entityId)
+      val aggregateId = AggregateId.generate()
+      supervisor ! TestAggregate.Create(aggregateId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.Count(entityId)
+      supervisor ! TestAggregate.Count(aggregateId)
       val commitResult = expectMsgType[AggregateStatus.Success].result
       assert(commitResult.aggregateRevision === AggregateRevision.Initial.next.next)
     }
 
     "update aggregate state" in new TestAggregateFixture {
-      val entityId = AggregateId.generate()
-      supervisor ! TestAggregate.Create(entityId)
+      val aggregateId = AggregateId.generate()
+      supervisor ! TestAggregate.Create(aggregateId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.GetCount(entityId)
+      supervisor ! TestAggregate.GetCount(aggregateId)
       expectMsg(0)
 
-      supervisor ! TestAggregate.Count(entityId)
+      supervisor ! TestAggregate.Count(aggregateId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.GetCount(entityId)
+      supervisor ! TestAggregate.GetCount(aggregateId)
       expectMsg(1)
     }
   }
