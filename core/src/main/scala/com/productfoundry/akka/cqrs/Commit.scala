@@ -9,7 +9,7 @@ package com.productfoundry.akka.cqrs
  * @param headers with commit info.
  * @tparam E Type of the events in the commit.
  */
-case class Commit[+E <: DomainEvent](revision: AggregateRevision,
+case class Commit[+E <: AggregateEvent](revision: AggregateRevision,
                                      timestamp: Long,
                                      events: Seq[E],
                                      headers: Map[String, String] = Map.empty)
@@ -20,7 +20,7 @@ object Commit {
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
 
-  implicit def CommitFormat[E <: DomainEvent : Format]: Format[Commit[E]] = (
+  implicit def CommitFormat[E <: AggregateEvent : Format]: Format[Commit[E]] = (
     (__ \ "revision").format[AggregateRevision] and
       (__ \ "timestamp").format[Long] and
       (__ \ "event").format[Seq[E]] and

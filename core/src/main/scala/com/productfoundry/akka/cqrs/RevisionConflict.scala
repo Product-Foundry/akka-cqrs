@@ -6,4 +6,4 @@ package com.productfoundry.akka.cqrs
  * @param expected revision.
  * @param actual revision.
  */
-case class RevisionConflict(expected: AggregateRevision, actual: AggregateRevision, commits: Seq[Commit[DomainEvent]] = Seq.empty) extends AggregateError
+case class RevisionConflict(expected: AggregateRevision, actual: AggregateRevision, commits: Seq[Commit[AggregateEvent]] = Seq.empty) extends AggregateError

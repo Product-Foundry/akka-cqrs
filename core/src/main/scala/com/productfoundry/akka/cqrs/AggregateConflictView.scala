@@ -10,7 +10,7 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
 
   override val viewId: String = s"$persistenceId-conflict"
 
-  var commits: Vector[Commit[DomainEvent]] = Vector.empty
+  var commits: Vector[Commit[AggregateEvent]] = Vector.empty
 
   override def preStart(): Unit = {
     context.setReceiveTimeout(5.seconds)
@@ -18,7 +18,7 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
   }
 
   override def receive: Receive = {
-    case commit: Commit[DomainEvent] =>
+    case commit: Commit[AggregateEvent] =>
       if (commit.revision >= conflict.expected) {
         commits = commits :+ commit
       }

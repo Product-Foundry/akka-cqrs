@@ -6,7 +6,7 @@ import akka.persistence.{PersistentView, Update}
 import scala.concurrent.stm.{Ref, _}
 
 object MemoryImage {
-  def apply[State, Event <: DomainEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) = {
+  def apply[State, Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) = {
     new MemoryImage(actorRefFactory, persistenceId)(initialState)(update)
   }
 }
@@ -15,7 +15,7 @@ object MemoryImage {
  * Tracks an aggregator projection. and uses the provided `initialState` and `update` to project the
  * committed events onto the current state.
  */
-class MemoryImage[State, -Event <: DomainEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) {
+class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) {
   private val state: Ref[State] = Ref(initialState)
   private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
   private val ref = actorRefFactory.actorOf(Props(new MemoryImageActor(persistenceId)))

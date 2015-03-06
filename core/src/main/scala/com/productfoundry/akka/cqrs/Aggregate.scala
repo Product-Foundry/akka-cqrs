@@ -11,7 +11,7 @@ import com.productfoundry.akka.cqrs.DomainAggregator._
  * @tparam E creates aggregate state.
  * @tparam S aggregated state.
  */
-trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
+trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
   extends Entity
   with PersistentActor
   with GracefulPassivation
@@ -60,7 +60,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    * Command handler is final so that it can always correctly handle the aggregator response.
    */
   final override def receiveCommand: Receive = {
-    case CommandMessage(expected, command) =>
+    case AggregateCommandMessage(expected, command) =>
       handleWithRevision(expected, command)
 
     case command =>
@@ -262,7 +262,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    * Can be overridden by a mixin to handle commits.
    * @param commit that just got persisted.
    */
-  override def handleCommit(commit: Commit[DomainEvent]): Unit = {
+  override def handleCommit(commit: Commit[AggregateEvent]): Unit = {
   }
 
   /**

@@ -9,7 +9,7 @@ import scalaz._
 trait ScalazValidation {
   type DomainValidation[E] = scalaz.ValidationNel[ValidationMessage, E]
 
-  implicit def validationToEither[E <: DomainEvent](validation: DomainValidation[Changes[E]]): Either[ValidationError, Changes[E]] = {
+  implicit def validationToEither[E <: AggregateEvent](validation: DomainValidation[Changes[E]]): Either[ValidationError, Changes[E]] = {
     validation match {
       case Success(changes) => Right(changes)
       case Failure(messages) => Left(ValidationError(messages.head, messages.tail: _*))

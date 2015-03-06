@@ -8,7 +8,7 @@ import play.api.libs.json.Json
 case class TestId(uuid: Uuid) extends AggregateId
 object TestId extends AggregateIdIdCompanion[TestId]
 
-class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[DomainEvent, TestState] {
+class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[AggregateEvent, TestState] {
 
   override val factory = TestState.apply
 
@@ -33,12 +33,12 @@ object TestAggregate {
     override type Id = TestId
   }
 
-  sealed trait TestCommand extends TestMessage with Command
+  sealed trait TestAggregateCommand extends TestMessage with AggregateCommand
 
-  case class Create(id: TestId) extends TestCommand
-  case class Count(id: TestId) extends TestCommand
+  case class Create(id: TestId) extends TestAggregateCommand
+  case class Count(id: TestId) extends TestAggregateCommand
 
-  sealed trait TestEvent extends TestMessage with DomainEvent
+  sealed trait TestEvent extends TestMessage with AggregateEvent
 
   case class Created(id: TestId) extends TestEvent
   case class Counted(id: TestId, count: Int) extends TestEvent
@@ -51,13 +51,13 @@ object TestAggregate {
   case class GetCount(id: TestId) extends TestMessage
 }
 
-object TestState extends AggregateStateFactory[DomainEvent, TestState] {
+object TestState extends AggregateStateFactory[AggregateEvent, TestState] {
   override def apply = {
     case Created(_) => TestState(0)
   }
 }
 
-case class TestState(count: Int) extends AggregateState[DomainEvent, TestState] {
+case class TestState(count: Int) extends AggregateState[AggregateEvent, TestState] {
   override def update = {
     case Counted(_, _count) => copy(count = _count)
   }

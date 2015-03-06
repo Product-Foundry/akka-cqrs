@@ -5,7 +5,7 @@ package com.productfoundry.akka.cqrs
  */
 trait CommitPublisher extends CommitHandler {
 
-  override abstract def handleCommit(commit: Commit[DomainEvent]): Unit = {
+  override abstract def handleCommit(commit: Commit[AggregateEvent]): Unit = {
     publishCommit(commit)
     super.handleCommit(commit)
   }
@@ -14,5 +14,5 @@ trait CommitPublisher extends CommitHandler {
    * Publish a persisted commit.
    * @param commit that was persisted.
    */
-  def publishCommit(commit: Commit[DomainEvent]): Unit
+  def publishCommit(commit: Commit[AggregateEvent]): Unit
 }

@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs
 /**
  * Represents the changes that can be committed atomically to the aggregate.
  */
-sealed trait Changes[+E <: DomainEvent] {
+sealed trait Changes[+E <: AggregateEvent] {
 
   /**
    * @return changes to apply the aggregate state.
@@ -35,9 +35,9 @@ object Changes {
    * @tparam E Base type of events in the changes.
    * @return changes.
    */
-  def apply[E <: DomainEvent](events: E*): Changes[E] = AggregateChanges(events)
+  def apply[E <: AggregateEvent](events: E*): Changes[E] = AggregateChanges(events)
 }
 
-private[this] case class AggregateChanges[E <: DomainEvent](events: Seq[E], headers: Map[String, String] = Map.empty) extends Changes[E] {
+private[this] case class AggregateChanges[E <: AggregateEvent](events: Seq[E], headers: Map[String, String] = Map.empty) extends Changes[E] {
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 }

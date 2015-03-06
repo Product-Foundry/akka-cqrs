@@ -8,7 +8,7 @@ import akka.actor.Actor
 trait LocalCommitPublisher extends CommitPublisher {
   this: Actor =>
 
-  override def publishCommit(commit: Commit[DomainEvent]): Unit = {
+  override def publishCommit(commit: Commit[AggregateEvent]): Unit = {
     context.system.eventStream.publish(commit)
   }
 }

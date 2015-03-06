@@ -33,7 +33,7 @@ class DomainAggregator extends PersistentActor {
    * Simply persists all received commits.
    */
   override def receiveCommand: Receive = {
-    case commit: Commit[DomainEvent] =>
+    case commit: Commit[AggregateEvent] =>
       persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
         sender() ! domainCommit.revision
       }

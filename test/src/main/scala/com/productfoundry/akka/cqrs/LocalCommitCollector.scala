@@ -18,7 +18,7 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
    */
   class CollectorActor extends Actor with ActorLogging {
     override def receive: Receive = {
-      case commit: Commit[DomainEvent] =>
+      case commit: Commit[AggregateEvent] =>
         atomic { implicit txn =>
           commits.transform(_ :+ commit)
         }
@@ -34,7 +34,7 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
      * Subscribe to the system event stream.
      */
     override def preStart(): Unit = {
-      system.eventStream.subscribe(self, classOf[Commit[DomainEvent]])
+      system.eventStream.subscribe(self, classOf[Commit[AggregateEvent]])
       super.preStart()
     }
 
@@ -70,7 +70,7 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
   /**
    * All collected commits.
    */
-  val commits: Ref[Vector[Commit[DomainEvent]]] = Ref(Vector.empty)
+  val commits: Ref[Vector[Commit[AggregateEvent]]] = Ref(Vector.empty)
 
   /**
    * Tells the commit collector to dump all commits.
@@ -82,7 +82,7 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
   /**
    * @return a view of all the committed events extracted from the commits.
    */
-  def events: Vector[DomainEvent] = {
+  def events: Vector[AggregateEvent] = {
     commits.single.get.map { commit =>
       commit.events
     }.flatten

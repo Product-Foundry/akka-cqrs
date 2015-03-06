@@ -132,7 +132,7 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
    * @param CommitTag indicates commit type with events.
    * @tparam E Domain event type.
    */
-  def expectEvent[E <: DomainEvent](event: E)(implicit CommitTag: ClassTag[Commit[E]]): Unit = {
+  def expectEvent[E <: AggregateEvent](event: E)(implicit CommitTag: ClassTag[Commit[E]]): Unit = {
     eventually {
       withCommitCollector { commitCollector =>
         assert(commitCollector.events.contains(event), s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")
@@ -202,11 +202,11 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
      *
      * @param commands to send to aggregate, must succeed,
      */
-    def given(commands: Command*): Unit = {
+    def given(commands: AggregateCommand*): Unit = {
       atomic { implicit txn =>
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
-            supervisor ! CommandMessage(rev, command)
+            supervisor ! AggregateCommandMessage(rev, command)
             expectMsgSuccess[CommitResult].aggregateRevision
           }
         }
@@ -219,12 +219,12 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
      * @param cmd to execute.
      * @return status.
      */
-    def command(cmd: Command): AggregateStatus = {
+    def command(cmd: AggregateCommand): AggregateStatus = {
       atomic { implicit txn =>
         val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
 
         revisionRef.transform { revision =>
-          supervisor ! CommandMessage(revision, cmd)
+          supervisor ! AggregateCommandMessage(revision, cmd)
           expectMsgPF() {
             case success@AggregateStatus.Success(commitResult: CommitResult) =>
               statusOptionRef.set(Some(success))
