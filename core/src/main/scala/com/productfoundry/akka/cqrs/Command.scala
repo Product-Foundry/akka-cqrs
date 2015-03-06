@@ -12,5 +12,10 @@ trait Command extends AggregateMessage
  * @param command to execute.
  */
 case class CommandMessage(expected: AggregateRevision, command: Command) extends AggregateMessage {
-  override def aggregateId: AggregateId = command.aggregateId
+  type Id = command.Id
+
+  /**
+   * @return The id of the root entity.
+   */
+  override def id = command.id
 }

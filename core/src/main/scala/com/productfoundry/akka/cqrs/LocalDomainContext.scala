@@ -46,7 +46,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
       val bufferedMessages = bufferedMessagesByPath.getOrElse(childPath, Vector.empty)
       log.debug("Terminated: {}, buffered messages: {}", childPath, bufferedMessages.size)
       bufferedMessages.foreach { buffered =>
-        getOrCreateEntity(buffered.message.entityId).tell(buffered.message, buffered.sender)
+        getOrCreateEntity(buffered.message.id).tell(buffered.message, buffered.sender)
       }
 
       // Remove all buffered messages for this actor, so it doesn't continue buffering when it is recreated
@@ -57,7 +57,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
 
     case msg: EntityMessage =>
       // Buffer messages when required
-      val childPath = self.path / msg.entityId.toString
+      val childPath = self.path / msg.id.toString
       val bufferedMessagesOption = bufferedMessagesByPath.get(childPath)
       bufferedMessagesOption match {
         case Some(bufferedMessages) =>
@@ -65,7 +65,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
           log.debug("Buffered for: {}, message: {}", childPath, bufferedMessage)
           bufferedMessagesByPath = bufferedMessagesByPath.updated(childPath, bufferedMessages :+ bufferedMessage)
         case None =>
-          getOrCreateEntity(msg.entityId) forward msg
+          getOrCreateEntity(msg.id) forward msg
       }
   }
 

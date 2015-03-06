@@ -19,12 +19,6 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
   with ActorLogging {
 
   /**
-   * All domain entities have an id.
-   * @return The id of the domain entity.
-   */
-  override val id = AggregateId(self.path)
-
-  /**
    * Persistence id is based on the actor path.
    */
   override val persistenceId: String = PersistenceId(self.path).value
@@ -148,7 +142,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
     changesAttempt match {
       case Right(changes) =>
         if (expected != revision) {
-          handleConflict(RevisionConflict(id, expected, revision))
+          handleConflict(RevisionConflict(expected, revision))
         } else {
           commit(changes)
         }
@@ -179,7 +173,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    */
   def tryCreate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
-      sender() ! AggregateStatus.Failure(AggregateAlreadyExists(id))
+      sender() ! AggregateStatus.Failure(AggregateAlreadyInitialized)
     } else {
       tryCommit(expected)(changesAttempt)
     }
@@ -195,7 +189,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
     if (initialized) {
       tryCommit(expected)(changesAttempt)
     } else {
-      sender() ! AggregateStatus.Failure(AggregateUnknown(id))
+      sender() ! AggregateStatus.Failure(AggregateNotInitialized)
     }
   }
 
@@ -205,7 +199,7 @@ trait Aggregate[E <: DomainEvent, S <: AggregateState[E, S]]
    */
   private def commit(changes: Changes[E]): Unit = {
     // Construct commit to persist
-    val commit = Commit(id, revision.next, System.currentTimeMillis(), changes.events, changes.headers)
+    val commit = Commit(revision.next, System.currentTimeMillis(), changes.events, changes.headers)
 
     // Dry run commit to make sure this aggregate does not persist invalid state
     applyCommit(stateOpt, commit)

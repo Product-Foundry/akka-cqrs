@@ -31,38 +31,38 @@ class AggregateSpec
   "Aggregate" must {
 
     "be created" in new TestAggregateFixture {
-      supervisor ! TestAggregate.Create(AggregateId.generate())
+      supervisor ! TestAggregate.Create(TestId.generate())
       expectMsgType[AggregateStatus.Success]
     }
 
     "update aggregate revision on create" in new TestAggregateFixture {
-      supervisor ! TestAggregate.Create(AggregateId.generate())
+      supervisor ! TestAggregate.Create(TestId.generate())
       val commitResult = expectMsgType[AggregateStatus.Success].result
       assert(commitResult.aggregateRevision === AggregateRevision.Initial.next)
     }
 
     "update aggregate revision on update" in new TestAggregateFixture {
-      val aggregateId = AggregateId.generate()
-      supervisor ! TestAggregate.Create(aggregateId)
+      val testId = TestId.generate()
+      supervisor ! TestAggregate.Create(testId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.Count(aggregateId)
+      supervisor ! TestAggregate.Count(testId)
       val commitResult = expectMsgType[AggregateStatus.Success].result
       assert(commitResult.aggregateRevision === AggregateRevision.Initial.next.next)
     }
 
     "update aggregate state" in new TestAggregateFixture {
-      val aggregateId = AggregateId.generate()
-      supervisor ! TestAggregate.Create(aggregateId)
+      val testId = TestId.generate()
+      supervisor ! TestAggregate.Create(testId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.GetCount(aggregateId)
+      supervisor ! TestAggregate.GetCount(testId)
       expectMsg(0)
 
-      supervisor ! TestAggregate.Count(aggregateId)
+      supervisor ! TestAggregate.Count(testId)
       expectMsgType[AggregateStatus.Success]
 
-      supervisor ! TestAggregate.GetCount(aggregateId)
+      supervisor ! TestAggregate.GetCount(testId)
       expectMsg(1)
     }
   }

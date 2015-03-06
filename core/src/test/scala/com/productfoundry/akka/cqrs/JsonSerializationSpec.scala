@@ -8,9 +8,9 @@ class JsonSerializationSpec extends WordSpecLike with Matchers {
 
   "Json serialization" must {
 
-    "read and write AggregateId" in {
-      val id = AggregateId.generate()
-      assert(Json.fromJson[AggregateId](Json.toJson(id)).get === id)
+    "read and write TestId" in {
+      val id = TestId.generate()
+      assert(Json.fromJson[TestId](Json.toJson(id)).get === id)
     }
 
     "read and write AggregateRevision" in {
@@ -26,9 +26,9 @@ class JsonSerializationSpec extends WordSpecLike with Matchers {
     "read and write commit" in {
       type SerialType = Commit[TestEvent]
 
-      val aggregateId = AggregateId.generate()
-      val events = Seq(Created(aggregateId), Counted(aggregateId, 1))
-      val commit = Commit(aggregateId, AggregateRevision.Initial, System.currentTimeMillis(), events, Map("faa" -> "bor"))
+      val testId = TestId.generate()
+      val events = Seq(Created(testId), Counted(testId, 1))
+      val commit = Commit(AggregateRevision.Initial, System.currentTimeMillis(), events, Map("faa" -> "bor"))
       val jsValue = Json.toJson[SerialType](commit)
       assert(Json.fromJson[SerialType](jsValue).get === commit)
     }
@@ -36,8 +36,8 @@ class JsonSerializationSpec extends WordSpecLike with Matchers {
     "read and write domain commit" in {
       type SerialType = DomainCommit[TestEvent]
 
-      val aggregateId = AggregateId.generate()
-      val commit = DomainCommit(DomainRevision.Initial, System.currentTimeMillis(), Commit(aggregateId, AggregateRevision.Initial, System.currentTimeMillis(), Seq(Created(aggregateId))))
+      val testId = TestId.generate()
+      val commit = DomainCommit(DomainRevision.Initial, System.currentTimeMillis(), Commit(AggregateRevision.Initial, System.currentTimeMillis(), Seq(Created(testId))))
       val jsValue = Json.toJson[SerialType](commit)
       assert(Json.fromJson[SerialType](jsValue).get === commit)
     }
