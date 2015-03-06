@@ -21,7 +21,7 @@ class AggregateSpec
     interval = scaled(Span(10, Millis))
   )
 
-  implicit val entitySystem = new LocalDomainContext(system)
+  implicit val domainContext = new LocalDomainContext(system)
 
   override protected def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
@@ -74,7 +74,7 @@ class AggregateSpec
       }
     }
 
-    implicit val supervisorFactory = entitySystem.entitySupervisorFactory[TestAggregate]
+    implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
 
     val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
   }
