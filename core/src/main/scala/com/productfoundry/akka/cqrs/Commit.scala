@@ -23,7 +23,7 @@ object Commit {
   implicit def CommitFormat[E <: AggregateEvent : Format]: Format[Commit[E]] = (
     (__ \ "revision").format[AggregateRevision] and
       (__ \ "timestamp").format[Long] and
-      (__ \ "event").format[Seq[E]] and
+      (__ \ "events").format[Seq[E]] and
       (__ \ "headers").format[Map[String, String]]
     )(Commit.apply[E] _, c => Commit.unapply(c).get)
 }
