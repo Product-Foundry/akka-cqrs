@@ -1,12 +1,13 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{ActorRef, PoisonPill, ReceiveTimeout}
-import akka.persistence.{PersistentView, Recover}
+import akka.actor.{ActorLogging, ActorRef, PoisonPill, ReceiveTimeout}
+import akka.persistence.{RecoveryFailure, PersistentView, Recover}
 
 import scala.concurrent.duration._
 
 class AggregateConflictView(override val persistenceId: String, val originalSender: ActorRef, val conflict: RevisionConflict)
-  extends PersistentView {
+  extends PersistentView
+  with ActorLogging {
 
   override val viewId: String = s"$persistenceId-conflict"
 
@@ -29,6 +30,12 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
       }
 
     case ReceiveTimeout =>
+      originalSender ! AggregateStatus.Failure(conflict)
+      self ! PoisonPill
+
+
+    case RecoveryFailure(cause) =>
+      log.error(cause, "Unable to get conflict info for {}", persistenceId)
       originalSender ! AggregateStatus.Failure(conflict)
       self ! PoisonPill
   }
