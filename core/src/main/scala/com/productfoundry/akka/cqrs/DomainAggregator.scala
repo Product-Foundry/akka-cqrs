@@ -1,7 +1,8 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.ActorRef
+import akka.actor.{ActorLogging, ActorRef}
 import akka.persistence.PersistentActor
+import com.productfoundry.akka.cqrs.DomainAggregator.DomainAggregatorRevision
 
 /**
  * Persistent actor that aggregates all received commits.
@@ -10,14 +11,16 @@ import akka.persistence.PersistentActor
  *
  * Having a single aggregator for all commits is not a good idea.
  *
- *  - All commits are stored twice, once in the aggregate and once in the aggregator.
- *  - Storing commits twice means logs can get out of sync; preferably the aggregate is leading.
- *  - Commit aggregator becomes a bottleneck because it needs to handle all commits in the system.
- *  - Even worse when clustering.
+ * - All commits are stored twice, once in the aggregate and once in the aggregator.
+ * - Storing commits twice means logs can get out of sync; preferably the aggregate is leading.
+ * - Commit aggregator becomes a bottleneck because it needs to handle all commits in the system.
+ * - Even worse when clustering.
  *
  * Unfortunately there is no better journal-independent solution for rebuilding projections right now.
  */
-class DomainAggregator extends PersistentActor {
+class DomainAggregator
+  extends PersistentActor
+  with ActorLogging {
 
   /**
    * Persistence id is based on the actor path.
@@ -35,8 +38,15 @@ class DomainAggregator extends PersistentActor {
   override def receiveCommand: Receive = {
     case commit: Commit[AggregateEvent] =>
       persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
-        sender() ! domainCommit.revision
+        if (revision != domainCommit.revision) {
+          log.warning("Unexpected domain commit revision, expected: {}, actual: {}", revision, domainCommit.revision)
+        }
+
+        sender() ! DomainAggregatorRevision(domainCommit.revision)
       }
+
+    case unexpected =>
+      log.error("Unexpected: {}", unexpected)
   }
 
   /**
@@ -52,4 +62,7 @@ object DomainAggregator {
   case object GetDomainAggregator
 
   case class DomainAggregatorRef(ref: ActorRef)
+
+  case class DomainAggregatorRevision(revision: DomainRevision)
+
 }

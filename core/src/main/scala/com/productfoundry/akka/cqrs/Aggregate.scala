@@ -206,6 +206,10 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
 
     // No exception thrown, persist and update state for real
     persist(commit) { persistedCommit =>
+      if (revision != commit.revision) {
+        log.warning("Unexpected aggregate commit revision, expected: {}, actual: {}", revision, commit.revision)
+      }
+
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
 
@@ -239,7 +243,7 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
       case DomainAggregatorRef(ref) =>
         ref ! commit
 
-      case domainRevision: DomainRevision =>
+      case DomainAggregatorRevision(domainRevision) =>
         originalSender ! AggregateStatus.Success(CommitResult(commit.revision, domainRevision))
         self ! PoisonPill
 
