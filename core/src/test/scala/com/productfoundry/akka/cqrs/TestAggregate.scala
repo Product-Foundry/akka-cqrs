@@ -1,9 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.JsonMapping.TypeChoiceFormat
 import com.productfoundry.akka.cqrs.TestAggregate._
-import play.api.libs.json.Json
 
 case class TestId(uuid: Uuid) extends AggregateId
 object TestId extends AggregateIdCompanion[TestId]
@@ -42,11 +40,6 @@ object TestAggregate {
 
   case class Created(id: TestId) extends TestEvent
   case class Counted(id: TestId, count: Int) extends TestEvent
-
-  implicit val TestEventFormat: TypeChoiceFormat[TestEvent] = TypeChoiceFormat(
-    "Created" -> Json.format[Created],
-    "Counted" -> Json.format[Counted]
-  )
 
   case class GetCount(id: TestId) extends TestMessage
 }

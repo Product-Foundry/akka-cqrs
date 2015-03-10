@@ -38,7 +38,6 @@ lazy val commonSettings = Seq(
     "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
     "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
     "org.scala-stm"          %% "scala-stm"                         % "0.7",
-    "com.typesafe.play"      %% "play-json"                         % "2.3.8",
     "org.scalaz"             %% "scalaz-core"                       % "7.0.6"    % "optional",
     "org.scalatest"          %% "scalatest"                         % "2.2.4"    % "test",
     "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9"    % "test",

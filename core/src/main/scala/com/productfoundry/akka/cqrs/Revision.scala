@@ -1,7 +1,5 @@
 package com.productfoundry.akka.cqrs
 
-import play.api.libs.json.Format
-
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -24,8 +22,6 @@ abstract class RevisionCompanion[R <: Revision[R]: ClassTag] {
   def fromString(s: String): Option[R] = Try(apply(s.toLong)).toOption
 
   implicit val RevisionCompanionObject: RevisionCompanion[R] = this
-
-  implicit val RevisionFormat: Format[R] = JsonMapping.valueFormat(apply)(_.value)
 
   lazy val Initial = apply(0L)
 }
