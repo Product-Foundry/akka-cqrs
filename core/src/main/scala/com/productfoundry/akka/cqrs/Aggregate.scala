@@ -208,7 +208,9 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
     persist(commit) { persistedCommit =>
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
-      aggregateCommitToDomain(persistedCommit)
+
+      // Aggregate the commit globally makes it much easier to build a view of all events in a domain context
+      aggregateCommit(persistedCommit)
 
       // Commit handler is outside our control, so we don't want it to crash our aggregate
       try {
@@ -252,7 +254,7 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
    * Launches a new actor to also persist the commit globally and sends back a global domain revision to the sender.
    * @param commit to aggregate.
    */
-  private def aggregateCommitToDomain(commit: Commit[E]): Unit = {
+  private def aggregateCommit(commit: Commit[E]): Unit = {
     val supervisor = context.parent
     val originalSender = sender()
     context.actorOf(Props(new CommitAggregator(supervisor, originalSender, commit)))
