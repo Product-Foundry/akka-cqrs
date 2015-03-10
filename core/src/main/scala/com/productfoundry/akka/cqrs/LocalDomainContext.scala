@@ -39,7 +39,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
 
       // Having a key in the buffered map causes all messages to buffered
       bufferedMessagesByPath = bufferedMessagesByPath.updated(childPath, Vector.empty)
-      sender ! stopMessage
+      sender() ! stopMessage
 
     case Terminated(child) =>
       val childPath = child.path
