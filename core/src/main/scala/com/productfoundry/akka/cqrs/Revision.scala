@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs
 import scala.reflect.ClassTag
 import scala.util.Try
 
-abstract class Revision[R <: Revision[R] : RevisionCompanion] extends Proxy with Ordered[R] {
+trait Revision[R <: Revision[R]] extends Proxy with Ordered[R] with Serializable {
   def value: Long
 
   require(value >= 0, "revision cannot be negative")
@@ -12,7 +12,7 @@ abstract class Revision[R <: Revision[R] : RevisionCompanion] extends Proxy with
 
   override def compare(that: R): Int = value compare that.value
 
-  def next = implicitly[RevisionCompanion[R]].apply(value + 1)
+  def next: R
 }
 
 abstract class RevisionCompanion[R <: Revision[R]: ClassTag] {
