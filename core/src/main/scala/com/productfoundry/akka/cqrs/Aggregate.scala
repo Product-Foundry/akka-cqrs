@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
-import akka.persistence.PersistentActor
+import akka.persistence.{RecoveryFailure, PersistentActor}
 import com.productfoundry.akka.GracefulPassivation
 import com.productfoundry.akka.cqrs.DomainAggregator._
 
@@ -89,6 +89,7 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
    */
   final override def receiveRecover: Receive = {
     case commit: Commit[E] => updateState(commit)
+    case RecoveryFailure(cause) => log.error(cause, "Unable to recover: {}", persistenceId)
   }
 
   /**
@@ -251,6 +252,11 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
         log.error("Unable to aggregate commit: {}", commit)
         originalSender ! AggregateStatus.Failure(DomainAggregatorFailed(commit.revision))
         self ! PoisonPill
+    }
+
+    override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+      log.error(reason, "Handling message: {}", message)
+      super.preRestart(reason, message)
     }
   }
 

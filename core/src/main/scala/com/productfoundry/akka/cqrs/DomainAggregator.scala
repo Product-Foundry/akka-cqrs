@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor.{ActorLogging, ActorRef}
-import akka.persistence.PersistentActor
+import akka.persistence.{RecoveryFailure, PersistentActor}
 import com.productfoundry.akka.cqrs.DomainAggregator.DomainAggregatorRevision
 
 /**
@@ -53,7 +53,10 @@ class DomainAggregator
    * Nothing to recover, projections are created using views.
    */
   override def receiveRecover: Receive = {
-    case _ =>
+    case RecoveryFailure(cause) =>
+      log.error(cause, "Unable to recover: {}", persistenceId)
+    case msg =>
+      log.debug("Recover: {}", msg)
   }
 }
 

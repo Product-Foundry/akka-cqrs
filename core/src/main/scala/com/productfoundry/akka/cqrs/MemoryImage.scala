@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{ActorRefFactory, Props}
-import akka.persistence.{PersistentView, Update}
+import akka.actor.{ActorLogging, ActorRefFactory, Props}
+import akka.persistence.{RecoveryFailure, PersistentView, Update}
 
 import scala.concurrent.stm.{Ref, _}
 
@@ -55,11 +55,12 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
     }
   }
 
-  class MemoryImageActor(val persistenceId: String) extends PersistentView {
+  class MemoryImageActor(val persistenceId: String) extends PersistentView with ActorLogging {
     override val viewId: String = s"$persistenceId-view"
 
     override def receive: Receive = {
-      case g: DomainCommit[Event] => update(g)
+      case commit: DomainCommit[Event] => update(commit)
+      case RecoveryFailure(cause) => log.error(cause, "Unable to recover: {}", persistenceId)
     }
   }
 }
