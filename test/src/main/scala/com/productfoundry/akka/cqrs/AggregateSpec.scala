@@ -49,18 +49,19 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
   /**
    * Commits are collected only if the LocalCommitPublisher is mixed into the actor under test.
    */
-  def withCommitCollector(block: (LocalCommitCollector) => Unit): Unit = {
-    for {
-      commitCollector <- commitCollectorOption
-    } yield {
-      block(commitCollector)
-    }
+  def withCommitCollector[E](block: (LocalCommitCollector) => E): E = {
+    block(commitCollector)
   }
+
+  /**
+   * Optionally collected commits.
+   */
+  var commitCollectorOption: Option[LocalCommitCollector] = None
 
   /**
    * Collected commits.
    */
-  var commitCollectorOption: Option[LocalCommitCollector] = None
+  def commitCollector: LocalCommitCollector = commitCollectorOption.getOrElse(throw new IllegalArgumentException("Commit collector is not yet available"))
 
   /**
    * Initialize the supervisor.
@@ -136,6 +137,39 @@ abstract class AggregateSpec[A <: Aggregate[_, _]](_system: ActorSystem)(implici
     eventually {
       withCommitCollector { commitCollector =>
         assert(commitCollector.events.contains(event), s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")
+      }
+    }
+  }
+
+  /**
+   * Asserts an event is committed that matches the specified partial function.
+   *
+   * For all matching events, an assertion can be executed.
+   *
+   * @param eventCheckFunction to match and assert events.
+   */
+  def expectEventPF(eventCheckFunction: PartialFunction[AggregateEvent, Unit]): Unit = {
+    eventually {
+      withCommitCollector { commitCollector =>
+        val events = commitCollector.events
+        val toCheck = events.filter(eventCheckFunction.isDefinedAt)
+        assert(toCheck.nonEmpty, s"No events match provided partial function: $events")
+        toCheck.foreach(eventCheckFunction)
+      }
+    }
+  }
+
+  /**
+   * Maps a matching event to a value.
+   * @param eventMapFunction to map an event to a value.
+   */
+  def mapEventPF[E](eventMapFunction: PartialFunction[AggregateEvent, E]): E = {
+    eventually {
+      withCommitCollector { commitCollector =>
+        val events = commitCollector.events
+        val toCheck = events.filter(eventMapFunction.isDefinedAt)
+        assert(toCheck.size == 1, s"Other than 1 event matches provided partial function: $events")
+        toCheck.map(eventMapFunction).head
       }
     }
   }
