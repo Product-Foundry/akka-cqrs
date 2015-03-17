@@ -116,20 +116,6 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
    * Can be used for dry run or aggregate update.
    */
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
-    stateOption.fold {
-      if (factory.isDefinedAt(event)) {
-        factory(event)
-      } else {
-        throw new AggregateException(s"Unable to initialize state with: $event")
-      }
-    } { state =>
-      if (state.update.isDefinedAt(event)) {
-        state.update(event)
-      } else {
-        throw new AggregateException(s"Unable to update state with: $event")
-      }
-    }
-
     Some(stateOption.fold(factory.apply(event))(state => state.update(event)))
   }
 
