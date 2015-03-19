@@ -1,9 +1,10 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{ActorLogging, ActorRefFactory, Props}
+import akka.actor.{ReceiveTimeout, ActorLogging, ActorRefFactory, Props}
 import akka.persistence._
 
 import scala.concurrent.stm.{Ref, _}
+import scala.concurrent.duration._
 
 object MemoryImage {
   def apply[State, Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) = {
@@ -12,7 +13,7 @@ object MemoryImage {
 
   object RecoveryStatus extends Enumeration {
     type RecoveryStatus = Value
-    val Unstarted, Started, Failed, Completed = Value
+    val Unstarted, Started, Completed = Value
   }
 }
 
@@ -27,6 +28,19 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
   private val state: Ref[State] = Ref(initialState)
   private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
   private val ref = actorRefFactory.actorOf(Props(new MemoryImageActor(persistenceId)))
+
+  awaitRecover()
+
+  /**
+   * Blocks until initial recovery of the memory image is complete.
+   */
+  private def awaitRecover(): Unit = {
+    atomic { implicit txn =>
+      if (recoveryStatus() != RecoveryStatus.Completed) {
+        retry
+      }
+    }
+  }
 
   /**
    * The current state of the memory image.
@@ -53,24 +67,13 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
   }
 
   /**
-   * Blocks until initial recovery of the memory image is complete.
-   */
-  def awaitRecover(): Unit = {
-    atomic { implicit txn =>
-      if (recoveryStatus() != RecoveryStatus.Completed) {
-        retry
-      }
-    }
-  }
-
-  /**
    * Applies the given commit to the memory image.
    * @param domainCommit to apply.
    */
   def update(domainCommit: DomainCommit[Event]): Unit = {
     atomic { implicit txn =>
       state.transform(s => update(s, domainCommit.commit))
-      revision.update(domainCommit.revision)
+      revision() = domainCommit.revision
     }
   }
 
@@ -78,21 +81,20 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
     override val viewId: String = s"$persistenceId-view"
 
     override def preStart(): Unit = {
+      recoveryStatus.single.update(RecoveryStatus.Started)
+      context.setReceiveTimeout(5.seconds)
+
       super.preStart()
-      recoveryStatus.single.set(RecoveryStatus.Started)
     }
 
     override def receive: Receive = {
       case commit: DomainCommit[Event] =>
         update(commit)
 
-      case RecoveryCompleted =>
-        log.info("Memory image recovery completed: {}", persistenceId)
-        recoveryStatus.single.set(RecoveryStatus.Completed)
-
-      case RecoveryFailure(cause) =>
-        log.error(cause, "Unable to recover: {}", persistenceId)
-        recoveryStatus.single.set(RecoveryStatus.Failed)
+      case ReceiveTimeout =>
+        log.info("Assuming recovery is complete due to receive timeout: {}", persistenceId)
+        recoveryStatus.single.update(RecoveryStatus.Completed)
+        context.setReceiveTimeout(Duration.Undefined)
     }
   }
 }
