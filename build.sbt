@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
   organization := "com.productfoundry",
   version := "0.1.6-SNAPSHOT",
 
-  scalaVersion := "2.11.5",
+  scalaVersion := "2.11.6",
 
   scalacOptions ++= Seq(
     "-encoding", "UTF-8",
