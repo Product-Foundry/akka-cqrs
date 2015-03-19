@@ -5,6 +5,8 @@ import akka.persistence.{RecoveryFailure, PersistentActor}
 import com.productfoundry.akka.GracefulPassivation
 import com.productfoundry.akka.cqrs.DomainAggregator._
 
+import scala.util.control.NonFatal
+
 /**
  * Aggregate.
  *
@@ -207,7 +209,7 @@ trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
       try {
         handleCommit(persistedCommit)
       } catch {
-        case e: Exception => log.error(e, "Handling commit: {}", persistedCommit)
+        case NonFatal(e) => log.error(e, "Handling commit: {}", persistedCommit)
       }
     }
   }
