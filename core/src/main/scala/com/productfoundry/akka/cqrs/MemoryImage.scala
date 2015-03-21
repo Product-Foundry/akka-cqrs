@@ -7,8 +7,8 @@ import scala.concurrent.stm.{Ref, _}
 import scala.concurrent.duration._
 
 object MemoryImage {
-  def apply[State, Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) = {
-    new MemoryImage(actorRefFactory, persistenceId)(initialState)(update)
+  def apply[State <: Projection[State], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State) = {
+    new MemoryImage(actorRefFactory, persistenceId)(initialState)
   }
 
   object RecoveryStatus extends Enumeration {
@@ -21,7 +21,7 @@ object MemoryImage {
  * Tracks an aggregator projection. and uses the provided `initialState` and `update` to project the
  * committed events onto the current state.
  */
-class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State)(update: (State, Commit[Event]) => State) {
+class MemoryImage[State <: Projection[State], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State) extends ProjectionProvider[State] {
   import MemoryImage.RecoveryStatus
   
   private val recoveryStatus: Ref[RecoveryStatus.RecoveryStatus] = Ref(RecoveryStatus.Unstarted)
@@ -42,18 +42,9 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
     }
   }
 
-  /**
-   * The current state of the memory image.
-   */
-  def get: State = state.single.get
+  override def get: State = state.single.get
 
-  /**
-   * The state with the minimum revision.
-   *
-   * @param minimum revision.
-   * @return state with actual revision, where actual >= minimum.
-   */
-  def getWithRevision(minimum: DomainRevision): (State, DomainRevision) = {
+  override def getWithRevision(minimum: DomainRevision): (State, DomainRevision) = {
     ref ! Update(replayMax = minimum.value)
 
     atomic { implicit txn =>
@@ -72,7 +63,13 @@ class MemoryImage[State, -Event <: AggregateEvent] private (actorRefFactory: Act
    */
   def update(domainCommit: DomainCommit[Event]): Unit = {
     atomic { implicit txn =>
-      state.transform(s => update(s, domainCommit.commit))
+      val commit = domainCommit.commit
+      val aggregateRevision = commit.revision
+
+      commit.events.foreach { event =>
+        state.transform(_.project(aggregateRevision)(event))
+      }
+
       revision() = domainCommit.revision
     }
   }
