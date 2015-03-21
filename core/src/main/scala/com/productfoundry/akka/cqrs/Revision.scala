@@ -1,12 +1,14 @@
 package com.productfoundry.akka.cqrs
 
+import play.api.libs.json.{Writes, Reads, Format}
+
 import scala.reflect.ClassTag
 import scala.util.Try
 
 trait Revision[R <: Revision[R]] extends Proxy with Ordered[R] with Serializable {
   def value: Long
 
-  require(value >= 0, "revision cannot be negative")
+  require(value >= 0L, "revision cannot be negative")
 
   override def self: Any = value
 
@@ -22,6 +24,8 @@ abstract class RevisionCompanion[R <: Revision[R]: ClassTag] {
   def fromString(s: String): Option[R] = Try(apply(s.toLong)).toOption
 
   implicit val RevisionCompanionObject: RevisionCompanion[R] = this
+
+  implicit val RevisionFormat: Format[R] = Format(Reads.of[Long].map(apply), Writes(a => Writes.of[Long].writes(a.value)))
 
   lazy val Initial = apply(0L)
 }
