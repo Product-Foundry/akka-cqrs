@@ -9,8 +9,6 @@ import scala.reflect.ClassTag
 
 /**
  * Base spec for Aggregate factory unit tests.
- *
- * Provides a test actor system.
  */
 abstract class AggregateMockSupport(_system: ActorSystem)
   extends TestKit(_system)
@@ -82,10 +80,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     /**
      * Mocks a successful update to an aggregate though its supervisor.
      *
-     * The events function must be used to update controller state. The application state is updated, so the controller
-     * is able to wait for the projection to update and render a correct response.
-     *
-     * @param events to generate as a result of the update, gets aggregate ID from the controller update.
+     * @param events to generate as a result of the update.
      * @tparam I aggregate id type.
      * @tparam E event type.
      */
