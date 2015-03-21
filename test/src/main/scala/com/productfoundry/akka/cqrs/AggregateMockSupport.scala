@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
  *
  * Provides a test actor system.
  */
-abstract class AggregateFactorySupport(_system: ActorSystem)
+abstract class AggregateMockSupport(_system: ActorSystem)
   extends TestKit(_system)
   with ImplicitSender
   with WordSpecLike
@@ -44,7 +44,7 @@ abstract class AggregateFactorySupport(_system: ActorSystem)
      *
      * Revision is incremented for every given or updated event.
      */
-    private val domainRevisionRef = Ref(DomainRevision.Initial)
+    val domainRevisionRef = Ref(DomainRevision.Initial)
 
     // TODO [AK] Also track aggregate revisions
 
@@ -59,10 +59,25 @@ abstract class AggregateFactorySupport(_system: ActorSystem)
     /**
      * Updates application state.
      *
-     * @param events to build application state from.
+     * @param events to update state.
      * @tparam E Aggregate events.
      */
-    def updateState[E <: AggregateEvent](events: E*): Unit
+    def updateState[E <: AggregateEvent](events: E*): Unit = {
+      atomic { implicit txn =>
+        events.foreach { event =>
+          domainRevisionRef.transform(_.next)
+          update(event)
+        }
+      }
+    }
+
+    /**
+     * Updates application state in a STM transaction.
+     *
+     * @param event to update state.
+     * @tparam E Aggregate events.
+     */
+    def update[E <: AggregateEvent](event: E)(implicit txn: InTxn): Unit
 
     /**
      * Mocks a successful update to an aggregate though its supervisor.
