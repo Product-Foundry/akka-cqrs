@@ -26,7 +26,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
 
   trait AggregateFactoryFixture {
 
-    private val aggregateFactoryProbe = TestProbe()
+    val aggregateFactoryProbe = TestProbe()
 
     /**
      * Aggregate factory is backed by a test probe.
