@@ -9,8 +9,8 @@ trait Projection[P] {
 
   def project(revision: AggregateRevision): Project
 
-  def projectOnto[C <: Projection[C]](revision: AggregateRevision, event: AggregateEvent, projection: C): Option[C] = {
+  def projectOnto[C <: Projection[C]](revision: AggregateRevision, event: AggregateEvent, projection: C): C = {
     val projectFunction = projection.project(revision)
-    if (projectFunction.isDefinedAt(event)) Some(projectFunction(event)) else None
+    if (projectFunction.isDefinedAt(event)) projectFunction(event) else projection
   }
 }
