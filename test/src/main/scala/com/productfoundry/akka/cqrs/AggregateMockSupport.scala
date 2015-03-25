@@ -1,6 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor.{ActorRef, ActorSystem}
+import akka.testkit.TestActor.{AutoPilot, KeepRunning, NoAutoPilot}
 import akka.testkit._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -28,13 +29,30 @@ abstract class AggregateMockSupport(_system: ActorSystem)
 
     val aggregateFactoryProbe = TestProbe()
 
+    val autopilotProbe = TestProbe()
+
+    val autoPilot: AutoPilot = new AutoPilot {
+      override def run(sender: ActorRef, msg: Any): AutoPilot = TestActor.NoAutoPilot
+    }
+
+    autopilotProbe.setAutoPilot(new AutoPilot {
+      override def run(sender: ActorRef, msg: Any): AutoPilot = {
+        autoPilot.run(sender, msg) match {
+          case NoAutoPilot => aggregateFactoryProbe.ref.tell(msg, sender)
+          case KeepRunning =>
+        }
+
+        TestActor.KeepRunning
+      }
+    })
+
     /**
      * Aggregate factory is backed by a test probe.
      *
      * This allows intercepting updates, mocking responses and updating memory image.
      */
     val aggregateFactory = new AggregateFactoryProvider {
-      override def apply[A <: Aggregate[_, _] : ClassTag]: ActorRef = aggregateFactoryProbe.ref
+      override def apply[A <: Aggregate[_, _] : ClassTag]: ActorRef = autopilotProbe.ref
     }
 
     /**
@@ -42,14 +60,19 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      *
      * Revision is incremented for every given or updated event.
      */
-    val aggregateRevisionRef = Ref(AggregateRevision.Initial)
+    private val aggregateRevisionRef = Ref(AggregateRevision.Initial)
+
+    def aggregateRevision: AggregateRevision = aggregateRevisionRef.single.get
 
     /**
      * Tracks domain revision for every individual spec.
      *
      * Revision is incremented for every given or updated event.
      */
-    val domainRevisionRef = Ref(DomainRevision.Initial)
+    private val domainRevisionRef = Ref(DomainRevision.Initial)
+
+    def domainRevision: DomainRevision = domainRevisionRef.single.get
+
 
     /**
      * Sets initial state.
@@ -86,7 +109,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(message.id.asInstanceOf[I])
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateStatus.Success(CommitResult(aggregateRevisionRef.single.get, domainRevisionRef.single.get)))
+      aggregateFactoryProbe.reply(AggregateStatus.Success(CommitResult(aggregateRevision, domainRevision)))
     }
 
     /**
@@ -122,4 +145,5 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       override def get: P = projectionRef.single.get
     }
   }
+
 }
