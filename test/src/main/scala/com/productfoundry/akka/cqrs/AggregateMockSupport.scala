@@ -24,7 +24,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     TestKit.shutdownActorSystem(system)
   }
 
-  trait AggregateFactoryFixture {
+  trait AggregateMockFixture[P <: Projection[P]] {
 
     val aggregateFactoryProbe = TestProbe()
 
@@ -38,13 +38,18 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     }
 
     /**
+     * Tracks aggregate revision for every individual spec.
+     *
+     * Revision is incremented for every given or updated event.
+     */
+    val aggregateRevisionRef = Ref(AggregateRevision.Initial)
+
+    /**
      * Tracks domain revision for every individual spec.
      *
      * Revision is incremented for every given or updated event.
      */
     val domainRevisionRef = Ref(DomainRevision.Initial)
-
-    // TODO [AK] Also track aggregate revisions
 
     /**
      * Sets initial state.
@@ -63,19 +68,11 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     def updateState[E <: AggregateEvent](events: E*): Unit = {
       atomic { implicit txn =>
         events.foreach { event =>
+          projectionRef.transform(_.project(aggregateRevisionRef.getAndTransform(_.next))(event))
           domainRevisionRef.transform(_.next)
-          update(event)
         }
       }
     }
-
-    /**
-     * Updates application state in a STM transaction.
-     *
-     * @param event to update state.
-     * @tparam E Aggregate events.
-     */
-    def update[E <: AggregateEvent](event: E)(implicit txn: InTxn): Unit
 
     /**
      * Mocks a successful update to an aggregate though its supervisor.
@@ -89,7 +86,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(message.id.asInstanceOf[I])
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateStatus.Success(CommitResult(AggregateRevision.Initial, domainRevisionRef.single.get)))
+      aggregateFactoryProbe.reply(AggregateStatus.Success(CommitResult(aggregateRevisionRef.single.get, domainRevisionRef.single.get)))
     }
 
     /**
@@ -100,6 +97,29 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     def mockUpdateFailure[E <: ValidationMessage](failure: E, failures: E*): Unit = {
       aggregateFactoryProbe.expectMsgType[AggregateMessage]
       aggregateFactoryProbe.reply(AggregateStatus.Failure(ValidationError(failure, failures: _*)))
+    }
+
+    /**
+     * Tracks application state for every individual spec.
+     */
+    val projectionRef: Ref[P]
+
+    /**
+     * Atomically provides application state using STM.
+     */
+    val projection: ProjectionProvider[P] = new ProjectionProvider[P] {
+
+      override def getWithRevision(minimum: DomainRevision): (P, DomainRevision) = {
+        atomic { implicit txn =>
+          if (domainRevisionRef() < minimum) {
+            retry
+          } else {
+            (projectionRef(), domainRevisionRef())
+          }
+        }
+      }
+
+      override def get: P = projectionRef.single.get
     }
   }
 }
