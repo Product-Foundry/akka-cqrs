@@ -24,6 +24,6 @@ object Commit {
       (__ \ "timestamp").format[Long] and
       (__ \ "events").format[Seq[E]] and
       (__ \ "headers").format[Map[String, String]]
-    )(Commit.apply[E] _, c => Commit.unapply(c).get)
+    )(Commit.apply[E], c => Commit.unapply(c).get)
 
 }

@@ -14,5 +14,5 @@ object DomainCommit {
     (__ \ "revision").format[DomainRevision] and
       (__ \ "timestamp").format[Long] and
       (__ \ "commit").format[Commit[E]]
-    )(DomainCommit.apply[E] _, c => DomainCommit.unapply(c).get)
+    )(DomainCommit.apply[E], c => DomainCommit.unapply(c).get)
 }
