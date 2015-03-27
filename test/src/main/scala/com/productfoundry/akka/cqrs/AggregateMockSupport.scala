@@ -90,10 +90,9 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      */
     def updateState[E <: AggregateEvent](events: E*): Unit = {
       atomic { implicit txn =>
-        events.foreach { event =>
-          projectionRef.transform(_.project(aggregateRevisionRef.getAndTransform(_.next))(event))
-          domainRevisionRef.transform(_.next)
-        }
+        domainRevisionRef.transform(_.next)
+        aggregateRevisionRef.transform(_.next)
+        projectionRef.transform(_.project(CommitHeaders(domainRevisionRef(), aggregateRevisionRef(), System.currentTimeMillis(), Map.empty), events))
       }
     }
 

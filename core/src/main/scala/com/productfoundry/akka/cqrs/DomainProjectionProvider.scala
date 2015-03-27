@@ -6,9 +6,9 @@ import akka.persistence._
 import scala.concurrent.stm.{Ref, _}
 import scala.concurrent.duration._
 
-object MemoryImage {
-  def apply[State <: Projection[State], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State) = {
-    new MemoryImage(actorRefFactory, persistenceId)(initialState)
+object DomainProjectionProvider {
+  def apply[P <: Projection[P], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P) = {
+    new DomainProjectionProvider(actorRefFactory, persistenceId)(initialState)
   }
 
   object RecoveryStatus extends Enumeration {
@@ -18,21 +18,21 @@ object MemoryImage {
 }
 
 /**
- * Tracks an aggregator projection. and uses the provided `initialState` and `update` to project the
- * committed events onto the current state.
+ * Projects domain commits.
  */
-class MemoryImage[State <: Projection[State], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: State) extends ProjectionProvider[State] {
-  import MemoryImage.RecoveryStatus
+class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P) extends ProjectionProvider[P] {
+
+  import DomainProjectionProvider.RecoveryStatus
   
   private val recoveryStatus: Ref[RecoveryStatus.RecoveryStatus] = Ref(RecoveryStatus.Unstarted)
-  private val state: Ref[State] = Ref(initialState)
+  private val state: Ref[P] = Ref(initial)
   private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
-  private val ref = actorRefFactory.actorOf(Props(new MemoryImageActor(persistenceId)))
+  private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
 
   awaitRecover()
 
   /**
-   * Blocks until initial recovery of the memory image is complete.
+   * Blocks until initial recovery is complete.
    */
   private def awaitRecover(): Unit = {
     atomic { implicit txn =>
@@ -42,9 +42,9 @@ class MemoryImage[State <: Projection[State], -Event <: AggregateEvent] private 
     }
   }
 
-  override def get: State = state.single.get
+  override def get: P = state.single.get
 
-  override def getWithRevision(minimum: DomainRevision): (State, DomainRevision) = {
+  override def getWithRevision(minimum: DomainRevision): (P, DomainRevision) = {
     ref ! Update(replayMax = minimum.value)
 
     atomic { implicit txn =>
@@ -58,23 +58,19 @@ class MemoryImage[State <: Projection[State], -Event <: AggregateEvent] private 
   }
 
   /**
-   * Applies the given commit to the memory image.
+   * Projects the given commit.
    * @param domainCommit to apply.
    */
-  def update(domainCommit: DomainCommit[Event]): Unit = {
+  def project(domainCommit: DomainCommit[Event]): Unit = {
     atomic { implicit txn =>
       val commit = domainCommit.commit
-      val aggregateRevision = commit.revision
-
-      commit.events.foreach { event =>
-        state.transform(_.project(aggregateRevision)(event))
-      }
-
+      val headers = CommitHeaders(domainCommit.revision, commit.revision, commit.timestamp, commit.headers)
+      state.transform(_.project(headers, commit.events))
       revision() = domainCommit.revision
     }
   }
 
-  class MemoryImageActor(val persistenceId: String) extends PersistentView with ActorLogging {
+  class DomainView(val persistenceId: String) extends PersistentView with ActorLogging {
     override val viewId: String = s"$persistenceId-view"
 
     override def preStart(): Unit = {
@@ -86,7 +82,7 @@ class MemoryImage[State <: Projection[State], -Event <: AggregateEvent] private 
 
     override def receive: Receive = {
       case commit: DomainCommit[Event] =>
-        update(commit)
+        project(commit)
 
       case ReceiveTimeout =>
         log.info("Assuming recovery is complete due to receive timeout: {}", persistenceId)

@@ -3,14 +3,11 @@ package com.productfoundry.akka.cqrs
 /**
  * Build projections.
  */
-trait Projection[P] {
+trait Projection[P <: Projection[P]] {
 
-  type Project = PartialFunction[AggregateEvent, P]
+  self: P =>
 
-  def project(revision: AggregateRevision): Project
+  def project(headers: CommitHeaders, events: Seq[AggregateEvent]): P = events.foldLeft(this)(_.project(headers, _))
 
-  def projectOnto[C <: Projection[C]](revision: AggregateRevision, event: AggregateEvent, projection: C): C = {
-    val projectFunction = projection.project(revision)
-    if (projectFunction.isDefinedAt(event)) projectFunction(event) else projection
-  }
+  def project(headers: CommitHeaders, event: AggregateEvent): P
 }
