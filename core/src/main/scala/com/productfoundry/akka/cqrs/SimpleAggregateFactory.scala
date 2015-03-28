@@ -12,7 +12,7 @@ class SimpleAggregateFactory[A <: Aggregate[_, _] : ClassTag] extends AggregateF
 }
 
 /**
- * Creates aggregate supervisors for aggregates without s specialized constructor.
+ * Creates aggregate supervisors for aggregates without a specialized constructor.
  */
 object SimpleAggregateFactory {
   def supervisor[A <: Aggregate[_, _] : ClassTag](implicit domainContext: DomainContext): ActorRef = {
