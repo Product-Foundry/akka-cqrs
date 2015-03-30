@@ -16,6 +16,19 @@ sealed trait Changes[+E <: AggregateEvent] {
   def headers: Map[String, String]
 
   /**
+   * @return payload for additional response.
+   */
+  def payload: Any
+
+  /**
+   * Sets payload.
+   *
+   * @param payload to set.
+   * @return updated payload.
+   */
+  def withPayload(payload: Any): Changes[E]
+
+  /**
    * Add additional headers.
    *
    * @param headers to add.
@@ -38,6 +51,9 @@ object Changes {
   def apply[E <: AggregateEvent](events: E*): Changes[E] = AggregateChanges(events)
 }
 
-private[this] case class AggregateChanges[E <: AggregateEvent](events: Seq[E], headers: Map[String, String] = Map.empty) extends Changes[E] {
+private[this] case class AggregateChanges[E <: AggregateEvent](events: Seq[E], payload: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes[E] {
+
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
+
+  override def withPayload(payload: Any) = copy(payload = payload)
 }
