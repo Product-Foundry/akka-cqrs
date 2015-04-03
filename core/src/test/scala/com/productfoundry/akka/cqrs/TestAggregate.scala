@@ -6,9 +6,9 @@ import com.productfoundry.akka.cqrs.TestAggregate._
 case class TestId(uuid: Uuid) extends AggregateId
 object TestId extends AggregateIdCompanion[TestId]
 
-class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[AggregateEvent, TestState] {
+class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[TestEvent] {
 
-  override val factory = TestState.apply
+  type S = TestState
 
   override def handleCommand(expected: AggregateRevision): Receive = {
     case Create(aggregateId) =>
@@ -23,6 +23,16 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
 
     case GetCount(_) =>
       sender() ! state.count
+  }
+
+  override val factory: StateFactory = {
+    case Created(_) => TestState(0)
+  }
+
+  case class TestState(count: Int) extends AggregateState {
+    override def update = {
+      case Counted(_, _count) => copy(count = _count)
+    }
   }
 }
 
@@ -42,16 +52,4 @@ object TestAggregate {
   case class Counted(id: TestId, count: Int) extends TestEvent
 
   case class GetCount(id: TestId) extends TestMessage
-}
-
-object TestState extends AggregateStateFactory[AggregateEvent, TestState] {
-  override def apply = {
-    case Created(_) => TestState(0)
-  }
-}
-
-case class TestState(count: Int) extends AggregateState[AggregateEvent, TestState] {
-  override def update = {
-    case Counted(_, _count) => copy(count = _count)
-  }
 }

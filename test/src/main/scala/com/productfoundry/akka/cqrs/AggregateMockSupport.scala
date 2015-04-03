@@ -52,7 +52,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      * This allows intercepting updates, mocking responses and updating memory image.
      */
     val aggregateFactory = new AggregateFactoryProvider {
-      override def apply[A <: Aggregate[_, _] : ClassTag]: ActorRef = autopilotProbe.ref
+      override def apply[A <: Aggregate[_] : ClassTag]: ActorRef = autopilotProbe.ref
     }
 
     /**

@@ -9,5 +9,5 @@ class SimpleAggregateFactoryProvider(implicit system: ActorSystem, domainContext
   /**
    * Creates aggregate supervisors for aggregates without s specialized constructor.
    */
-  override def apply[A <: Aggregate[_, _] : ClassTag]: ActorRef = SimpleAggregateFactory.supervisor[A]
+  override def apply[A <: Aggregate[_] : ClassTag]: ActorRef = SimpleAggregateFactory.supervisor[A]
 }

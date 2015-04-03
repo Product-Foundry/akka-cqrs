@@ -6,5 +6,5 @@ import scala.reflect.ClassTag
 
 trait AggregateFactoryProvider {
 
-  def apply[A <: Aggregate[_, _] : ClassTag]: ActorRef
+  def apply[A <: Aggregate[_] : ClassTag]: ActorRef
 }

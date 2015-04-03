@@ -11,14 +11,22 @@ import scala.util.control.NonFatal
  * Aggregate.
  *
  * @tparam E creates aggregate state.
- * @tparam S aggregated state.
  */
-trait Aggregate[E <: AggregateEvent, S <: AggregateState[E, S]]
+trait Aggregate[E <: AggregateEvent]
   extends Entity
   with PersistentActor
   with GracefulPassivation
   with CommitHandler
   with ActorLogging {
+
+  type S <: AggregateState
+
+  /**
+   * Aggregate state.
+   */
+  trait AggregateState {
+    def update: PartialFunction[E, S]
+  }
 
   /**
    * Persistence id is based on the actor path.

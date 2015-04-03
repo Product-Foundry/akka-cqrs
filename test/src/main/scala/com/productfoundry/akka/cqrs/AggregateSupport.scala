@@ -18,7 +18,7 @@ import scala.reflect.ClassTag
  * @param aggregateFactory aggregate factory, typically defined in the Spec to mixin additional behavior.
  * @tparam A Aggregate type.
  */
-abstract class AggregateSupport[A <: Aggregate[_, _]](_system: ActorSystem)(implicit aggregateClass: ClassTag[A],
+abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implicit aggregateClass: ClassTag[A],
                                                                          aggregateFactory: AggregateFactory[A])
   extends TestKit(_system)
   with ImplicitSender
