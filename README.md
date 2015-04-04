@@ -16,3 +16,7 @@ To include this library into your `sbt` project, add the following lines to your
 
 This version of `akka-cqrs` is built against Scala 2.11.6.
 
+Inspiration
+-----------
+- [Reactive DDD with Akka](http://pkaczor.blogspot.nl/2014/04/reactive-ddd-with-akka.html)
+- [Simple event sourcing ](http://blog.zilverline.com/2012/07/04/simple-event-sourcing-introduction-part-1/)
