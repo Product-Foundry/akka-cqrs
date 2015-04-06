@@ -54,12 +54,12 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @return current aggregate state.
    */
-  def state: S = stateOpt.getOrElse(throw new AggregateException("Aggregate not initialized"))
+  def state: S = stateOpt.getOrElse(throw new AggregateException("Aggregate state not defined"))
 
   /**
    * @return Indication whether the state is initialized or not.
    */
-  def initialized = stateOpt.isDefined
+  def initialized = revision != AggregateRevision.Initial && stateOpt.isDefined
 
   /**
    * @return the current revision of this aggregate.
@@ -126,7 +126,7 @@ trait Aggregate[E <: AggregateEvent]
    * Can be used for dry run or aggregate update.
    */
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
-    Some(stateOption.fold(factory.apply(event))(state => state.update(event)))
+    if (event.isInstanceOf[AggregateDeleteEvent]) None else Some(stateOption.fold(factory.apply(event))(state => state.update(event)))
   }
 
   /**
@@ -165,14 +165,13 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Specialized commit function that only attempt a commit if this aggregate is not already initialized.
    *
-   * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
    */
-  def tryCreate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
+  def tryCreate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
       sender() ! AggregateStatus.Failure(AggregateAlreadyInitialized)
     } else {
-      tryCommit(expected)(changesAttempt)
+      tryCommit(AggregateRevision.Initial)(changesAttempt)
     }
   }
 

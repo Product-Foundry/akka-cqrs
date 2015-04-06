@@ -12,7 +12,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
 
   override def handleCommand(expected: AggregateRevision): Receive = {
     case Create(aggregateId) =>
-      tryCreate(revision) {
+      tryCreate {
         Right(Changes(Created(aggregateId)))
       }
 

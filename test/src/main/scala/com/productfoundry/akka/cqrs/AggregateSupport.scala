@@ -224,6 +224,19 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
   }
 
   /**
+   * Asserts a status contains a failure.
+   * @tparam C the expected failure class.
+   * @param status the status.
+   */
+  def assertFailure[C: ClassTag](status: AggregateStatus): Unit = {
+    status match {
+      case AggregateStatus.Success(success) => fail(s"Unexpected success: $success")
+      case AggregateStatus.Failure(cause: C) =>
+      case AggregateStatus.Failure(cause) => fail(s"Unexpected cause: $cause")
+    }
+  }
+
+  /**
    * Scoped fixture to setup aggregates and send messages while keeping track of revisions.
    */
   trait AggregateFixture {
@@ -274,4 +287,5 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
       }
     }
   }
+
 }
