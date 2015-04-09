@@ -49,6 +49,15 @@ object Changes {
    * @return changes.
    */
   def apply[E <: AggregateEvent](events: E*): Changes[E] = AggregateChanges(events)
+
+  /**
+   * Create changes from optional changes.
+   * @param event change to apply the aggregate state.
+   * @param eventOptions optional additional changes to apply the aggregate state.
+   * @tparam E Base type of events in the changes.
+   * @return changes.
+   */
+  def apply[E <: AggregateEvent](event: E, eventOptions: Seq[Option[E]]): Changes[E] = AggregateChanges(event +: eventOptions.flatten)
 }
 
 private[this] case class AggregateChanges[E <: AggregateEvent](events: Seq[E], payload: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes[E] {
