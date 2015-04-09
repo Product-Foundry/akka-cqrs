@@ -64,7 +64,7 @@ class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] pri
   def project(domainCommit: DomainCommit[Event]): Unit = {
     atomic { implicit txn =>
       val commit = domainCommit.commit
-      val headers = CommitHeaders(domainCommit.revision, commit.revision, commit.timestamp, commit.headers)
+      val headers = CommitHeaders(domainCommit.revision, commit.revision, commit.headers)
       state.transform(_.project(headers, commit.events))
       revision() = domainCommit.revision
     }

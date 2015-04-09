@@ -57,6 +57,25 @@ trait Aggregate[E <: AggregateEvent]
   def state: S = stateOpt.getOrElse(throw new AggregateException("Aggregate state not defined"))
 
   /**
+   * The current command message
+   */
+  private var commandOption: Option[AggregateCommandMessage] = None
+
+  /**
+   * Provides access to the current command.
+   *
+   * Throws [[AggregateException]] if the command is not available.
+   *
+   * @return current command.
+   */
+  def command: AggregateCommandMessage = commandOption.getOrElse(throw new AggregateException("Current command not defined"))
+
+  /**
+   * Gives the expected revision for a command.
+   */
+  def expected: AggregateRevision = command.expected
+
+  /**
    * @return Indication whether the state is initialized or not.
    */
   def initialized = revision != AggregateRevision.Initial && stateOpt.isDefined
@@ -70,29 +89,29 @@ trait Aggregate[E <: AggregateEvent]
    * Command handler is final so that it can always correctly handle the aggregator response.
    */
   final override def receiveCommand: Receive = {
-    case AggregateCommandMessage(expected, command) =>
-      handleWithRevision(expected, command)
-
-    case command =>
-      handleWithRevision(AggregateRevision.Initial, command)
+    case commandMessage: AggregateCommandMessage => handleCommandMessage(commandMessage)
+    case command: AggregateCommand => handleCommandMessage(AggregateCommandMessage(AggregateRevision.Initial, command))
+    case message => handleCommand.applyOrElse(message, unhandled)
   }
 
   /**
-   * Ensures all commands are handled with a revision.
+   * Handle all commands and keeping the command for reference in the aggregate.
    *
-   * @param expected revision.
    * @param command to execute.
    */
-  private def handleWithRevision(expected: AggregateRevision, command: Any) = {
-    handleCommand(expected).applyOrElse(command, unhandled)
+  private def handleCommandMessage(command: AggregateCommandMessage) = {
+    try {
+      commandOption = Some(command)
+      handleCommand.applyOrElse(command.command, unhandled)
+    } finally {
+      commandOption = None
+    }
   }
 
   /**
    * Redefined command handler.
-   *
-   * @param expected revision.
    */
-  def handleCommand(expected: AggregateRevision): Receive
+  def handleCommand: Receive
 
   /**
    * Handle recovery of commits and aggregator confirmation status.
@@ -194,8 +213,13 @@ trait Aggregate[E <: AggregateEvent]
    * @param changes to commit.
    */
   private def commit(changes: Changes[E]): Unit = {
+
+    // Construct full headers, in case of duplicates, priority is changes > command > default
+    val defaultHeaders = Map("timestamp" -> System.currentTimeMillis().toString)
+    val headers = defaultHeaders ++ command.headers ++ changes.headers
+
     // Construct commit to persist
-    val commit = Commit(revision.next, System.currentTimeMillis(), changes.events, changes.headers)
+    val commit = Commit(revision.next, changes.events, headers)
 
     // Dry run commit to make sure this aggregate does not persist invalid state
     applyCommit(stateOpt, commit)

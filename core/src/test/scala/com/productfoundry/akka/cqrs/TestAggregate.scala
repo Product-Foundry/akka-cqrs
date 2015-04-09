@@ -10,7 +10,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
 
   type S = TestState
 
-  override def handleCommand(expected: AggregateRevision): Receive = {
+  override def handleCommand: Receive = {
     case Create(aggregateId) =>
       tryCreate {
         Right(Changes(Created(aggregateId)))

@@ -92,7 +92,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       atomic { implicit txn =>
         domainRevisionRef.transform(_.next)
         aggregateRevisionRef.transform(_.next)
-        projectionRef.transform(_.project(CommitHeaders(domainRevisionRef(), aggregateRevisionRef(), System.currentTimeMillis(), Map.empty), events))
+        projectionRef.transform(_.project(CommitHeaders(domainRevisionRef(), aggregateRevisionRef(), Map.empty), events))
       }
     }
 

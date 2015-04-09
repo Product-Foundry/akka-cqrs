@@ -37,7 +37,7 @@ class DomainAggregator
    */
   override def receiveCommand: Receive = {
     case commit: Commit[AggregateEvent] =>
-      persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
+      persist(DomainCommit(revision.next, commit)) { domainCommit =>
         if (revision != domainCommit.revision) {
           log.warning("Unexpected domain commit revision, expected: {}, actual: {}", revision, domainCommit.revision)
         }

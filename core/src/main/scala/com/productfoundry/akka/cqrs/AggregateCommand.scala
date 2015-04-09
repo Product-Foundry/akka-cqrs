@@ -11,7 +11,7 @@ trait AggregateCommand extends AggregateMessage
  * @param expected revision.
  * @param command to execute.
  */
-case class AggregateCommandMessage(expected: AggregateRevision, command: AggregateCommand) extends AggregateMessage {
+case class AggregateCommandMessage(expected: AggregateRevision, command: AggregateCommand, headers: Map[String, String] = Map.empty) extends AggregateMessage {
   type Id = command.Id
 
   /**
