@@ -1,10 +1,10 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.journal
 
 import java.util.concurrent.Callable
 
 import akka.dispatch.Futures
 import akka.persistence.journal.SyncWriteJournal
-import akka.persistence.{PersistentId, PersistentConfirmation, PersistentRepr}
+import akka.persistence.{PersistentConfirmation, PersistentId, PersistentRepr}
 import akka.serialization.SerializationExtension
 
 import scala.collection.immutable.{Seq, TreeMap}
@@ -91,7 +91,7 @@ class InMemoryJournal extends SyncWriteJournal {
   }
 
   override def deleteMessagesTo(persistenceId: String, toSequenceNr: Long, permanent: Boolean): Unit = {
-    val stream = if (permanent) {
+    if (permanent) {
       updateJournal(persistenceId, persistentStream(persistenceId).filterKeys(_ > toSequenceNr))
     } else {
       persistentStream(persistenceId).filterKeys(_ <= toSequenceNr).values.foreach { bytes =>

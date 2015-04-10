@@ -7,8 +7,8 @@ import scala.concurrent.stm.{Ref, _}
 import scala.concurrent.duration._
 
 object DomainProjectionProvider {
-  def apply[P <: Projection[P], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P) = {
-    new DomainProjectionProvider(actorRefFactory, persistenceId)(initialState)
+  def apply[P <: Projection[P], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
+    new DomainProjectionProvider(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
   }
 
   object RecoveryStatus extends Enumeration {
@@ -20,7 +20,7 @@ object DomainProjectionProvider {
 /**
  * Projects domain commits.
  */
-class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P) extends ProjectionProvider[P] {
+class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
 
   import DomainProjectionProvider.RecoveryStatus
   
@@ -75,7 +75,7 @@ class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] pri
 
     override def preStart(): Unit = {
       recoveryStatus.single.update(RecoveryStatus.Started)
-      context.setReceiveTimeout(5.seconds)
+      context.setReceiveTimeout(recoveryThreshold)
 
       super.preStart()
     }
