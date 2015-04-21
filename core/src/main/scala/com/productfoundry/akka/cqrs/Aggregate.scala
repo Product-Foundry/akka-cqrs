@@ -43,9 +43,16 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Aggregate is created before state is initialized and is therefore optional.
    *
-   * Preferably keep this private when possible, since this is the only mutable member of the aggregate.
+   * Keep this private, since this is the only mutable member of the aggregate and handling should be uniform.
    */
   private var stateOpt: Option[S] = None
+
+  /**
+   * Aggregate is created before state is initialized and is therefore optional.
+   *
+   * @return `Some` aggregate state if initialized, otherwise `None`.
+   */
+  def stateOption: Option[S] = stateOpt
 
   /**
    * Provides access to the aggregate state.
