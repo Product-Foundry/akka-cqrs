@@ -32,7 +32,9 @@ class InMemoryJournal extends SyncWriteJournal {
         override def call(): Unit = {
           val stream = persistentStream(persistenceId)
           val messages = stream.values.map(deserialize).filter(m => m.sequenceNr >= fromSequenceNr && m.sequenceNr <= toSequenceNr)
-          messages.take(max.toInt).foreach(replayCallback)
+          val maxInt = max.toInt
+          val limited = if (maxInt >= 0) messages.take(maxInt) else messages
+          limited.foreach(replayCallback)
         }
       },
       context.dispatcher

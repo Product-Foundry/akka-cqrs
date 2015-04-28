@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   organization := "com.productfoundry",
-  version := "0.1.18",
+  version := "0.1.19",
 
   scalaVersion := "2.11.6",
 
@@ -30,23 +30,11 @@ lazy val commonSettings = Seq(
   fork in Test := true,
 
   // Resolvers
-  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
-
-  // Dependencies
-  libraryDependencies ++= Seq(
-    "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
-    "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
-    "com.typesafe.play"      %% "play-json"                         % "2.3.8",
-    "org.scala-stm"          %% "scala-stm"                         % "0.7",
-    "org.scalaz"             %% "scalaz-core"                       % "7.0.6"    % "optional",
-    "org.scalatest"          %% "scalatest"                         % "2.2.4"    % "test",
-    "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9"    % "test",
-    "org.scalacheck"         %% "scalacheck"                        % "1.12.2"   % "test"
-  )
+  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
 lazy val root = (project in file("."))
-  .aggregate(core, test)
+  .aggregate(core, inmem, test)
   .settings(commonSettings: _*)
   .settings(
     name := "akka-cqrs-root"
@@ -56,7 +44,31 @@ lazy val root = (project in file("."))
 lazy val core = project
   .settings(commonSettings: _*)
   .settings(
-    name := "akka-cqrs"
+    name := "akka-cqrs",
+
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
+      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
+      "com.typesafe.play"      %% "play-json"                         % "2.3.8",
+      "org.scala-stm"          %% "scala-stm"                         % "0.7",
+      "org.scalaz"             %% "scalaz-core"                       % "7.0.6"    % "optional",
+      "org.scalatest"          %% "scalatest"                         % "2.2.4"    % "test",
+      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9"    % "test",
+      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"   % "test"
+    )
+  )
+  .settings(bintrayPublishSettings: _*)
+
+lazy val inmem = project
+  .settings(commonSettings: _*)
+  .settings(
+    name := "akka-cqrs-inmem",
+
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
+      "com.typesafe.akka"      %% "akka-persistence-tck-experimental" % "2.3.9"   % "test",
+      "org.scalatest"          %% "scalatest"                         % "2.1.4"   % "test"
+    )
   )
   .settings(bintrayPublishSettings: _*)
 
@@ -65,6 +77,7 @@ lazy val test = project
   .settings(commonSettings: _*)
   .settings(
     name := "akka-cqrs-test",
+
     libraryDependencies ++= Seq(
       "org.scalatest"          %% "scalatest"                         % "2.2.4",
       "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
