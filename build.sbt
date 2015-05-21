@@ -33,6 +33,8 @@ lazy val commonSettings = Seq(
   resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
+lazy val akkaVersion = "2.3.11"
+
 lazy val root = (project in file("."))
   .aggregate(core, inmem, test)
   .settings(commonSettings: _*)
@@ -47,14 +49,14 @@ lazy val core = project
     name := "akka-cqrs",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
-      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
+      "com.typesafe.akka"      %% "akka-persistence-experimental"     % akkaVersion,
+      "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion,
       "com.typesafe.play"      %% "play-json"                         % "2.3.8",
       "org.scala-stm"          %% "scala-stm"                         % "0.7",
-      "org.scalaz"             %% "scalaz-core"                       % "7.0.6"    % "optional",
-      "org.scalatest"          %% "scalatest"                         % "2.2.4"    % "test",
-      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9"    % "test",
-      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"   % "test"
+      "org.scalaz"             %% "scalaz-core"                       % "7.0.6"     % "optional",
+      "org.scalatest"          %% "scalatest"                         % "2.2.4"     % "test",
+      "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion % "test",
+      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"    % "test"
     )
   )
   .settings(bintrayPublishSettings: _*)
@@ -65,9 +67,9 @@ lazy val inmem = project
     name := "akka-cqrs-inmem",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-persistence-experimental"     % "2.3.9",
-      "com.typesafe.akka"      %% "akka-persistence-tck-experimental" % "2.3.9"   % "test",
-      "org.scalatest"          %% "scalatest"                         % "2.1.4"   % "test"
+      "com.typesafe.akka"      %% "akka-persistence-experimental"     % akkaVersion,
+      "com.typesafe.akka"      %% "akka-persistence-tck-experimental" % akkaVersion % "test",
+      "org.scalatest"          %% "scalatest"                         % "2.1.4"     % "test"
     )
   )
   .settings(bintrayPublishSettings: _*)
@@ -80,7 +82,7 @@ lazy val test = project
 
     libraryDependencies ++= Seq(
       "org.scalatest"          %% "scalatest"                         % "2.2.4",
-      "com.typesafe.akka"      %% "akka-testkit"                      % "2.3.9",
+      "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion,
       "org.scalacheck"         %% "scalacheck"                        % "1.12.2"
     )
   )
