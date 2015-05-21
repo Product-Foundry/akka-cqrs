@@ -51,7 +51,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-persistence-experimental"     % akkaVersion,
       "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion,
-      "com.typesafe.play"      %% "play-json"                         % "2.3.8",
+      "com.typesafe.play"      %% "play-json"                         % "2.3.9",
       "org.scala-stm"          %% "scala-stm"                         % "0.7",
       "org.scalaz"             %% "scalaz-core"                       % "7.0.6"     % "optional",
       "org.scalatest"          %% "scalatest"                         % "2.2.4"     % "test",
