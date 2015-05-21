@@ -11,6 +11,7 @@ import play.api.libs.json._
  */
 case class Commit[+E <: AggregateEvent](revision: AggregateRevision,
                                         events: Seq[E],
+                                        timestamp: Long,
                                         headers: Map[String, String] = Map.empty) extends Persistable
 
 object Commit {
@@ -20,6 +21,7 @@ object Commit {
   implicit def CommitFormat[E <: AggregateEvent : Format]: Format[Commit[E]] = (
     (__ \ "revision").format[AggregateRevision] and
       (__ \ "events").format[Seq[E]] and
+      (__ \ "timestamp").format[Long] and
       (__ \ "headers").format[Map[String, String]]
     )(Commit.apply[E], c => Commit.unapply(c).get)
 

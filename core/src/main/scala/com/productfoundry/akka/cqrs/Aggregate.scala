@@ -221,12 +221,11 @@ trait Aggregate[E <: AggregateEvent]
    */
   private def commit(changes: Changes[E]): Unit = {
 
-    // Construct full headers, in case of duplicates, priority is changes > command > default
-    val defaultHeaders = Map("timestamp" -> System.currentTimeMillis().toString)
-    val headers = defaultHeaders ++ command.headers ++ changes.headers
+    // Construct full headers, prefer changes header over command headers in case of duplicates
+    val headers = command.headers ++ changes.headers
 
     // Construct commit to persist
-    val commit = Commit(revision.next, changes.events, headers)
+    val commit = Commit(revision.next, changes.events, System.currentTimeMillis(), headers)
 
     // Dry run commit to make sure this aggregate does not persist invalid state
     applyCommit(stateOpt, commit)
