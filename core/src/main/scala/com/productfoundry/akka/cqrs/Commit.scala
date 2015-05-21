@@ -4,6 +4,7 @@ import play.api.libs.json._
 
 /**
  * A successful commit to the aggregate.
+ *
  * @param revision of the entity to which the commit was applied.
  * @param events change state.
  * @param headers with commit info.
