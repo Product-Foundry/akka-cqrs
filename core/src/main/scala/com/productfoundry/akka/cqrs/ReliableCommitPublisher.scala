@@ -25,7 +25,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
   /**
    * Publications are queued until the current publication is confirmed.
    */
-  private var pendingPublications: Vector[Commit[AggregateEvent]] = Vector.empty
+  private var pendingPublications: Vector[CommitPublication[AggregateEvent]] = Vector.empty
 
   /**
    * @return the target actor to publish to.
@@ -45,7 +45,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
   abstract override def receiveRecover: Receive = {
     case commit: Commit[_] =>
       super.receiveRecover(commit)
-      publishCommit(commit)
+      publishCommit(CommitPublication(commit))
 
     case Confirmed(deliveryId) =>
       confirmDelivery(deliveryId)
@@ -85,12 +85,11 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
   /**
    * Reliably publishes a persisted commit.
    */
-  override def publishCommit(commit: Commit[AggregateEvent]): Unit = {
+  override def publishCommit(commitPublication: CommitPublication[AggregateEvent]): Unit = {
     if (currentPublicationOption.isEmpty) {
-      publishDirectly(commit)
+      publishDirectly(commitPublication)
     } else {
-      pendingPublications = pendingPublications :+ commit
-
+      pendingPublications = pendingPublications :+ commitPublication
       log.debug("Pending publications: {}", pendingPublications.size)
     }
   }
@@ -100,12 +99,12 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
    *
    * Also keeps track of the current unconfirmed commit publication.
    *
-   * @param commit to publish.
+   * @param commitPublication to publish.
    */
-  private def publishDirectly(commit: Commit[AggregateEvent]): Unit = {
+  private def publishDirectly(commitPublication: CommitPublication[AggregateEvent]): Unit = {
     deliver(publishTarget, deliveryId => {
       assert(currentPublicationOption.isEmpty, "Unconfirmed publication pending")
-      val publication = CommitPublication(commit).requestConfirmation(deliveryId)
+      val publication = commitPublication.requestConfirmation(deliveryId)
       currentPublicationOption = Some(publication)
       publication
     })
