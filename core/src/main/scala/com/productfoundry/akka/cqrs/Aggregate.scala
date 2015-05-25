@@ -239,9 +239,8 @@ trait Aggregate[E <: AggregateEvent]
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
 
-      // TODO [AK] Very fishy, see if this can be guaranteed separately, or solved with commit publisher
-
       // Aggregate the commit globally makes it much easier to build a view of all events in a domain context
+      // TODO [AK] Can be refactored out by using published commits
       aggregateCommit(persistedCommit, changes.payload)
 
       // Commit handler is outside our control, so we don't want it to crash our aggregate
