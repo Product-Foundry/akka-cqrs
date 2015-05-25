@@ -1,4 +1,6 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.cqrs.project
+
+import com.productfoundry.akka.cqrs.AggregateEvent
 
 /**
  * Build projections.

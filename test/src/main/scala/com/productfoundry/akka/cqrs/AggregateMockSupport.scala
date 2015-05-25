@@ -3,6 +3,7 @@ package com.productfoundry.akka.cqrs
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.TestActor.{AutoPilot, KeepRunning, NoAutoPilot}
 import akka.testkit._
+import com.productfoundry.akka.cqrs.project.{DomainRevision, CommitHeaders, Projection, ProjectionProvider}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.stm._

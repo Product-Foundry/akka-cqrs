@@ -1,6 +1,7 @@
 package com.productfoundry.akka.serialization.json
 
-import com.productfoundry.akka.cqrs.{AggregateEvent, Commit, DomainCommit, DomainRevision}
+import com.productfoundry.akka.cqrs.project.{DomainCommit, DomainRevision}
+import com.productfoundry.akka.cqrs.{AggregateEvent, Commit}
 import play.api.libs.json._
 
 trait DomainCommitFormat {

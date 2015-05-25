@@ -1,10 +1,11 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.cqrs.project
 
-import akka.actor.{ReceiveTimeout, ActorLogging, ActorRefFactory, Props}
+import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
+import com.productfoundry.akka.cqrs.AggregateEvent
 
-import scala.concurrent.stm.{Ref, _}
 import scala.concurrent.duration._
+import scala.concurrent.stm.{Ref, _}
 
 object DomainProjectionProvider {
   def apply[P <: Projection[P], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {

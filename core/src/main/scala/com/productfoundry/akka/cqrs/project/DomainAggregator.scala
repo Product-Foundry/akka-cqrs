@@ -1,8 +1,9 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.cqrs.project
 
 import akka.actor.{ActorLogging, ActorRef}
-import akka.persistence.{RecoveryFailure, PersistentActor}
-import com.productfoundry.akka.cqrs.DomainAggregator.DomainAggregatorRevision
+import akka.persistence.{PersistentActor, RecoveryFailure}
+import com.productfoundry.akka.cqrs.project.DomainAggregator.DomainAggregatorRevision
+import com.productfoundry.akka.cqrs.{AggregateEvent, Commit, PersistenceId}
 
 /**
  * Persistent actor that aggregates all received commits.

@@ -3,7 +3,8 @@ package com.productfoundry.akka.cqrs
 import akka.actor._
 import akka.persistence.{RecoveryFailure, PersistentActor}
 import com.productfoundry.akka.GracefulPassivation
-import com.productfoundry.akka.cqrs.DomainAggregator._
+import com.productfoundry.akka.cqrs.project.{DomainAggregatorFailed, DomainAggregator}
+import DomainAggregator._
 
 import scala.util.control.NonFatal
 
