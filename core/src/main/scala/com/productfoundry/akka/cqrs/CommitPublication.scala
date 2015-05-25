@@ -6,6 +6,8 @@ import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
 trait CommitPublication[+E <: AggregateEvent] {
   def commit: Commit[AggregateEvent]
 
+  def deliveryIdOption: Option[Long]
+
   def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef) : CommitPublication[E]
 
   def confirmIfRequested(): Unit
@@ -26,6 +28,8 @@ object CommitPublication {
 }
 
 private[this] case class CommitPublicationImpl[E <: AggregateEvent](commit: Commit[E], requestedConfirmationOption: Option[(ActorRef, Long)] = None) extends CommitPublication[E] {
+
+  override def deliveryIdOption: Option[Long] = requestedConfirmationOption.map(_._2)
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): CommitPublication[E] = {
     copy(requestedConfirmationOption = Some(requester -> deliveryId))
