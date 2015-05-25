@@ -95,7 +95,7 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Command handler is final so that it can always correctly handle the aggregator response.
    */
-  final override def receiveCommand: Receive = {
+  override def receiveCommand: Receive = {
     case commandMessage: AggregateCommandMessage => handleCommandMessage(commandMessage)
     case command: AggregateCommand => handleCommandMessage(AggregateCommandMessage(AggregateRevision.Initial, command))
     case message => handleCommand.applyOrElse(message, unhandled)
@@ -123,7 +123,7 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Handle recovery of commits and aggregator confirmation status.
    */
-  final override def receiveRecover: Receive = {
+  override def receiveRecover: Receive = {
     case commit: Commit[E] => updateState(commit)
     case RecoveryFailure(cause) => log.error(cause, "Unable to recover: {}", persistenceId)
   }
