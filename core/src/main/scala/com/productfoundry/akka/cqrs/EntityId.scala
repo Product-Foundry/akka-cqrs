@@ -7,4 +7,7 @@ import scala.reflect.ClassTag
  */
 trait EntityId extends Identifier
 
-abstract class EntityIdCompanion[I <: EntityId : ClassTag] extends IdentifierCompanion[I]
+abstract class EntityIdCompanion[I <: EntityId : ClassTag] extends IdentifierCompanion[I] {
+
+  implicit val EntityIdCompanionObject: EntityIdCompanion[I] = this
+}
