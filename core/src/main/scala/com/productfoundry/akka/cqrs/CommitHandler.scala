@@ -8,7 +8,7 @@ trait CommitHandler {
 
   /**
    * Handle a persisted commit.
-   * @param commit that was persisted.
+   * @param commit to handle.
    */
   def handleCommit(commit: Commit[AggregateEvent]): Unit
 }

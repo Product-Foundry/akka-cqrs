@@ -1,9 +1,10 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
-import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.{AggregateEvent, Commit}
 
-trait CommitPublication[+E <: AggregateEvent] {
+trait Publication[+E <: AggregateEvent] {
 
   /**
    * @return The commit to publish.
@@ -18,7 +19,7 @@ trait CommitPublication[+E <: AggregateEvent] {
    *
    * @return Updated commit publication that can send back confirmations.
    */
-  def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): CommitPublication[E]
+  def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication[E]
 
   /**
    * @return Optional delivery id for confirmation.
@@ -36,7 +37,7 @@ trait CommitPublication[+E <: AggregateEvent] {
    *
    * @return Updated commit publication that includes the commander.
    */
-  def includeCommander(commander: ActorRef): CommitPublication[E]
+  def includeCommander(commander: ActorRef): Publication[E]
 
   /**
    * Notifies the commander if it is known.
@@ -49,7 +50,7 @@ trait CommitPublication[+E <: AggregateEvent] {
 /**
  * Companion.
  */
-object CommitPublication {
+object Publication {
 
   /**
    * Create commit publication.
@@ -57,14 +58,14 @@ object CommitPublication {
    * @tparam E Base type of events in the commit.
    * @return Commit publication.
    */
-  def apply[E <: AggregateEvent](commit: Commit[E]): CommitPublication[E] = CommitPublicationImpl(commit)
+  def apply[E <: AggregateEvent](commit: Commit[E]): Publication[E] = CommitPublication(commit)
 }
 
-private[this] case class CommitPublicationImpl[E <: AggregateEvent](commit: Commit[E],
+private[this] case class CommitPublication[E <: AggregateEvent](commit: Commit[E],
                                                                     requestedConfirmationOption: Option[(ActorRef, Long)] = None,
-                                                                    commanderOption: Option[ActorRef] = None) extends CommitPublication[E] {
+                                                                    commanderOption: Option[ActorRef] = None) extends Publication[E] {
 
-  override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): CommitPublication[E] = {
+  override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication[E] = {
     copy(requestedConfirmationOption = Some(requester -> deliveryId))
   }
 
@@ -76,7 +77,7 @@ private[this] case class CommitPublicationImpl[E <: AggregateEvent](commit: Comm
     }
   }
 
-  override def includeCommander(commander: ActorRef): CommitPublication[E] = {
+  override def includeCommander(commander: ActorRef): Publication[E] = {
     copy(commanderOption = Some(commander))
   }
 
