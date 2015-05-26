@@ -6,9 +6,18 @@ import com.typesafe.config.ConfigFactory
 object TestConfig {
   val config = ConfigFactory.parseString(
     """
-    akka.loggers = ["akka.testkit.TestEventListener"]
-    akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
-    """
+      |akka {
+      |  loglevel = OFF
+      |  persistence {
+      |    journal {
+      |      plugin = "in-memory-journal"
+      |    }
+      |    snapshot-store {
+      |      plugin = "in-memory-snapshot-store"
+      |    }
+      |  }
+      |}
+    """.stripMargin
   )
 
   def testSystem = {
