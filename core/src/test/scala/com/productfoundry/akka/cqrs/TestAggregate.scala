@@ -3,9 +3,6 @@ package com.productfoundry.akka.cqrs
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.TestAggregate._
 
-case class TestId(uuid: Uuid) extends AggregateId
-object TestId extends AggregateIdCompanion[TestId]
-
 class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[TestEvent] {
 
   type S = TestState
