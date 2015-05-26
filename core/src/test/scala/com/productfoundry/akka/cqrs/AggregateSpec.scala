@@ -1,27 +1,12 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{Status, ActorRef, Props}
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.{ActorRef, Props, Status}
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.support.TestConfig
-import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Millis, Second, Span}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import com.productfoundry.akka.cqrs.publish.ReliableCommitPublisher
+import com.productfoundry.support.AggregateTestSupport
+import CommandRequest._
 
-class AggregateSpec
-  extends TestKit(TestConfig.testSystem)
-  with ImplicitSender
-  with WordSpecLike
-  with Matchers
-  with BeforeAndAfterAll
-  with Eventually {
-
-  implicit override val patienceConfig = PatienceConfig(
-    timeout = scaled(Span(1, Second)),
-    interval = scaled(Span(10, Millis))
-  )
-
-  implicit val domainContext = new LocalDomainContext(system)
+class AggregateSpec extends AggregateTestSupport {
 
   implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
     override def props(config: PassivationConfig): Props = {
@@ -32,11 +17,6 @@ class AggregateSpec
   implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
 
   val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
-
-  override protected def afterAll(): Unit = {
-    TestKit.shutdownActorSystem(system)
-    system.awaitTermination()
-  }
 
   "Aggregate creation" must {
 
@@ -161,6 +141,103 @@ class AggregateSpec
       supervisor ! TestAggregate.GetCount(TestId.generate())
       val failure = expectMsgType[Status.Failure]
       failure.cause shouldBe an[AggregateException]
+    }
+  }
+
+  "Aggregate revision check" must {
+
+    "succeed with initial revision on create" in {
+      supervisor ! TestAggregate.Create(TestId.generate()).withExpectedRevision(AggregateRevision.Initial)
+      expectMsgType[AggregateStatus.Success]
+    }
+
+    "fail with other revision on create" in {
+      val expected = AggregateRevision.Initial.next.next
+
+      supervisor ! TestAggregate.Create(TestId.generate()).withExpectedRevision(expected)
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(RevisionConflict(expected, AggregateRevision.Initial))
+    }
+
+    "succeed on update" in new AggregateFixture {
+      val expected = AggregateRevision.Initial.next
+      supervisor ! TestAggregate.Count(testId).withExpectedRevision(expected)
+      val status = expectMsgType[AggregateStatus.Success]
+      status.result.aggregateRevision should be(expected.next)
+    }
+
+    "fail on update with wrong revision" in new AggregateFixture {
+      val expected = AggregateRevision.Initial.next.next.next
+      supervisor ! TestAggregate.Count(testId).withExpectedRevision(expected)
+
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(RevisionConflict(expected, AggregateRevision.Initial.next))
+    }
+
+    "provide empty differences if expected is higher than actual revision" in new AggregateFixture {
+      val actual = AggregateRevision.Initial.next
+      val expected = actual.next
+      supervisor ! TestAggregate.Count(testId).withExpectedRevision(expected)
+      expectMsgPF() {
+        case AggregateStatus.Failure(conflict: RevisionConflict) =>
+          conflict.expected should be(expected)
+          conflict.actual should be(actual)
+          conflict.commits should be(empty)
+      }
+    }
+
+    "provide differences in revisions" in new AggregateFixture {
+      val results = 1 to 10 map { _ =>
+        supervisor ! TestAggregate.Count(testId)
+        expectMsgType[AggregateStatus.Success].result
+      }
+
+      val actual = results.last.aggregateRevision
+      val expected = AggregateRevision.Initial.next
+
+      supervisor ! TestAggregate.Count(testId).withExpectedRevision(expected)
+      expectMsgPF() {
+        case AggregateStatus.Failure(conflict: RevisionConflict) =>
+          conflict.expected should be(expected)
+          conflict.actual should be(actual)
+          conflict.commits.size should be(actual.value - expected.value)
+          conflict.commits.zip(results).foreach { case (commit, result) =>
+            commit.revision should be(result.aggregateRevision)
+            commit.events should have size 1
+            commit.events.head shouldBe a[TestAggregate.Counted]
+          }
+      }
+    }
+  }
+
+  "Aggregate payload" must {
+
+    "be unspecified" in new AggregateFixture {
+      supervisor ! TestAggregate.Count(testId)
+      val status = expectMsgType[AggregateStatus.Success]
+      status.result.payload should be(Unit)
+    }
+
+    "be defined by aggregate" in new AggregateFixture {
+      supervisor ! TestAggregate.CountWithPayload(testId)
+      val status = expectMsgType[AggregateStatus.Success]
+      status.result.payload should be(0L)
+    }
+  }
+
+  "Aggregate headers" must {
+
+    "be stored in commit" in new AggregateFixture {
+      val headers = Map("a" -> "b")
+      supervisor ! TestAggregate.Count(testId).withHeaders(headers)
+      expectMsgType[AggregateStatus.Success]
+
+      supervisor ! TestAggregate.Count(testId).withExpectedRevision(AggregateRevision.Initial.next)
+      expectMsgPF() {
+        case AggregateStatus.Failure(conflict: RevisionConflict) =>
+          conflict.commits.size should be(1)
+          conflict.commits.head.headers should be(headers)
+      }
     }
   }
 

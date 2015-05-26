@@ -11,6 +11,8 @@ import scala.concurrent.duration._
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
 
+import CommandRequest._
+
 /**
  * Base spec for testing aggregates.
  * @param _system test actor system.
@@ -253,7 +255,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
       atomic { implicit txn =>
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
-            supervisor ! AggregateCommandMessage(rev, command)
+            supervisor ! command.withExpectedRevision(rev)
             expectMsgSuccess[CommitResult].aggregateRevision
           }
         }
@@ -271,7 +273,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
         val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
 
         revisionRef.transform { revision =>
-          supervisor ! AggregateCommandMessage(revision, cmd)
+          supervisor ! cmd.withExpectedRevision(revision)
           expectMsgPF() {
             case success@AggregateStatus.Success(commitResult: CommitResult) =>
               statusOptionRef.set(Some(success))

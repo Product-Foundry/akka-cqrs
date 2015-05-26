@@ -65,9 +65,9 @@ trait Aggregate[E <: AggregateEvent]
   def state: S = stateOpt.getOrElse(throw new AggregateException("Aggregate state not defined"))
 
   /**
-   * The current command message
+   * The current command request
    */
-  private var commandOption: Option[AggregateCommandMessage] = None
+  private var commandRequestOption: Option[CommandRequest] = None
 
   /**
    * Provides access to the current command.
@@ -76,12 +76,7 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @return current command.
    */
-  def command: AggregateCommandMessage = commandOption.getOrElse(throw new AggregateException("Current command not defined"))
-
-  /**
-   * Gives the expected revision for a command.
-   */
-  def expected: AggregateRevision = command.expected
+  def commandRequest: CommandRequest = commandRequestOption.getOrElse(throw new AggregateException("Current command not defined"))
 
   /**
    * @return Indication whether the state is initialized or not.
@@ -97,8 +92,8 @@ trait Aggregate[E <: AggregateEvent]
    * Command handler is final so that it can always correctly handle the aggregator response.
    */
   override def receiveCommand: Receive = {
-    case commandMessage: AggregateCommandMessage => handleCommandMessage(commandMessage)
-    case command: AggregateCommand => handleCommandMessage(AggregateCommandMessage(AggregateRevision.Initial, command))
+    case commandRequest: CommandRequest => handleCommandRequest(commandRequest)
+    case command: AggregateCommand => handleCommandRequest(CommandRequest(command))
     case message => handleCommand.applyOrElse(message, unhandled)
   }
 
@@ -107,15 +102,15 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param command to execute.
    */
-  private def handleCommandMessage(command: AggregateCommandMessage) = {
+  private def handleCommandRequest(command: CommandRequest) = {
     if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
       sender() ! AggregateStatus.Failure(AggregateDeleted)
     } else {
       try {
-        commandOption = Some(command)
+        commandRequestOption = Some(command)
         handleCommand.applyOrElse(command.command, unhandled)
       } finally {
-        commandOption = None
+        commandRequestOption = None
       }
     }
   }
@@ -163,17 +158,14 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Attempts to commit changes.
    *
-   * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
    */
-  def tryCommit(expected: AggregateRevision)(changesAttempt: Either[AggregateError, Changes[E]]): Unit = {
+  def tryCommit(changesAttempt: Either[AggregateError, Changes[E]]): Unit = {
+
+    // TODO [AK] First check revision, then validate errors
     changesAttempt match {
       case Right(changes) =>
-        if (expected != revision) {
-          handleConflict(RevisionConflict(expected, revision))
-        } else {
-          commit(changes)
-        }
+        commandRequest.checkRevision(revision)(commit(changes))(expected => handleConflict(RevisionConflict(expected, revision)))
       case Left(cause) =>
         sender() ! AggregateStatus.Failure(cause)
     }
@@ -198,23 +190,26 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param changesAttempt containing changes or a validation failure.
    */
+
+  // TODO [AK] Can be simplified in a single tryCommit
   def tryCreate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
       sender() ! AggregateStatus.Failure(AggregateAlreadyInitialized)
     } else {
-      tryCommit(AggregateRevision.Initial)(changesAttempt)
+      tryCommit(changesAttempt)
     }
   }
 
   /**
    * Specialized commit function that only attempt a commit if this aggregate is already initialized.
    *
-   * @param expected revision.
    * @param changesAttempt containing changes or a validation failure.
    */
-  def tryUpdate(expected: AggregateRevision)(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
+
+  // TODO [AK] Can be simplified in a single tryCommit
+  def tryUpdate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
-      tryCommit(expected)(changesAttempt)
+      tryCommit(changesAttempt)
     } else {
       sender() ! AggregateStatus.Failure(AggregateNotInitialized)
     }
@@ -227,7 +222,7 @@ trait Aggregate[E <: AggregateEvent]
   private def commit(changes: Changes[E]): Unit = {
 
     // Construct full headers, prefer changes header over command headers in case of duplicates
-    val headers = command.headers ++ changes.headers
+    val headers = commandRequest.headers ++ changes.headers
 
     // Construct commit to persist
     val commit = Commit(revision.next, changes.events, System.currentTimeMillis(), headers)

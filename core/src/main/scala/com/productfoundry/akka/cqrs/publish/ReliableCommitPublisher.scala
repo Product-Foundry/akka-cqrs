@@ -44,6 +44,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
    * Already confirmed published commits will not be published thanks to persisted Confirmed messages.
    */
   abstract override def receiveRecover: Receive = {
+
     case commit: Commit[_] =>
       super.receiveRecover(commit)
       publishCommit(Publication(commit))
