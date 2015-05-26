@@ -14,7 +14,8 @@ trait Revision[R <: Revision[R]] extends Proxy with Ordered[R] with Serializable
 
   override def compare(that: R): Int = value compare that.value
 
-  def next: R
+  def next(implicit companion: RevisionCompanion[R]): R = companion.apply(value + 1L)
+
 }
 
 abstract class RevisionCompanion[R <: Revision[R]: ClassTag] {

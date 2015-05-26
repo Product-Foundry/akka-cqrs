@@ -1,11 +1,11 @@
 package com.productfoundry.akka.cqrs
 
+import com.productfoundry.support.Spec
+import com.productfoundry.support.TestSupport._
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{Matchers, WordSpecLike}
 import play.api.libs.json.Json
 
-class IdentifierSpec extends WordSpecLike with Matchers with GeneratorDrivenPropertyChecks {
+class IdentifierSpec extends Spec {
 
   import IdentifierSpec._
 
@@ -23,14 +23,18 @@ class IdentifierSpec extends WordSpecLike with Matchers with GeneratorDrivenProp
       }
     }
 
+    "be serializable" in {
+      forAll { testId: TestId =>
+        deserializeBytes(serializeBytes(testId)) should be (testId)
+      }
+    }
+
     "parse from string" in {
       forAll { testId: TestId =>
         TestId.fromString(testId.toString) should be(Some(testId))
       }
     }
   }
-
-  def arbitraryIdentifiers = Gen.listOf(Arbitrary.arbitrary[TestId])
 }
 
 object IdentifierSpec {
