@@ -2,9 +2,9 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor.{ActorRef, Props, Status}
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.publish.ReliableCommitPublisher
+import com.productfoundry.akka.cqrs.CommandRequest._
+import com.productfoundry.akka.cqrs.TestAggregate.InvalidIncrement
 import com.productfoundry.support.AggregateTestSupport
-import CommandRequest._
 
 class AggregateSpec extends AggregateTestSupport {
 
@@ -207,6 +207,21 @@ class AggregateSpec extends AggregateTestSupport {
             commit.events.head shouldBe a[TestAggregate.Counted]
           }
       }
+    }
+  }
+
+  "Aggregate validation" must {
+
+    "report validation messages" in new AggregateFixture {
+      supervisor ! TestAggregate.Increment(testId, -1)
+      val status = expectMsgType[AggregateStatus.Failure]
+      status.cause should be(ValidationError(InvalidIncrement(-1)))
+    }
+
+    "be performed after revision check" in new AggregateFixture {
+      supervisor ! TestAggregate.Increment(testId, -1).withExpectedRevision(AggregateRevision.Initial)
+      val status = expectMsgType[AggregateStatus.Failure]
+      status.cause shouldBe a[RevisionConflict]
     }
   }
 

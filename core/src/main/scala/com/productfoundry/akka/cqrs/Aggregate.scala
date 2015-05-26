@@ -106,11 +106,15 @@ trait Aggregate[E <: AggregateEvent]
     if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
       sender() ! AggregateStatus.Failure(AggregateDeleted)
     } else {
-      try {
-        commandRequestOption = Some(command)
-        handleCommand.applyOrElse(command.command, unhandled)
-      } finally {
-        commandRequestOption = None
+      command.checkRevision(revision) {
+        try {
+          commandRequestOption = Some(command)
+          handleCommand.applyOrElse(command.command, unhandled)
+        } finally {
+          commandRequestOption = None
+        }
+      } { expected =>
+        handleConflict(RevisionConflict(expected, revision))
       }
     }
   }
@@ -161,14 +165,7 @@ trait Aggregate[E <: AggregateEvent]
    * @param changesAttempt containing changes or a validation failure.
    */
   def tryCommit(changesAttempt: Either[AggregateError, Changes[E]]): Unit = {
-
-    // TODO [AK] First check revision, then validate errors
-    changesAttempt match {
-      case Right(changes) =>
-        commandRequest.checkRevision(revision)(commit(changes))(expected => handleConflict(RevisionConflict(expected, revision)))
-      case Left(cause) =>
-        sender() ! AggregateStatus.Failure(cause)
-    }
+    changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), changes => commit(changes))
   }
 
   /**
