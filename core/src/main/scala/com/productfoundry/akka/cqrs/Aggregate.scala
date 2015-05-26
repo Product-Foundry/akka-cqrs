@@ -103,16 +103,20 @@ trait Aggregate[E <: AggregateEvent]
   }
 
   /**
-   * Handle all commands and keeping the command for reference in the aggregate.
+   * Handle all commands and keep the command for reference in the aggregate.
    *
    * @param command to execute.
    */
   private def handleCommandMessage(command: AggregateCommandMessage) = {
-    try {
-      commandOption = Some(command)
-      handleCommand.applyOrElse(command.command, unhandled)
-    } finally {
-      commandOption = None
+    if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
+      sender() ! AggregateStatus.Failure(AggregateDeleted)
+    } else {
+      try {
+        commandOption = Some(command)
+        handleCommand.applyOrElse(command.command, unhandled)
+      } finally {
+        commandOption = None
+      }
     }
   }
 

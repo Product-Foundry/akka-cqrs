@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.{Status, ActorRef, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.support.TestConfig
@@ -23,39 +23,75 @@ class AggregateSpec
 
   implicit val domainContext = new LocalDomainContext(system)
 
+  implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
+    override def props(config: PassivationConfig): Props = {
+      Props(new TestAggregate(config))
+    }
+  }
+
+  implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
+
+  val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
+
   override protected def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
     system.awaitTermination()
   }
 
-  "Aggregate" must {
+  "Aggregate creation" must {
 
-    "be created" in new TestAggregateFixture {
+    "succeed" in {
       supervisor ! TestAggregate.Create(TestId.generate())
       expectMsgType[AggregateStatus.Success]
     }
 
-    "update aggregate revision on create" in new TestAggregateFixture {
+    "have initial revision" in {
       supervisor ! TestAggregate.Create(TestId.generate())
-      val commitResult = expectMsgType[AggregateStatus.Success].result
-      assert(commitResult.aggregateRevision === AggregateRevision.Initial.next)
+
+      val success = expectMsgType[AggregateStatus.Success]
+      success.result.aggregateRevision should be(AggregateRevision.Initial.next)
     }
 
-    "update aggregate revision on update" in new TestAggregateFixture {
-      val testId = TestId.generate()
-      supervisor ! TestAggregate.Create(testId)
+    "fail for existing" in {
+      val id = TestId.generate()
+
+      supervisor ! TestAggregate.Create(id)
       expectMsgType[AggregateStatus.Success]
 
+      supervisor ! TestAggregate.Create(id)
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateAlreadyInitialized)
+    }
+
+    "fail for deleted" in {
+      val id = TestId.generate()
+
+      supervisor ! TestAggregate.Create(id)
+      expectMsgType[AggregateStatus.Success]
+
+      supervisor ! TestAggregate.Delete(id)
+      expectMsgType[AggregateStatus.Success]
+
+      supervisor ! TestAggregate.Create(id)
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateDeleted)
+    }
+  }
+
+  "Aggregate update" must {
+
+    "succeed" in new AggregateFixture {
       supervisor ! TestAggregate.Count(testId)
-      val commitResult = expectMsgType[AggregateStatus.Success].result
-      assert(commitResult.aggregateRevision === AggregateRevision.Initial.next.next)
+      expectMsgType[AggregateStatus.Success]
     }
 
-    "update aggregate state" in new TestAggregateFixture {
-      val testId = TestId.generate()
-      supervisor ! TestAggregate.Create(testId)
-      expectMsgType[AggregateStatus.Success]
+    "update revision" in new AggregateFixture {
+      supervisor ! TestAggregate.Count(testId)
+      val success = expectMsgType[AggregateStatus.Success]
+      success.result.aggregateRevision should be(AggregateRevision.Initial.next.next)
+    }
 
+    "update state" in new AggregateFixture {
       supervisor ! TestAggregate.GetCount(testId)
       expectMsg(0)
 
@@ -65,17 +101,72 @@ class AggregateSpec
       supervisor ! TestAggregate.GetCount(testId)
       expectMsg(1)
     }
-  }
 
-  trait TestAggregateFixture {
-    implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
-      override def props(config: PassivationConfig): Props = {
-        Props(new TestAggregate(config))
-      }
+    "fail for unknown" in {
+      supervisor ! TestAggregate.Count(TestId.generate())
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateNotInitialized)
     }
 
-    implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
+    "fail for deleted" in new AggregateFixture {
+      supervisor ! TestAggregate.Delete(testId)
+      expectMsgType[AggregateStatus.Success]
 
-    val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
+      supervisor ! TestAggregate.Count(testId)
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateDeleted)
+    }
+  }
+
+  "Aggregate delete" must {
+
+    "succeed" in new AggregateFixture {
+      supervisor ! TestAggregate.Delete(testId)
+      expectMsgType[AggregateStatus.Success]
+    }
+
+    "fail for deleted" in new AggregateFixture {
+      supervisor ! TestAggregate.Delete(testId)
+      expectMsgType[AggregateStatus.Success]
+
+      supervisor ! TestAggregate.Delete(testId)
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateDeleted)
+    }
+
+    "fail for unknown" in new AggregateFixture {
+      supervisor ! TestAggregate.Delete(TestId.generate())
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateNotInitialized)
+    }
+  }
+
+  "Aggregate message" must {
+
+    "succeed" in new AggregateFixture {
+      supervisor ! TestAggregate.GetCount(testId)
+      expectMsg(0)
+    }
+
+    "fail for deleted" in new AggregateFixture {
+      supervisor ! TestAggregate.Delete(testId)
+      expectMsgType[AggregateStatus.Success]
+
+      supervisor ! TestAggregate.GetCount(testId)
+      val failure = expectMsgType[Status.Failure]
+      failure.cause shouldBe an[AggregateException]
+    }
+
+    "fail for unknown" in new AggregateFixture {
+      supervisor ! TestAggregate.GetCount(TestId.generate())
+      val failure = expectMsgType[Status.Failure]
+      failure.cause shouldBe an[AggregateException]
+    }
+  }
+
+  trait AggregateFixture extends {
+    val testId = TestId.generate()
+    supervisor ! TestAggregate.Create(testId)
+    expectMsgType[AggregateStatus.Success]
   }
 }
