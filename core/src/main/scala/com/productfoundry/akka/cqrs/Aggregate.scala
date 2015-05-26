@@ -156,7 +156,9 @@ trait Aggregate[E <: AggregateEvent]
    * Can be used for dry run or aggregate update.
    */
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
-    if (event.isInstanceOf[AggregateDeleteEvent]) None else Some(stateOption.fold(factory.apply(event))(state => state.update(event)))
+    stateOption.fold[Option[S]](Some(factory.apply(event))) { state =>
+      if (event.isInstanceOf[AggregateDeleteEvent]) None else Some(state.update(event))
+    }
   }
 
   /**
@@ -187,8 +189,6 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param changesAttempt containing changes or a validation failure.
    */
-
-  // TODO [AK] Can be simplified in a single tryCommit
   def tryCreate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
       sender() ! AggregateStatus.Failure(AggregateAlreadyInitialized)
@@ -202,8 +202,6 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param changesAttempt containing changes or a validation failure.
    */
-
-  // TODO [AK] Can be simplified in a single tryCommit
   def tryUpdate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
     if (initialized) {
       tryCommit(changesAttempt)
@@ -297,8 +295,7 @@ trait Aggregate[E <: AggregateEvent]
    * Can be overridden by a mixin to handle commits.
    * @param commit that just got persisted.
    */
-  override def handleCommit(commit: Commit[AggregateEvent]): Unit = {
-  }
+  override def handleCommit(commit: Commit[AggregateEvent]): Unit = {}
 
   /**
    * Sends the exception message to the caller.
