@@ -62,8 +62,8 @@ object Publication {
 }
 
 private[this] case class CommitPublication[E <: AggregateEvent](commit: Commit[E],
-                                                                    requestedConfirmationOption: Option[(ActorRef, Long)] = None,
-                                                                    commanderOption: Option[ActorRef] = None) extends Publication[E] {
+                                                                requestedConfirmationOption: Option[(ActorRef, Long)] = None,
+                                                                commanderOption: Option[ActorRef] = None) extends Publication[E] {
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication[E] = {
     copy(requestedConfirmationOption = Some(requester -> deliveryId))

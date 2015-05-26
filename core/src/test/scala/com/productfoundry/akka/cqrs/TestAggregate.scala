@@ -48,6 +48,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
   case class TestState(count: Int) extends AggregateState {
     override def update = {
       case Counted(_, _count) => copy(count = _count)
+      case Incremented(_, amount) => copy(count = count + amount)
     }
   }
 }
