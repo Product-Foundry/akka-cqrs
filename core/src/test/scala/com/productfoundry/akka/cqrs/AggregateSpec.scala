@@ -279,6 +279,18 @@ class AggregateSpec extends AggregateTestSupport {
     }
   }
 
+  "Aggregate exceptions" must {
+
+    "be recoverable" in new AggregateFixture {
+      supervisor ! Create(testId)
+      expectMsgType[Status.Failure]
+
+      supervisor ! Count(testId)
+      val success = expectMsgType[AggregateResult.Success]
+      success.result.aggregateRevision should be(AggregateRevision(2))
+    }
+  }
+
   trait AggregateFixture extends {
     val testId = TestId.generate()
     supervisor ! Create(testId)
