@@ -159,7 +159,7 @@ trait Aggregate[E <: AggregateEvent]
    */
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
     stateOption.fold[Option[S]](Some(factory.apply(event))) { state =>
-      if (event.isInstanceOf[AggregateDeleteEvent]) None else Some(state.update(event))
+      if (event.isDeleteEvent) None else Some(state.update(event))
     }
   }
 
