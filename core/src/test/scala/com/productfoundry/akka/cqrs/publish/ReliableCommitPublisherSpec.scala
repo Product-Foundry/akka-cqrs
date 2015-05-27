@@ -20,7 +20,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       Props(new TestAggregate(config) with ReliableCommitPublisher {
         override def publishTarget: ActorPath = publishedEventProbe.ref.path
 
-        override def redeliverInterval: FiniteDuration = 200.millis
+        override def redeliverInterval: FiniteDuration = 500.millis
       })
     }
   }
@@ -115,6 +115,6 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
   }
 
   override protected def afterEach(): Unit = {
-    publishedEventProbe.expectNoMsg(1.second)
+    publishedEventProbe.expectNoMsg(2.seconds)
   }
 }
