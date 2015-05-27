@@ -245,12 +245,8 @@ trait Aggregate[E <: AggregateEvent]
       // TODO [AK] Can be refactored out by using published commits
       aggregateCommit(persistedCommit, changes.payload)
 
-      // Commit handler is outside our control, so we don't want it to crash our aggregate
-      try {
-        handleCommit(persistedCommit)
-      } catch {
-        case NonFatal(e) => log.error(e, "Handling commit: {}", persistedCommit)
-      }
+      // Perform additional mixed in commit handling logic
+      handleCommit(persistedCommit)
     }
   }
 
