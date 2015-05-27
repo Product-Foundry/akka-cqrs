@@ -100,21 +100,23 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Handle all commands and keep the command for reference in the aggregate.
    *
-   * @param command to execute.
+   * @param commandRequest to execute.
    */
-  private def handleCommandRequest(command: CommandRequest) = {
+  private def handleCommandRequest(commandRequest: CommandRequest) = {
     if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
       sender() ! AggregateStatus.Failure(AggregateDeleted)
     } else {
-      command.checkRevision(revision) {
+      commandRequest.checkRevision(revision) {
         try {
-          commandRequestOption = Some(command)
-          handleCommand.applyOrElse(command.command, unhandled)
+          commandRequestOption = Some(commandRequest)
+          handleCommand.applyOrElse(commandRequest.command, unhandled)
         } finally {
           commandRequestOption = None
         }
       } { expected =>
         handleConflict(RevisionConflict(expected, revision))
+      } {
+        sender() ! AggregateStatus.Failure(AggregateRevisionExpected)
       }
     }
   }

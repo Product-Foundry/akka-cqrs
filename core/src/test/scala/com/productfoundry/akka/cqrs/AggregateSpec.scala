@@ -174,6 +174,29 @@ class AggregateSpec extends AggregateTestSupport {
       failure.cause should be(RevisionConflict(expected, AggregateRevision(1L)))
     }
 
+    "be enforced by command" in new AggregateFixture {
+      supervisor ! CountWithRequiredRevisionCheck(testId)
+
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(AggregateRevisionExpected)
+    }
+
+    "succeed when enforced by command" in new AggregateFixture {
+      val expected = AggregateRevision(1L)
+      supervisor ! CountWithRequiredRevisionCheck(testId).withExpectedRevision(expected)
+
+      val status = expectMsgType[AggregateStatus.Success]
+      status.result.aggregateRevision should be(expected.next)
+    }
+
+    "fail when enforced by command with wrong revision" in new AggregateFixture {
+      val expected = AggregateRevision(3L)
+      supervisor ! CountWithRequiredRevisionCheck(testId).withExpectedRevision(expected)
+
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause should be(RevisionConflict(expected, AggregateRevision(1L)))
+    }
+
     "provide empty differences if expected is higher than actual revision" in new AggregateFixture {
       val actual = AggregateRevision(1L)
       val expected = actual.next

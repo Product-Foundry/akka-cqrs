@@ -3,7 +3,26 @@ package com.productfoundry.akka.cqrs
 /**
  * Base command marker trait.
  */
-trait AggregateCommand extends AggregateMessage
+trait AggregateCommand extends AggregateMessage {
+
+  /**
+   * Commands do not require a revision check by default.
+   * @return indication if a revision check is required in order to process the command.
+   */
+  def isRevisionCheckRequired: Boolean = false
+}
+
+/**
+ * Trait to force revision checks for certain commands.
+ */
+trait RequiredRevisionCheck {
+  self: AggregateCommand =>
+
+  /**
+   * @return Indication that revision check is required.
+   */
+  override def isRevisionCheckRequired: Boolean = true
+}
 
 /**
  * Requests a command with additional info for the aggregate.
@@ -27,9 +46,10 @@ trait CommandRequest extends AggregateMessage {
    * @param actual revision of the aggregate.
    * @param success executed when the revision check passed.
    * @param failed is executed when the revision check fails.
+   * @param missing is executed when the revision is required for the command but unknown.
    * @return True when the revision is correct or expected is empty.
    */
-  def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit): Unit
+  def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit)(missing: => Unit): Unit
 
   /**
    * Appends the specified headers to the command request headers.
@@ -45,6 +65,8 @@ trait CommandRequest extends AggregateMessage {
 }
 
 object CommandRequest {
+
+  import scala.language.implicitConversions
 
   /**
    * Create a new command request for the specified command.
@@ -90,10 +112,13 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand, expe
    * @param actual revision of the aggregate.
    * @param success executed when the revision check passed.
    * @param failed is executed when the revision check fails.
+   * @param missing is executed when the revision is required for the command but unknown.
    * @return True when the revision is correct or expected is empty.
    */
-  override def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit): Unit = {
-    expectedOption.filterNot(_ == actual).fold(success)(failed)
+  override def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit)(missing: => Unit): Unit = {
+    expectedOption.fold(if (command.isRevisionCheckRequired) missing else success) { expected =>
+       if (actual == expected) success else failed(expected)
+    }
   }
 
   /**

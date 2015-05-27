@@ -18,6 +18,11 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
         Right(Changes(Counted(aggregateId, state.count + 1)))
       }
 
+    case CountWithRequiredRevisionCheck(aggregateId) =>
+      tryUpdate {
+        Right(Changes(Counted(aggregateId, state.count + 1)))
+      }
+
     case CountWithPayload(aggregateId) =>
       tryUpdate {
         Right(Changes(Counted(aggregateId, state.count + 1)).withPayload(state.count))
@@ -62,6 +67,7 @@ object TestAggregate {
 
   case class Create(id: TestId) extends TestAggregateCommand
   case class Count(id: TestId) extends TestAggregateCommand
+  case class CountWithRequiredRevisionCheck(id: TestId) extends TestAggregateCommand with RequiredRevisionCheck
   case class CountWithPayload(id: TestId) extends TestAggregateCommand
   case class Increment(id: TestId, amount: Int) extends TestAggregateCommand
   case class Delete(id: TestId) extends TestAggregateCommand
