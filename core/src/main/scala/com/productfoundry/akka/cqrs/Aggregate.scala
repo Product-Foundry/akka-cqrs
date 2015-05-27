@@ -1,12 +1,10 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
-import akka.persistence.{RecoveryFailure, PersistentActor}
+import akka.persistence.{PersistentActor, RecoveryFailure}
 import com.productfoundry.akka.GracefulPassivation
-import com.productfoundry.akka.cqrs.project.{DomainAggregatorFailed, DomainAggregator}
-import DomainAggregator._
-
-import scala.util.control.NonFatal
+import com.productfoundry.akka.cqrs.project.DomainAggregator._
+import com.productfoundry.akka.cqrs.project.{DomainAggregator, DomainAggregatorFailed}
 
 /**
  * Aggregate.
@@ -234,9 +232,7 @@ trait Aggregate[E <: AggregateEvent]
 
     // No exception thrown, persist and update state for real
     persist(commit) { persistedCommit =>
-      if (revision != commit.revision) {
-        log.warning("Unexpected aggregate commit revision, expected: {}, actual: {}", revision, commit.revision)
-      }
+      assert(revision == commit.revision, "Having different revisions here should never happen")
 
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
