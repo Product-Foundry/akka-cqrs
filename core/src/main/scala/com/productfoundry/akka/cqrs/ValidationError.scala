@@ -6,7 +6,7 @@ trait ValidationMessage extends Product
  * Exception indicating one or more domain validation failures.
  * @param messages for failed validations.
  */
-case class ValidationError private (messages: Seq[ValidationMessage]) extends AggregateError
+case class ValidationError private (messages: Seq[ValidationMessage]) extends DomainError
 
 object ValidationError {
   def apply(message: ValidationMessage): ValidationError = ValidationError(Seq(message))

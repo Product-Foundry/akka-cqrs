@@ -111,7 +111,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(aggregateId)
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateStatus.Success(CommitResult(aggregateRevision, domainRevision, payload)))
+      aggregateFactoryProbe.reply(AggregateResult.Success(CommitResult(aggregateRevision, domainRevision, payload)))
       aggregateId
     }
 
@@ -122,7 +122,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      */
     def mockUpdateFailure[E <: ValidationMessage](failure: E, failures: E*): Unit = {
       aggregateFactoryProbe.expectMsgType[AggregateMessage]
-      aggregateFactoryProbe.reply(AggregateStatus.Failure(ValidationError(failure, failures: _*)))
+      aggregateFactoryProbe.reply(AggregateResult.Failure(ValidationError(failure, failures: _*)))
     }
 
     /**

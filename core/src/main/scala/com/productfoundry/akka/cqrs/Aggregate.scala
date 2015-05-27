@@ -62,7 +62,7 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @return current aggregate state.
    */
-  def state: S = stateOpt.getOrElse(throw new AggregateException("Aggregate state not defined"))
+  def state: S = stateOpt.getOrElse(throw AggregateInternalException("Aggregate state not initialized"))
 
   /**
    * The current command request
@@ -76,7 +76,7 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @return current command.
    */
-  def commandRequest: CommandRequest = commandRequestOption.getOrElse(throw new AggregateException("Current command not defined"))
+  def commandRequest: CommandRequest = commandRequestOption.getOrElse(throw AggregateInternalException("Current command request not defined"))
 
   /**
    * @return Indication whether the state is initialized or not.
@@ -92,9 +92,28 @@ trait Aggregate[E <: AggregateEvent]
    * Command handler is final so that it can always correctly handle the aggregator response.
    */
   override def receiveCommand: Receive = {
-    case commandRequest: CommandRequest => handleCommandRequest(commandRequest)
-    case command: AggregateCommand => handleCommandRequest(CommandRequest(command))
-    case message => handleCommand.applyOrElse(message, unhandled)
+    case commandRequest: CommandRequest =>
+      executeIfNotDeleted(handleCommandRequest(commandRequest))
+
+    case command: AggregateCommand =>
+      executeIfNotDeleted(handleCommandRequest(CommandRequest(command)))
+
+    case message =>
+      executeIfNotDeleted(handleCommand.applyOrElse(message, unhandled))
+  }
+
+  /**
+   * Ensures the block is only executed when the aggregate is not yet deleted.
+   *
+   * If the aggregate was deleted, throw an exception to terminate the aggregate directly and sens back the exception.
+   * @param block to execute if not deleted.
+   */
+  private def executeIfNotDeleted(block: => Unit): Unit = {
+    if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
+      throw AggregateDeletedException(revision)
+    } else {
+      block
+    }
   }
 
   /**
@@ -102,22 +121,18 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param commandRequest to execute.
    */
-  private def handleCommandRequest(commandRequest: CommandRequest) = {
-    if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
-      sender() ! AggregateStatus.Failure(AggregateDeleted)
-    } else {
-      commandRequest.checkRevision(revision) {
-        try {
-          commandRequestOption = Some(commandRequest)
-          handleCommand.applyOrElse(commandRequest.command, unhandled)
-        } finally {
-          commandRequestOption = None
-        }
-      } { expected =>
-        handleConflict(RevisionConflict(expected, revision))
-      } {
-        sender() ! AggregateStatus.Failure(AggregateRevisionExpected)
+  private def handleCommandRequest(commandRequest: CommandRequest): Unit = {
+    commandRequest.checkRevision(revision) {
+      try {
+        commandRequestOption = Some(commandRequest)
+        handleCommand.applyOrElse(commandRequest.command, unhandled)
+      } finally {
+        commandRequestOption = None
       }
+    } { expected =>
+      handleConflict(RevisionConflict(expected, revision))
+    } {
+      throw AggregateRevisionRequiredException(commandRequest.command)
     }
   }
 
@@ -158,8 +173,24 @@ trait Aggregate[E <: AggregateEvent]
    * Can be used for dry run or aggregate update.
    */
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
-    stateOption.fold[Option[S]](Some(factory.apply(event))) { state =>
-      if (event.isDeleteEvent) None else Some(state.update(event))
+    stateOption.fold[Option[S]] {
+      if (factory.isDefinedAt(event)) {
+        Some(factory.apply(event))
+      } else {
+        throw AggregateNotInitializedException(event)
+      }
+    } { state =>
+      if (event.isDeleteEvent) {
+        None
+      } else if (state.update.isDefinedAt(event)) {
+        Some(state.update(event))
+      } else {
+        if (factory.isDefinedAt(event)) {
+          throw AggregateAlreadyInitializedException(revision)
+        } else {
+          throw AggregateInternalException(s"No state update defined for $event")
+        }
+      }
     }
   }
 
@@ -168,8 +199,8 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param changesAttempt containing changes or a validation failure.
    */
-  def tryCommit(changesAttempt: Either[AggregateError, Changes[E]]): Unit = {
-    changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), changes => commit(changes))
+  def tryCommit(changesAttempt: Either[DomainError, Changes[E]]): Unit = {
+    changesAttempt.fold(cause => sender() ! AggregateResult.Failure(cause), changes => commit(changes))
   }
 
   /**
@@ -182,33 +213,7 @@ trait Aggregate[E <: AggregateEvent]
     if (conflict.expected < conflict.actual) {
       context.actorOf(Props(new AggregateConflictView(persistenceId, originalSender, conflict)))
     } else {
-      originalSender ! AggregateStatus.Failure(conflict)
-    }
-  }
-
-  /**
-   * Specialized commit function that only attempt a commit if this aggregate is not already initialized.
-   *
-   * @param changesAttempt containing changes or a validation failure.
-   */
-  def tryCreate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
-    if (initialized) {
-      sender() ! AggregateStatus.Failure(AggregateAlreadyInitialized)
-    } else {
-      tryCommit(changesAttempt)
-    }
-  }
-
-  /**
-   * Specialized commit function that only attempt a commit if this aggregate is already initialized.
-   *
-   * @param changesAttempt containing changes or a validation failure.
-   */
-  def tryUpdate(changesAttempt: => Either[AggregateError, Changes[E]]): Unit = {
-    if (initialized) {
-      tryCommit(changesAttempt)
-    } else {
-      sender() ! AggregateStatus.Failure(AggregateNotInitialized)
+      originalSender ! AggregateResult.Failure(conflict)
     }
   }
 
@@ -268,12 +273,12 @@ trait Aggregate[E <: AggregateEvent]
         ref ! commit
 
       case DomainAggregatorRevision(domainRevision) =>
-        originalSender ! AggregateStatus.Success(CommitResult(commit.revision, domainRevision, payload))
+        originalSender ! AggregateResult.Success(CommitResult(commit.revision, domainRevision, payload))
         self ! PoisonPill
 
       case ReceiveTimeout =>
         log.error("Unable to aggregate commit: {}", commit)
-        originalSender ! AggregateStatus.Failure(DomainAggregatorFailed(commit.revision))
+        originalSender ! AggregateResult.Failure(DomainAggregatorFailed(commit.revision))
         self ! PoisonPill
     }
 

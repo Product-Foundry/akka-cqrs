@@ -9,27 +9,27 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
 
   override def handleCommand: Receive = {
     case Create(aggregateId) =>
-      tryCreate {
+      tryCommit {
         Right(Changes(Created(aggregateId)))
       }
 
     case Count(aggregateId) =>
-      tryUpdate {
+      tryCommit {
         Right(Changes(Counted(aggregateId, state.count + 1)))
       }
 
     case CountWithRequiredRevisionCheck(aggregateId) =>
-      tryUpdate {
+      tryCommit {
         Right(Changes(Counted(aggregateId, state.count + 1)))
       }
 
     case CountWithPayload(aggregateId) =>
-      tryUpdate {
+      tryCommit {
         Right(Changes(Counted(aggregateId, state.count + 1)).withPayload(state.count))
       }
 
     case Increment(aggregateId, amount) =>
-      tryUpdate {
+      tryCommit {
         if (amount > 0) {
           Right(Changes(Incremented(aggregateId, amount)))
         } else {
@@ -38,7 +38,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate[
       }
 
     case Delete(aggregateId) =>
-      tryUpdate {
+      tryCommit {
         Right(Changes(Deleted(aggregateId)))
       }
 

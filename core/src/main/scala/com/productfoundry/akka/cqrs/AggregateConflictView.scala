@@ -25,18 +25,18 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
       }
 
       if (AggregateRevision(lastSequenceNr) == conflict.actual) {
-        originalSender ! AggregateStatus.Failure(conflict.copy(commits = commits.toSeq))
+        originalSender ! AggregateResult.Failure(conflict.copy(commits = commits.toSeq))
         self ! PoisonPill
       }
 
     case ReceiveTimeout =>
-      originalSender ! AggregateStatus.Failure(conflict)
+      originalSender ! AggregateResult.Failure(conflict)
       self ! PoisonPill
 
 
     case RecoveryFailure(cause) =>
       log.error(cause, "Unable to get conflict info for {}", persistenceId)
-      originalSender ! AggregateStatus.Failure(conflict)
+      originalSender ! AggregateResult.Failure(conflict)
       self ! PoisonPill
   }
 }

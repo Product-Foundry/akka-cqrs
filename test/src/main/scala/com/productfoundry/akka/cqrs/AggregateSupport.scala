@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
+import com.productfoundry.akka.cqrs.AggregateResult.AggregateResult
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
@@ -183,7 +183,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * @return the message wrapped in the success message.
    */
   def expectMsgSuccess[T](implicit t: ClassTag[T]): T = {
-    expectMsgType[AggregateStatus.Success].result.asInstanceOf[T]
+    expectMsgType[AggregateResult.Success].result.asInstanceOf[T]
   }
 
   /**
@@ -193,7 +193,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * @return the error wrapped in the failure message.
    */
   def expectMsgError[T](implicit t: ClassTag[T]): T = {
-    expectMsgType[AggregateStatus.Failure].cause.asInstanceOf[T]
+    expectMsgType[AggregateResult.Failure].cause.asInstanceOf[T]
   }
 
   /**
@@ -201,7 +201,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * @param message the expected validation message.
    */
   def expectMsgValidationError(message: ValidationMessage) = {
-    assertValidationError(message, expectMsgType[AggregateStatus])
+    assertValidationError(message, expectMsgType[AggregateResult])
   }
 
   /**
@@ -209,12 +209,12 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * @param message the expected failure message.
    * @param status the status.
    */
-  def assertValidationError(message: ValidationMessage, status: AggregateStatus): Unit = {
+  def assertValidationError(message: ValidationMessage, status: AggregateResult): Unit = {
     status match {
-      case AggregateStatus.Success(success) =>
+      case AggregateResult.Success(success) =>
         fail(s"Unexpected success: $success")
 
-      case AggregateStatus.Failure(cause) =>
+      case AggregateResult.Failure(cause) =>
         cause match {
           case ValidationError(messages) =>
             assert(Seq(message) === messages, s"Unexpected messages: $messages")
@@ -230,11 +230,11 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * @tparam C the expected failure class.
    * @param status the status.
    */
-  def assertFailure[C: ClassTag](status: AggregateStatus): Unit = {
+  def assertFailure[C: ClassTag](status: AggregateResult): Unit = {
     status match {
-      case AggregateStatus.Success(success) => fail(s"Unexpected success: $success")
-      case AggregateStatus.Failure(cause: C) =>
-      case AggregateStatus.Failure(cause) => fail(s"Unexpected cause: $cause")
+      case AggregateResult.Success(success) => fail(s"Unexpected success: $success")
+      case AggregateResult.Failure(cause: C) =>
+      case AggregateResult.Failure(cause) => fail(s"Unexpected cause: $cause")
     }
   }
 
@@ -268,18 +268,18 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
      * @param cmd to execute.
      * @return status.
      */
-    def command(cmd: AggregateCommand): AggregateStatus = {
+    def command(cmd: AggregateCommand): AggregateResult = {
       atomic { implicit txn =>
-        val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
+        val statusOptionRef: Ref[Option[AggregateResult]] = Ref(None)
 
         revisionRef.transform { revision =>
           supervisor ! cmd.withExpectedRevision(revision)
           expectMsgPF() {
-            case success@AggregateStatus.Success(commitResult: CommitResult) =>
+            case success@AggregateResult.Success(commitResult: CommitResult) =>
               statusOptionRef.set(Some(success))
               commitResult.aggregateRevision
 
-            case failure@AggregateStatus.Failure(_) =>
+            case failure@AggregateResult.Failure(_) =>
               statusOptionRef.set(Some(failure))
               revision
           }
