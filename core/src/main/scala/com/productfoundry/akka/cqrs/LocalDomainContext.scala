@@ -2,8 +2,6 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.util.Timeout
-import com.productfoundry.akka.cqrs.project.DomainAggregator
-import DomainAggregator._
 import com.productfoundry.akka.{ActorContextCreationSupport, Passivate, PassivationConfig}
 
 import scala.concurrent.Await
@@ -53,10 +51,6 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
       // Remove all buffered messages for this actor, so it doesn't continue buffering when it is recreated
       bufferedMessagesByPath = bufferedMessagesByPath - childPath
 
-    // TODO [AK] Domain aggregator should not be mixed with update context
-    case GetDomainAggregator =>
-      context.parent forward GetDomainAggregator
-
     case msg: EntityMessage =>
       // Buffer messages when required
       val childPath = self.path / msg.id.toString
@@ -94,12 +88,9 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
 
   private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalDomainContextActor), domainName)
 
-  private val domainAggregatorRef = actorRefFactory.actorOf(Props(new DomainAggregator), domainAggregatorName)
-
   class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
     override def receive: Actor.Receive = {
       case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
-      case GetDomainAggregator => sender() ! DomainAggregatorRef(domainAggregatorRef)
     }
   }
 

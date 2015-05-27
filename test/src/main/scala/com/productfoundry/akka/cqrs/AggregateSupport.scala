@@ -256,7 +256,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
             supervisor ! command.withExpectedRevision(rev)
-            expectMsgSuccess[CommitResult].aggregateRevision
+            expectMsgSuccess[CommitResult].revision
           }
         }
       }
@@ -277,7 +277,7 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
           expectMsgPF() {
             case success@AggregateResult.Success(commitResult: CommitResult) =>
               statusOptionRef.set(Some(success))
-              commitResult.aggregateRevision
+              commitResult.revision
 
             case failure@AggregateResult.Failure(_) =>
               statusOptionRef.set(Some(failure))

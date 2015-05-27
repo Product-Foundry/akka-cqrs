@@ -29,7 +29,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Create(TestId.generate())
 
       val success = expectMsgType[AggregateResult.Success]
-      success.result.aggregateRevision should be(AggregateRevision(1L))
+      success.result.revision should be(AggregateRevision(1L))
     }
 
     "fail for existing" in {
@@ -68,7 +68,7 @@ class AggregateSpec extends AggregateTestSupport {
     "update revision" in new AggregateFixture {
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.result.aggregateRevision should be(2L)
+      success.result.revision should be(2L)
     }
 
     "update state" in new AggregateFixture {
@@ -163,7 +163,7 @@ class AggregateSpec extends AggregateTestSupport {
       val expected = AggregateRevision(1L)
       supervisor ! Count(testId).withExpectedRevision(expected)
       val status = expectMsgType[AggregateResult.Success]
-      status.result.aggregateRevision should be(expected.next)
+      status.result.revision should be(expected.next)
     }
 
     "fail on update with wrong revision" in new AggregateFixture {
@@ -186,7 +186,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! CountWithRequiredRevisionCheck(testId).withExpectedRevision(expected)
 
       val status = expectMsgType[AggregateResult.Success]
-      status.result.aggregateRevision should be(expected.next)
+      status.result.revision should be(expected.next)
     }
 
     "fail when enforced by command with wrong revision" in new AggregateFixture {
@@ -215,7 +215,7 @@ class AggregateSpec extends AggregateTestSupport {
         expectMsgType[AggregateResult.Success].result
       }
 
-      val actual = results.last.aggregateRevision
+      val actual = results.last.revision
       val expected = AggregateRevision(1L)
 
       supervisor ! Count(testId).withExpectedRevision(expected)
@@ -225,7 +225,7 @@ class AggregateSpec extends AggregateTestSupport {
           conflict.actual should be(actual)
           conflict.commits.size should be(actual.value - expected.value)
           conflict.commits.zip(results).foreach { case (commit, result) =>
-            commit.revision should be(result.aggregateRevision)
+            commit.revision should be(result.revision)
             commit.events should have size 1
             commit.events.head shouldBe a[Counted]
           }
@@ -287,7 +287,7 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.result.aggregateRevision should be(AggregateRevision(2))
+      success.result.revision should be(AggregateRevision(2))
     }
   }
 

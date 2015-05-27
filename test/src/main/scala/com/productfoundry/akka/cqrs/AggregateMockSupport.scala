@@ -74,7 +74,6 @@ abstract class AggregateMockSupport(_system: ActorSystem)
 
     def domainRevision: DomainRevision = domainRevisionRef.single.get
 
-
     /**
      * Sets initial state.
      *
@@ -111,7 +110,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(aggregateId)
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateResult.Success(CommitResult(aggregateRevision, domainRevision, payload)))
+      aggregateFactoryProbe.reply(AggregateResult.Success(CommitResult(aggregateRevision, payload)))
       aggregateId
     }
 

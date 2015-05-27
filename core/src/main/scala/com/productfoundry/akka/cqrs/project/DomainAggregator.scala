@@ -63,10 +63,5 @@ class DomainAggregator
 
 object DomainAggregator {
 
-  case object GetDomainAggregator
-
-  case class DomainAggregatorRef(ref: ActorRef)
-
   case class DomainAggregatorRevision(revision: DomainRevision)
-
 }

@@ -3,13 +3,11 @@ package com.productfoundry.akka.cqrs
 import akka.actor._
 import akka.persistence.{PersistentActor, RecoveryFailure}
 import com.productfoundry.akka.GracefulPassivation
-import com.productfoundry.akka.cqrs.project.DomainAggregator._
-import com.productfoundry.akka.cqrs.project.{DomainAggregator, DomainAggregatorFailed}
 
 /**
  * Aggregate.
  *
- * @tparam E creates aggregate state.
+ * @tparam E Type of events handled by this aggregate.
  */
 trait Aggregate[E <: AggregateEvent]
   extends Entity
@@ -21,9 +19,17 @@ trait Aggregate[E <: AggregateEvent]
   type S <: AggregateState
 
   /**
-   * Aggregate state.
+   * Aggregate state required to validate commands.
    */
   trait AggregateState {
+
+    /**
+     * Applies a new event to update the state.
+     *
+     * Should be side-effect free.
+     *
+     * @return updated state.
+     */
     def update: PartialFunction[E, S]
   }
 
@@ -32,6 +38,9 @@ trait Aggregate[E <: AggregateEvent]
    */
   override val persistenceId: String = PersistenceId(self.path).value
 
+  /**
+   * Defines a factory that can create initial state from one or more events.
+   */
   type StateFactory = PartialFunction[E, S]
 
   /**
@@ -56,9 +65,8 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Provides access to the aggregate state.
    *
-   * Throws [[AggregateException]] if the state is not initialized.
-   *
    * @return current aggregate state.
+   * @throws AggregateInternalException if the state is not initialized
    */
   def state: S = stateOpt.getOrElse(throw AggregateInternalException("Aggregate state not initialized"))
 
@@ -70,16 +78,16 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Provides access to the current command.
    *
-   * Throws [[AggregateException]] if the command is not available.
-   *
    * @return current command.
+   * @throws AggregateInternalException if no current command request is available.
    */
   def commandRequest: CommandRequest = commandRequestOption.getOrElse(throw AggregateInternalException("Current command request not defined"))
 
   /**
-   * @return Indication whether the state is initialized or not.
+   * Indication whether the state is initialized or not.
+   * @return true if this aggregate is initialized, otherwise false.
    */
-  def initialized = revision != AggregateRevision.Initial && stateOpt.isDefined
+  def initialized = revision != AggregateRevision.Initial
 
   /**
    * @return the current revision of this aggregate.
@@ -87,7 +95,7 @@ trait Aggregate[E <: AggregateEvent]
   def revision = AggregateRevision(lastSequenceNr)
 
   /**
-   * Command handler is final so that it can always correctly handle the aggregator response.
+   * Handles incoming messages.
    */
   override def receiveCommand: Receive = {
     case commandRequest: CommandRequest =>
@@ -101,10 +109,10 @@ trait Aggregate[E <: AggregateEvent]
   }
 
   /**
-   * Ensures the block is only executed when the aggregate is not yet deleted.
+   * Ensures the block is only executed when the aggregate is not deleted.
    *
-   * If the aggregate was deleted, throw an exception to terminate the aggregate directly and sens back the exception.
    * @param block to execute if not deleted.
+   * @throws AggregateDeletedException if the aggregate was deleted.
    */
   private def executeIfNotDeleted(block: => Unit): Unit = {
     if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
@@ -135,7 +143,7 @@ trait Aggregate[E <: AggregateEvent]
   }
 
   /**
-   * Redefined command handler.
+   * Handles all aggregate commands.
    */
   def handleCommand: Receive
 
@@ -186,7 +194,7 @@ trait Aggregate[E <: AggregateEvent]
         if (factory.isDefinedAt(event)) {
           throw AggregateAlreadyInitializedException(revision)
         } else {
-          throw AggregateInternalException(s"No state update defined for $event")
+          throw AggregateInternalException(s"Update not defined for $event")
         }
       }
     }
@@ -221,7 +229,7 @@ trait Aggregate[E <: AggregateEvent]
    */
   private def commit(changes: Changes[E]): Unit = {
 
-    // Construct full headers, prefer changes header over command headers in case of duplicates
+    // Construct full headers, prefer changes headers over user-specified command headers in case of duplicates
     val headers = commandRequest.headers ++ changes.headers
 
     // Construct commit to persist
@@ -237,57 +245,12 @@ trait Aggregate[E <: AggregateEvent]
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
 
-      // Aggregate the commit globally makes it much easier to build a view of all events in a domain context
-      // TODO [AK] Can be refactored out by using published commits
-      aggregateCommit(persistedCommit, changes.payload)
+      // Notify the sender of the commit
+      sender() ! AggregateResult.Success(CommitResult(revision, changes.payload))
 
       // Perform additional mixed in commit handling logic
       handleCommit(persistedCommit)
     }
-  }
-
-  /**
-   * Aggregates the commit to a domain wide log in a journal independent manner.
-   *
-   * Sends the commit revision back to the original sender on success.
-   */
-  class CommitAggregator(aggregateSupervisor: ActorRef, originalSender: ActorRef, commit: Commit[E], payload: Any) extends Actor {
-
-    import scala.concurrent.duration._
-
-    override def preStart(): Unit = {
-      context.setReceiveTimeout(1.minute)
-      aggregateSupervisor ! GetDomainAggregator
-    }
-
-    override def receive: Actor.Receive = {
-      case DomainAggregatorRef(ref) =>
-        ref ! commit
-
-      case DomainAggregatorRevision(domainRevision) =>
-        originalSender ! AggregateResult.Success(CommitResult(commit.revision, domainRevision, payload))
-        self ! PoisonPill
-
-      case ReceiveTimeout =>
-        log.error("Unable to aggregate commit: {}", commit)
-        originalSender ! AggregateResult.Failure(DomainAggregatorFailed(commit.revision))
-        self ! PoisonPill
-    }
-
-    override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
-      log.error(reason, "Handling message: {}", message)
-      super.preRestart(reason, message)
-    }
-  }
-
-  /**
-   * Launches a new actor to also persist the commit globally and sends back a global domain revision to the sender.
-   * @param commit to aggregate.
-   */
-  private def aggregateCommit(commit: Commit[E], payload: Any): Unit = {
-    val supervisor = context.parent
-    val originalSender = sender()
-    context.actorOf(Props(new CommitAggregator(supervisor, originalSender, commit, payload)))
   }
 
   /**
