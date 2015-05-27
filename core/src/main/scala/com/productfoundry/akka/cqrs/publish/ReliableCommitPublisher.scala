@@ -52,7 +52,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
     case Confirmed(deliveryId) =>
       handleConfirmation(deliveryId)
 
-    case event =>
+    case event if super.receiveRecover.isDefinedAt(event) =>
       super.receiveRecover(event)
   }
 

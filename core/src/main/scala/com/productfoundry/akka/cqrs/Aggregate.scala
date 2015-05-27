@@ -34,9 +34,14 @@ trait Aggregate[E <: AggregateEvent]
   }
 
   /**
-   * Persistence id is based on the actor path.
+   * Id is based on the actor path and determined only once
    */
-  override val persistenceId: String = PersistenceId(self.path).value
+  val id: String = PersistenceId(self.path).value
+
+  /**
+   * Persistence id is the same as id, but needs to be a def in order to mix in behavior that relies on persistence.
+   */
+  override def persistenceId: String = id
 
   /**
    * Defines a factory that can create initial state from one or more events.
@@ -87,12 +92,21 @@ trait Aggregate[E <: AggregateEvent]
    * Indication whether the state is initialized or not.
    * @return true if this aggregate is initialized, otherwise false.
    */
-  def initialized = revision != AggregateRevision.Initial
+  def initialized = stateOpt.isDefined
+
+  /**
+   * Keeps track of the current revision.
+   *
+   * The revision should increment with every commit without creating gaps.
+   * At first sight, this could be backed by [[lastSequenceNr]]. However, commit handlers can also persist additional
+   * events for internal use, which shouldn't affect the aggregate revision.
+   */
+  private var revision = AggregateRevision.Initial
 
   /**
    * @return the current revision of this aggregate.
    */
-  def revision = AggregateRevision(lastSequenceNr)
+  def currentRevision = revision
 
   /**
    * Handles incoming messages.
@@ -159,6 +173,7 @@ trait Aggregate[E <: AggregateEvent]
    * Applies the commit to the current aggregate state.
    */
   private def updateState(commit: Commit[E]): Unit = {
+    revision = commit.revision
     stateOpt = applyCommit(stateOpt, commit)
   }
 
@@ -181,19 +196,25 @@ trait Aggregate[E <: AggregateEvent]
   private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
     stateOption.fold[Option[S]] {
       if (factory.isDefinedAt(event)) {
+        // We have no state, but we know how to create it from the specified event.
         Some(factory.apply(event))
       } else {
+        // State is empty, but the factory also doesn't know how to deal with this event, rather this than a MatchError
         throw AggregateNotInitializedException(event)
       }
     } { state =>
       if (event.isDeleteEvent) {
+        // A delete sets the state to None, but keeps the revision, allowing us to detect the delete
         None
       } else if (state.update.isDefinedAt(event)) {
+        // We have state and we know how to update it
         Some(state.update(event))
       } else {
         if (factory.isDefinedAt(event)) {
+          // We don't know how to update the state, but the factory has a handler, so let's give a helpful exception
           throw AggregateAlreadyInitializedException(revision)
         } else {
+          // Most likely, the developer forgot to handle the event in the state update method, rather this than a MatchError
           throw AggregateInternalException(s"Update not defined for $event")
         }
       }
@@ -240,8 +261,6 @@ trait Aggregate[E <: AggregateEvent]
 
     // No exception thrown, persist and update state for real
     persist(commit) { persistedCommit =>
-      assert(revision == commit.revision, "Having different revisions here should never happen")
-
       // Updating state should never fail, since we already performed a dry run
       updateState(persistedCommit)
 

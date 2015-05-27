@@ -11,7 +11,7 @@ abstract class EntitySupervisorFactory[E <: Entity : EntityFactory : ClassTag] {
 
   /**
    * Gets or creates an entity supervisor for the specified type.
-   * @return Ceated supervisor.
+   * @return Created supervisor.
    */
   def getOrCreate: ActorRef
 
