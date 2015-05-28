@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.TestActor.{AutoPilot, KeepRunning, NoAutoPilot}
 import akka.testkit._
-import com.productfoundry.akka.cqrs.project.{DomainRevision, CommitHeaders, Projection, ProjectionProvider}
+import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainProjection, DomainProjectionProvider, DomainRevision}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.stm._
@@ -26,7 +26,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     TestKit.shutdownActorSystem(system)
   }
 
-  trait AggregateMockFixture[P <: Projection[P]] {
+  trait AggregateMockFixture[P <: DomainProjection[P]] {
 
     val aggregateFactoryProbe = TestProbe()
 
@@ -92,7 +92,9 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       atomic { implicit txn =>
         domainRevisionRef.transform(_.next)
         aggregateRevisionRef.transform(_.next)
-        projectionRef.transform(_.project(CommitHeaders(domainRevisionRef(), aggregateRevisionRef(), System.currentTimeMillis(), Map.empty), events))
+        val commit = Commit(CommitMetadata("", aggregateRevisionRef()), events)
+        val domainCommit = DomainCommit(domainRevisionRef(), commit)
+        projectionRef.transform(_.project(domainCommit))
       }
     }
 
@@ -132,7 +134,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     /**
      * Atomically provides application state using STM.
      */
-    val projection: ProjectionProvider[P] = new ProjectionProvider[P] {
+    val projection: DomainProjectionProvider[P] = new DomainProjectionProvider[P] {
 
       override def getWithRevision(minimum: DomainRevision): (P, DomainRevision) = {
         atomic { implicit txn =>

@@ -1,17 +1,19 @@
 package com.productfoundry.akka.serialization.json
 
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.cqrs.project.DomainCommit
+import com.productfoundry.akka.cqrs.project.domain.DomainCommit
 import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol
 import play.api.libs.json.{Format, Json}
 
-trait PersistableFormat {
+case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {
 
-  implicit def CommitFormat(implicit eventFormat: Format[AggregateEvent]): Format[Commit] = Json.format[Commit]
+  implicit val CommitMetadataFormat: Format[CommitMetadata] = Json.format[CommitMetadata]
 
-  implicit def DomainCommitFormat(implicit eventFormat: Format[AggregateEvent]): Format[DomainCommit] = Json.format[DomainCommit]
+  implicit val CommitFormat: Format[Commit] = Json.format[Commit]
 
-  implicit def AggregateEventFormatToPersistableFormat(implicit eventFormat: Format[AggregateEvent]): Format[Persistable] = {
+  implicit val DomainCommitFormat: Format[DomainCommit] = Json.format[DomainCommit]
+
+  implicit val PersistableFormat: Format[Persistable] = {
     TypeChoiceFormat(
       "Commit" -> CommitFormat,
       "DomainCommit" -> DomainCommitFormat,
@@ -19,5 +21,3 @@ trait PersistableFormat {
     )
   }
 }
-
-object PersistableFormat extends PersistableFormat

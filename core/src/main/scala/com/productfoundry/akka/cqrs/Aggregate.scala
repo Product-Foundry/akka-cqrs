@@ -250,7 +250,7 @@ trait Aggregate[E <: AggregateEvent]
     val headers = commandRequest.headers ++ changes.headers
 
     // Construct commit to persist
-    val commit = Commit(revision.next, changes.events, System.currentTimeMillis(), headers)
+    val commit = Commit(CommitMetadata(persistenceId, revision.next, headers), changes.events)
 
     // Dry run commit to make sure this aggregate does not persist invalid state
     applyCommit(stateOpt, commit)

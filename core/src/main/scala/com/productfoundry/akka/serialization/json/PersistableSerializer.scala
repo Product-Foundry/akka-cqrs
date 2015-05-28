@@ -6,9 +6,11 @@ import akka.serialization.Serializer
 import com.productfoundry.akka.cqrs.{AggregateEvent, Persistable}
 import play.api.libs.json.{Format, Json}
 
-class PersistableSerializer(implicit val AggregateEventFormat: Format[AggregateEvent]) extends Serializer {
+class PersistableSerializer(implicit val eventFormat: Format[AggregateEvent]) extends Serializer {
 
-  import PersistableFormat._
+  val persistableFormat = PersistableFormat()
+
+  import persistableFormat._
 
   val JsonCharset: Charset = Charset.forName("UTF-8")
 

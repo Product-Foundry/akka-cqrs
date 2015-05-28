@@ -1,4 +1,4 @@
-package com.productfoundry.akka.cqrs.project
+package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
@@ -6,25 +6,25 @@ import akka.persistence._
 import scala.concurrent.duration._
 import scala.concurrent.stm.{Ref, _}
 
-object DomainProjectionProvider {
-  def apply[P <: Projection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
-    new DomainProjectionProvider(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
+object DomainAggregatorView {
+  def apply[P <: DomainProjection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
+    new DomainAggregatorView(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
   }
 
   object RecoveryStatus extends Enumeration {
     type RecoveryStatus = Value
-    val Unstarted, Started, Completed = Value
+    val Idle, Recovering, Done = Value
   }
 }
 
 /**
  * Projects domain commits.
  */
-class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
+class DomainAggregatorView[P <: DomainProjection[P]] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends DomainProjectionProvider[P] {
 
-  import DomainProjectionProvider.RecoveryStatus
+  import DomainAggregatorView.RecoveryStatus
   
-  private val recoveryStatus: Ref[RecoveryStatus.RecoveryStatus] = Ref(RecoveryStatus.Unstarted)
+  private val recoveryStatus: Ref[RecoveryStatus.RecoveryStatus] = Ref(RecoveryStatus.Idle)
   private val state: Ref[P] = Ref(initial)
   private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
   private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
@@ -36,7 +36,7 @@ class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: Act
    */
   private def awaitRecover(): Unit = {
     atomic { implicit txn =>
-      if (recoveryStatus() != RecoveryStatus.Completed) {
+      if (recoveryStatus() != RecoveryStatus.Done) {
         retry
       }
     }
@@ -63,9 +63,7 @@ class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: Act
    */
   def project(domainCommit: DomainCommit): Unit = {
     atomic { implicit txn =>
-      val commit = domainCommit.commit
-      val headers = CommitHeaders(domainCommit.revision, commit.revision, commit.timestamp, commit.headers)
-      state.transform(_.project(headers, commit.events))
+      state.transform(_.project(domainCommit))
       revision() = domainCommit.revision
     }
   }
@@ -74,7 +72,7 @@ class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: Act
     override val viewId: String = s"$persistenceId-view"
 
     override def preStart(): Unit = {
-      recoveryStatus.single.update(RecoveryStatus.Started)
+      recoveryStatus.single.update(RecoveryStatus.Recovering)
       context.setReceiveTimeout(recoveryThreshold)
 
       super.preStart()
@@ -86,7 +84,7 @@ class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: Act
 
       case ReceiveTimeout =>
         log.info("Assuming recovery is complete due to receive timeout: {}", persistenceId)
-        recoveryStatus.single.update(RecoveryStatus.Completed)
+        recoveryStatus.single.update(RecoveryStatus.Done)
         context.setReceiveTimeout(Duration.Undefined)
     }
   }

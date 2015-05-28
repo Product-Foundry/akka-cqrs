@@ -1,9 +1,9 @@
-package com.productfoundry.akka.cqrs.project
+package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.ActorLogging
-import akka.persistence.{SnapshotOffer, PersistentActor, RecoveryFailure}
-import com.productfoundry.akka.cqrs.project.DomainAggregator.DomainAggregatorRevision
-import com.productfoundry.akka.cqrs.{AggregateEvent, Commit}
+import akka.persistence.{PersistentActor, RecoveryFailure, SnapshotOffer}
+import com.productfoundry.akka.cqrs.Commit
+import com.productfoundry.akka.cqrs.project.domain.DomainAggregator._
 
 /**
  * Persistent actor that aggregates all received commits.
@@ -52,7 +52,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
    * @param commit to persist.
    */
   def aggregateCommit(commit: Commit): Unit = {
-    persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
+    persist(DomainCommit(revision.next, commit)) { domainCommit =>
       updateState(domainCommit)
 
       sender() ! DomainAggregatorRevision(revision)

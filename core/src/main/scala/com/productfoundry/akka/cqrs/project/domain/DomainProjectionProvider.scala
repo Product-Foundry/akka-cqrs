@@ -1,6 +1,6 @@
-package com.productfoundry.akka.cqrs.project
+package com.productfoundry.akka.cqrs.project.domain
 
-trait ProjectionProvider[P] {
+trait DomainProjectionProvider[P <: DomainProjection[P]] {
 
   /**
    * @return the projection.
@@ -14,5 +14,4 @@ trait ProjectionProvider[P] {
    * @return state with actual revision, where actual >= minimum.
    */
   def getWithRevision(minimum: DomainRevision): (P, DomainRevision)
-
 }

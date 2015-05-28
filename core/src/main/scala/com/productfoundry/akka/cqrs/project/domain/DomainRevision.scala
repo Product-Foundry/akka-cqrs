@@ -1,4 +1,4 @@
-package com.productfoundry.akka.cqrs.project
+package com.productfoundry.akka.cqrs.project.domain
 
 import com.productfoundry.akka.cqrs.{Revision, RevisionCompanion}
 

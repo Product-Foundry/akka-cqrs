@@ -1,15 +1,10 @@
 package com.productfoundry.akka.cqrs.project
 
-import com.productfoundry.akka.cqrs.AggregateEvent
+import com.productfoundry.akka.cqrs.Commit
 
 /**
- * Build projections.
+ * Defines a projection.
+ *
+ * @tparam R projection result type
  */
-trait Projection[P <: Projection[P]] {
-
-  self: P =>
-
-  def project(headers: CommitHeaders, events: Seq[AggregateEvent]): P = events.foldLeft(this)(_.project(headers, _))
-
-  def project(headers: CommitHeaders, event: AggregateEvent): P
-}
+trait Projection[R] extends ContainerProjection[Commit, R]
