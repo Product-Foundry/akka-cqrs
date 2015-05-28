@@ -7,6 +7,8 @@ import com.productfoundry.akka.cqrs.TestAggregate._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.AggregateTestSupport
 
+import scala.concurrent.duration._
+
 class LocalCommitPublisherSpec extends AggregateTestSupport {
 
   implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
@@ -37,7 +39,7 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
 
     "not request confirmation" in new fixture {
       commitPublication.confirmIfRequested()
-      expectNoMsg()
+      expectNoMsg(100.millis)
     }
 
     trait fixture extends {

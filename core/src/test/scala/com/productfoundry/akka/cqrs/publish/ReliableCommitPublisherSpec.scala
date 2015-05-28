@@ -15,12 +15,14 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
 
   val publishedEventProbe = TestProbe()
 
+  val redeliver = 50.millis
+
   implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
     override def props(config: PassivationConfig): Props = {
       Props(new TestAggregate(config) with ReliableCommitPublisher {
         override def publishTarget: ActorPath = publishedEventProbe.ref.path
 
-        override def redeliverInterval: FiniteDuration = 500.millis
+        override def redeliverInterval: FiniteDuration = redeliver
       })
     }
   }
@@ -115,6 +117,8 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
   }
 
   override protected def afterEach(): Unit = {
-    publishedEventProbe.expectNoMsg(2.seconds)
+    eventually {
+      publishedEventProbe.expectNoMsg(redeliver * 2)
+    }
   }
 }
