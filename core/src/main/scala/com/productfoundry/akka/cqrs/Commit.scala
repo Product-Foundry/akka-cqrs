@@ -10,5 +10,5 @@ package com.productfoundry.akka.cqrs
  */
 case class Commit(revision: AggregateRevision,
                   events: Seq[AggregateEvent],
-                  timestamp: Long,
+                  timestamp: Long = System.currentTimeMillis(),
                   headers: Map[String, String] = Map.empty) extends Persistable
