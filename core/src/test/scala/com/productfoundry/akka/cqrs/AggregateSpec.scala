@@ -291,7 +291,7 @@ class AggregateSpec extends AggregateTestSupport {
     }
   }
 
-  trait AggregateFixture extends {
+  trait AggregateFixture {
     val testId = TestId.generate()
     supervisor ! Create(testId)
     expectMsgType[AggregateResult.Success]

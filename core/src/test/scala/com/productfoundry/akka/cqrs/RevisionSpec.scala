@@ -1,13 +1,10 @@
 package com.productfoundry.akka.cqrs
 
-import com.productfoundry.support.TestSupport._
 import com.productfoundry.support.Spec
-import org.scalacheck.{Arbitrary, Gen}
+import com.productfoundry.support.TestSupport._
 import play.api.libs.json.Json
 
-class RevisionSpec extends Spec {
-
-  import RevisionSpec._
+class RevisionSpec extends Spec with Fixtures {
 
   "Revisions" must {
 
@@ -48,11 +45,5 @@ class RevisionSpec extends Spec {
     "not be negative" in {
       an [IllegalArgumentException] should be thrownBy TestRevision(-1)
     }
-  }
-}
-
-object RevisionSpec {
-  implicit def ArbitraryRevision[R <: Revision[R]](implicit companion: RevisionCompanion[R]): Arbitrary[R] = Arbitrary {
-    Gen.choose(0, 100).map(value => companion.apply(value.toLong))
   }
 }

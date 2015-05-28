@@ -13,6 +13,8 @@ abstract class PersistenceTestSupport
   with BeforeAndAfterAll
   with Eventually {
 
+  def randomPersistenceId = PersistenceId.generate().toString
+
   implicit override val patienceConfig = PatienceConfig(
     timeout = scaled(Span(1, Second)),
     interval = scaled(Span(10, Millis))

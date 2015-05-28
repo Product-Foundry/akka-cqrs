@@ -7,4 +7,10 @@ import com.productfoundry.akka.cqrs.Commit
  *
  * @tparam R projection result type
  */
-trait Projection[R] extends ContainerProjection[Commit, R]
+trait Projection[R] {
+
+  /**
+   * Projects a single commit.
+   */
+  def project(commit: Commit): R
+}

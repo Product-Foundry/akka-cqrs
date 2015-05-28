@@ -6,7 +6,7 @@ package com.productfoundry.akka.cqrs
  * @param metadata about the commit.
  * @param events describing all aggregate changes.
  */
-case class Commit(metadata: CommitMetadata, events: Seq[AggregateEvent]) extends Persistable with AggregateEventContainer {
+case class Commit(metadata: CommitMetadata, events: Seq[AggregateEvent]) extends Persistable {
 
   /**
    * @return unique commit id.

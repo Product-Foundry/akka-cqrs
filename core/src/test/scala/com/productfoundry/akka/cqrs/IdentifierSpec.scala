@@ -2,12 +2,9 @@ package com.productfoundry.akka.cqrs
 
 import com.productfoundry.support.Spec
 import com.productfoundry.support.TestSupport._
-import org.scalacheck.{Arbitrary, Gen}
 import play.api.libs.json.Json
 
-class IdentifierSpec extends Spec {
-
-  import IdentifierSpec._
+class IdentifierSpec extends Spec with Fixtures {
 
   "Identifiers" must {
 
@@ -35,8 +32,4 @@ class IdentifierSpec extends Spec {
       }
     }
   }
-}
-
-object IdentifierSpec {
-  implicit def ArbitraryIdentifier[I <: Identifier](implicit companion: IdentifierCompanion[I]): Arbitrary[I] = Arbitrary(Gen.wrap(companion.generate()))
 }

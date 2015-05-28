@@ -1,6 +1,8 @@
 package com.productfoundry.akka.cqrs.project.domain
 
-trait DomainProjectionProvider[P <: DomainProjection[P]] {
+import com.productfoundry.akka.cqrs.project.Projection
+
+trait DomainProjectionProvider[P <: Projection[P]] {
 
   /**
    * @return the projection.

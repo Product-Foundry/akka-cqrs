@@ -1,9 +1,8 @@
-package com.productfoundry.akka.cqrs.project
+package com.productfoundry.akka.cqrs.project.domain
 
-import akka.actor.{Terminated, PoisonPill, Props}
-import com.productfoundry.akka.cqrs.project.domain.{DomainRevision, DomainAggregator}
-import DomainAggregator.DomainAggregatorRevision
-import com.productfoundry.akka.cqrs.{CommitMetadata, AggregateRevision, Commit, TestId}
+import akka.actor.{PoisonPill, Props, Terminated}
+import com.productfoundry.akka.cqrs.project.domain.DomainAggregator.DomainAggregatorRevision
+import com.productfoundry.akka.cqrs.{AggregateRevision, Commit, CommitMetadata, TestId}
 import com.productfoundry.support.PersistenceTestSupport
 
 class DomainAggregatorSpec extends PersistenceTestSupport {
