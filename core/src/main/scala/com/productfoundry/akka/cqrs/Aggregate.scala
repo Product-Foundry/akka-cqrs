@@ -6,8 +6,6 @@ import com.productfoundry.akka.GracefulPassivation
 
 /**
  * Aggregate.
- *
- * @tparam E Type of events handled by this aggregate.
  */
 trait Aggregate[E <: AggregateEvent]
   extends Entity
@@ -30,7 +28,7 @@ trait Aggregate[E <: AggregateEvent]
      *
      * @return updated state.
      */
-    def update: PartialFunction[E, S]
+    def update: PartialFunction[AggregateEvent, S]
   }
 
   /**
@@ -46,7 +44,7 @@ trait Aggregate[E <: AggregateEvent]
   /**
    * Defines a factory that can create initial state from one or more events.
    */
-  type StateFactory = PartialFunction[E, S]
+  type StateFactory = PartialFunction[AggregateEvent, S]
 
   /**
    * Creates aggregate state.
@@ -165,14 +163,14 @@ trait Aggregate[E <: AggregateEvent]
    * Handle recovery of commits and aggregator confirmation status.
    */
   override def receiveRecover: Receive = {
-    case commit: Commit[E] => updateState(commit)
+    case commit: Commit => updateState(commit)
     case RecoveryFailure(cause) => log.error(cause, "Unable to recover: {}", persistenceId)
   }
 
   /**
    * Applies the commit to the current aggregate state.
    */
-  private def updateState(commit: Commit[E]): Unit = {
+  private def updateState(commit: Commit): Unit = {
     revision = commit.revision
     stateOpt = applyCommit(stateOpt, commit)
   }
@@ -182,10 +180,8 @@ trait Aggregate[E <: AggregateEvent]
    *
    * Can be used for dry run or aggregate update.
    */
-  private def applyCommit(stateOption: Option[S], commit: Commit[E]): Option[S] = {
-    commit.events.foldLeft(stateOption) { (_stateOption, _event) =>
-      applyEvent(_stateOption, _event)
-    }
+  private def applyCommit(stateOption: Option[S], commit: Commit): Option[S] = {
+    commit.events.foldLeft(stateOption)((s, e) => applyEvent(s, e))
   }
 
   /**
@@ -193,7 +189,7 @@ trait Aggregate[E <: AggregateEvent]
    *
    * Can be used for dry run or aggregate update.
    */
-  private def applyEvent(stateOption: Option[S], event: E): Option[S] = {
+  private def applyEvent(stateOption: Option[S], event: AggregateEvent): Option[S] = {
     stateOption.fold[Option[S]] {
       if (factory.isDefinedAt(event)) {
         // We have no state, but we know how to create it from the specified event.
@@ -276,7 +272,7 @@ trait Aggregate[E <: AggregateEvent]
    * Can be overridden by a mixin to handle commits.
    * @param commit that just got persisted.
    */
-  override def handleCommit(commit: Commit[AggregateEvent]): Unit = {}
+  override def handleCommit(commit: Commit): Unit = {}
 
   /**
    * Sends the exception message to the caller.

@@ -50,7 +50,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       expectMsgType[AggregateResult.Success]
 
       val publications = 1 to 5 map { _ =>
-        publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+        publishedEventProbe.expectMsgType[CommitPublication]
       }
 
       // Confirm any message
@@ -66,7 +66,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       expectMsgType[AggregateResult.Success]
 
       // Commit should be published, but we are not confirming
-      publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+      publishedEventProbe.expectMsgType[CommitPublication]
 
       // Let the aggregate crash by sending an invalid command
       supervisor ! Create(testId)
@@ -77,7 +77,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       expectMsgType[Int]
 
       // Commit should be republished as part of the recovery process
-      val publication = publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+      val publication = publishedEventProbe.expectMsgType[CommitPublication]
       publication.confirmIfRequested()
       publication.commit.revision should be(AggregateRevision(2L))
     }
@@ -92,7 +92,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       // Force redelivery and make sure commits on higher revisions are only published after the previous commit
       revisions.foreach { revision =>
         val publications = 1 to 3 map { _ =>
-          publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+          publishedEventProbe.expectMsgType[CommitPublication]
         }
 
         // We've waited long enough, simply confirm the first received message
@@ -109,7 +109,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       supervisor ! Create(testId)
       expectMsgType[AggregateResult.Success]
 
-      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication]
       commitPublication.confirmIfRequested()
     }
   }

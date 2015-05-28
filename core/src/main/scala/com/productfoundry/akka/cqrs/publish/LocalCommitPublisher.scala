@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.publish
 
-import com.productfoundry.akka.cqrs.{AggregateEvent, Aggregate}
+import com.productfoundry.akka.cqrs.Aggregate
 
 /**
  * Mixin for actors to publish all commit messages onto the system event stream.
@@ -10,9 +10,9 @@ trait LocalCommitPublisher extends CommitPublisher {
 
   /**
    * Publish directly to the system event stream.
-   * @param commitPublication to publish.
+   * @param publication to publish.
    */
-  override def publishCommit(commitPublication: Publication[AggregateEvent]): Unit = {
-    context.system.eventStream.publish(commitPublication)
+  override def publishCommit(publication: Publication): Unit = {
+    context.system.eventStream.publish(publication)
   }
 }

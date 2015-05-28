@@ -44,14 +44,14 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
    * Persist all commits.
    */
   override def receiveCommand: Receive = {
-    case commit: Commit[AggregateEvent] => aggregateCommit(commit)
+    case commit: Commit => aggregateCommit(commit)
   }
 
   /**
    * Persists the commit and notifies the sender of the domain revision.
    * @param commit to persist.
    */
-  def aggregateCommit(commit: Commit[AggregateEvent]): Unit = {
+  def aggregateCommit(commit: Commit): Unit = {
     persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
       updateState(domainCommit)
 
@@ -63,7 +63,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
     }
   }
 
-  private def updateState(domainCommit: DomainCommit[AggregateEvent]): Unit = {
+  private def updateState(domainCommit: DomainCommit): Unit = {
     revision = domainCommit.revision
   }
 
@@ -75,7 +75,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
     case RecoveryFailure(cause) =>
       log.error(cause, "Unable to recover: {}", persistenceId)
 
-    case domainCommit: DomainCommit[AggregateEvent] =>
+    case domainCommit: DomainCommit =>
       log.debug("Recovered: {}", domainCommit)
       updateState(domainCommit)
 

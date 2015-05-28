@@ -2,13 +2,12 @@ package com.productfoundry.akka.cqrs.project
 
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
-import com.productfoundry.akka.cqrs.AggregateEvent
 
 import scala.concurrent.duration._
 import scala.concurrent.stm.{Ref, _}
 
 object DomainProjectionProvider {
-  def apply[P <: Projection[P], Event <: AggregateEvent](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
+  def apply[P <: Projection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
     new DomainProjectionProvider(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
   }
 
@@ -21,7 +20,7 @@ object DomainProjectionProvider {
 /**
  * Projects domain commits.
  */
-class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
+class DomainProjectionProvider[P <: Projection[P]] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
 
   import DomainProjectionProvider.RecoveryStatus
   
@@ -62,7 +61,7 @@ class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] pri
    * Projects the given commit.
    * @param domainCommit to apply.
    */
-  def project(domainCommit: DomainCommit[Event]): Unit = {
+  def project(domainCommit: DomainCommit): Unit = {
     atomic { implicit txn =>
       val commit = domainCommit.commit
       val headers = CommitHeaders(domainCommit.revision, commit.revision, commit.timestamp, commit.headers)
@@ -82,7 +81,7 @@ class DomainProjectionProvider[P <: Projection[P], -Event <: AggregateEvent] pri
     }
 
     override def receive: Receive = {
-      case commit: DomainCommit[Event] =>
+      case commit: DomainCommit =>
         project(commit)
 
       case ReceiveTimeout =>

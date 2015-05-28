@@ -48,7 +48,7 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
       supervisor ! Create(testId)
       expectMsgType[AggregateResult.Success]
 
-      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication[AggregateEvent]]
+      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication]
     }
   }
 }

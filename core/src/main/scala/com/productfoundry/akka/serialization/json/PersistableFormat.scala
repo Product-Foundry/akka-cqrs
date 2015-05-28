@@ -6,10 +6,10 @@ import play.api.libs.json.Format
 
 trait PersistableFormat {
 
-  implicit def AggregateEventFormatToPersistableFormat(implicit aggregateEventFormat: Format[AggregateEvent]): Format[Persistable] = {
+  implicit def AggregateEventFormatToPersistableFormat(implicit eventFormat: Format[AggregateEvent]): Format[Persistable] = {
     TypeChoiceFormat(
-      "Commit" -> CommitFormat.CommitFormat[AggregateEvent],
-      "DomainCommit" -> DomainCommitFormat.DomainCommitFormat[AggregateEvent],
+      "Commit" -> CommitFormat.CommitFormat,
+      "DomainCommit" -> DomainCommitFormat.DomainCommitFormat,
       "Confirmed" -> ConfirmationProtocol.Confirmed.ConfirmedFormat
     )
   }

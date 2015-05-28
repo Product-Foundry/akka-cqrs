@@ -133,9 +133,8 @@ abstract class AggregateSupport[A <: Aggregate[_]](_system: ActorSystem)(implici
    * Asserts a specified event is committed.
    * @param event that is expected.
    * @param CommitTag indicates commit type with events.
-   * @tparam E Domain event type.
    */
-  def expectEvent[E <: AggregateEvent](event: E)(implicit CommitTag: ClassTag[Commit[E]]): Unit = {
+  def expectEvent(event: AggregateEvent)(implicit CommitTag: ClassTag[Commit]): Unit = {
     eventually {
       withCommitCollector { commitCollector =>
         assert(commitCollector.events.contains(event), s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")

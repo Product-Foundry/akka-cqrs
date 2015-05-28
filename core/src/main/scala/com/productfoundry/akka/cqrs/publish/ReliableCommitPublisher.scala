@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
 import akka.persistence.{AtLeastOnceDelivery, PersistentActor}
 import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol._
-import com.productfoundry.akka.cqrs.{Aggregate, AggregateEvent, Commit}
+import com.productfoundry.akka.cqrs.{Aggregate, Commit}
 
 import scala.concurrent.duration._
 
@@ -21,12 +21,12 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
   /**
    * Current publication that needs to be confirmed.
    */
-  private var currentPublicationOption: Option[Publication[AggregateEvent]] = None
+  private var currentPublicationOption: Option[Publication] = None
 
   /**
    * Publications are queued until the current publication is confirmed.
    */
-  private var pendingPublications: Vector[Publication[AggregateEvent]] = Vector.empty
+  private var pendingPublications: Vector[Publication] = Vector.empty
 
   /**
    * @return the target actor to publish to.
@@ -45,7 +45,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
    */
   abstract override def receiveRecover: Receive = {
 
-    case commit: Commit[_] =>
+    case commit: Commit =>
       super.receiveRecover(commit)
       publishCommit(Publication(commit))
 
@@ -74,7 +74,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
    * Publish to the target actor if no publications are pending, otherwise enqueue.
    * @param commitPublication to publish.
    */
-  override def publishCommit(commitPublication: Publication[AggregateEvent]): Unit = {
+  override def publishCommit(commitPublication: Publication): Unit = {
     if (currentPublicationOption.isEmpty) {
       publishDirectly(commitPublication)
     } else {
@@ -112,7 +112,7 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
    *
    * @param commitPublication to publish.
    */
-  private def publishDirectly(commitPublication: Publication[AggregateEvent]): Unit = {
+  private def publishDirectly(commitPublication: Publication): Unit = {
     deliver(publishTarget, deliveryId => {
       assert(currentPublicationOption.isEmpty, "Unconfirmed publication pending")
       val publication = commitPublication.requestConfirmation(deliveryId)

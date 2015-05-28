@@ -12,14 +12,14 @@ trait CommitPublisher extends CommitHandler {
    * Creates a publication from the commit, including the commander, which can be used for sending additional info.
    * @param commit to handle.
    */
-  override abstract def handleCommit(commit: Commit[AggregateEvent]): Unit = {
+  override abstract def handleCommit(commit: Commit): Unit = {
     publishCommit(Publication(commit).includeCommander(sender()))
     super.handleCommit(commit)
   }
 
   /**
    * Publish a persisted commit.
-   * @param commitPublication to publish.
+   * @param publication to publish.
    */
-  def publishCommit(commitPublication: Publication[AggregateEvent]): Unit
+  def publishCommit(publication: Publication): Unit
 }
