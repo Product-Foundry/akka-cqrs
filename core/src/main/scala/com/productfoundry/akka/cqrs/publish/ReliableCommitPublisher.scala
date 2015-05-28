@@ -14,7 +14,7 @@ import scala.concurrent.duration._
  * events are published in the right order, even in case of redelivery.
  */
 trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with AtLeastOnceDelivery with ActorLogging {
-  this: Aggregate[_] =>
+  this: Aggregate =>
 
   implicit def system: ActorSystem = context.system
 

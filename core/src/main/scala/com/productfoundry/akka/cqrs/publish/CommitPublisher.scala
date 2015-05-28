@@ -6,7 +6,7 @@ import com.productfoundry.akka.cqrs._
  * Commit handler that publishes commits.
  */
 trait CommitPublisher extends CommitHandler {
-  this: Aggregate[_] =>
+  this: Aggregate =>
 
   /**
    * Creates a publication from the commit, including the commander, which can be used for sending additional info.

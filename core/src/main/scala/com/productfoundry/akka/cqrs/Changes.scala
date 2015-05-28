@@ -3,12 +3,12 @@ package com.productfoundry.akka.cqrs
 /**
  * Represents the changes that can be committed atomically to the aggregate.
  */
-sealed trait Changes[+E <: AggregateEvent] {
+sealed trait Changes {
 
   /**
    * @return changes to apply the aggregate state.
    */
-  def events: Seq[E]
+  def events: Seq[AggregateEvent]
 
   /**
    * @return additional commit info
@@ -26,7 +26,7 @@ sealed trait Changes[+E <: AggregateEvent] {
    * @param payload to set.
    * @return updated payload.
    */
-  def withPayload(payload: Any): Changes[E]
+  def withPayload(payload: Any): Changes
 
   /**
    * Add additional headers.
@@ -34,7 +34,7 @@ sealed trait Changes[+E <: AggregateEvent] {
    * @param headers to add.
    * @return updated headers.
    */
-  def withHeaders(headers: (String, String)*): Changes[E]
+  def withHeaders(headers: (String, String)*): Changes
 }
 
 /**
@@ -45,22 +45,20 @@ object Changes {
   /**
    * Create changes.
    * @param events changes to apply the aggregate state.
-   * @tparam E Base type of events in the changes.
    * @return changes.
    */
-  def apply[E <: AggregateEvent](events: E*): Changes[E] = AggregateChanges(events)
+  def apply(events: AggregateEvent*): Changes = AggregateChanges(events)
 
   /**
    * Create changes from optional changes.
    * @param event change to apply the aggregate state.
    * @param eventOptions optional additional changes to apply the aggregate state.
-   * @tparam E Base type of events in the changes.
    * @return changes.
    */
-  def apply[E <: AggregateEvent](event: E, eventOptions: Seq[Option[E]]): Changes[E] = AggregateChanges(event +: eventOptions.flatten)
+  def apply(event: AggregateEvent, eventOptions: Seq[Option[AggregateEvent]]): Changes = AggregateChanges(event +: eventOptions.flatten)
 }
 
-private[this] case class AggregateChanges[E <: AggregateEvent](events: Seq[E], payload: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes[E] {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], payload: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes {
 
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 

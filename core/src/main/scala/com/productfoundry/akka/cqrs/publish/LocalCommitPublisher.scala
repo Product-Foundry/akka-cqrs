@@ -6,7 +6,7 @@ import com.productfoundry.akka.cqrs.Aggregate
  * Mixin for actors to publish all commit messages onto the system event stream.
  */
 trait LocalCommitPublisher extends CommitPublisher {
-  this: Aggregate[_] =>
+  this: Aggregate =>
 
   /**
    * Publish directly to the system event stream.

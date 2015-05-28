@@ -7,7 +7,7 @@ import com.productfoundry.akka.GracefulPassivation
 /**
  * Aggregate.
  */
-trait Aggregate[E <: AggregateEvent]
+trait Aggregate
   extends Entity
   with PersistentActor
   with GracefulPassivation
@@ -222,7 +222,7 @@ trait Aggregate[E <: AggregateEvent]
    *
    * @param changesAttempt containing changes or a validation failure.
    */
-  def tryCommit(changesAttempt: Either[DomainError, Changes[E]]): Unit = {
+  def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
     changesAttempt.fold(cause => sender() ! AggregateResult.Failure(cause), changes => commit(changes))
   }
 
@@ -244,7 +244,7 @@ trait Aggregate[E <: AggregateEvent]
    * Commit changes.
    * @param changes to commit.
    */
-  private def commit(changes: Changes[E]): Unit = {
+  private def commit(changes: Changes): Unit = {
 
     // Construct full headers, prefer changes headers over user-specified command headers in case of duplicates
     val headers = commandRequest.headers ++ changes.headers
