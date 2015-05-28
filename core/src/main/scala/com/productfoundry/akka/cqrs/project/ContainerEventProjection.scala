@@ -16,20 +16,16 @@ private[project] trait ContainerEventProjection[C <: AggregateEventContainer, P 
    * Projects a single event container.
    */
   override def project(container: C): P = {
-    val id = container.id
-    val events = container.events
-
-    events.zipWithIndex.foldLeft(this) { case (state, (event, eventIndex)) =>
-      state.project(container, s"$id:$eventIndex", event)
+    container.events.zipWithIndex.foldLeft(this) { case (state, (event, eventIndex)) =>
+      state.project(container, event)
     }
   }
 
   /**
    * Projects a single event.
    * @param container containing the event.
-   * @param eventId guaranteed to be unique for every event.
    * @param event to project.
    * @return Projection result.
    */
-  def project(container: C, eventId: String, event: AggregateEvent): P
+  def project(container: C, event: AggregateEvent): P
 }

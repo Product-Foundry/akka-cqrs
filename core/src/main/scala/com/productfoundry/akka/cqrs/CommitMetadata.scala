@@ -11,10 +11,4 @@ package com.productfoundry.akka.cqrs
 case class CommitMetadata(persistenceId: String,
                           revision: AggregateRevision,
                           headers: Map[String, String] = Map.empty,
-                          timestamp: Long = System.currentTimeMillis()) {
-
-  /**
-   * Id is based on persistenceId and revision and therefore unique within the system.
-   */
-  val id = s"$persistenceId:$revision"
-}
+                          timestamp: Long = System.currentTimeMillis())
