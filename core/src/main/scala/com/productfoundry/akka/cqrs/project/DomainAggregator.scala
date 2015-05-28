@@ -1,67 +1,92 @@
 package com.productfoundry.akka.cqrs.project
 
-import akka.actor.{ActorLogging, ActorRef}
-import akka.persistence.{PersistentActor, RecoveryFailure}
+import akka.actor.ActorLogging
+import akka.persistence.{SnapshotOffer, PersistentActor, RecoveryFailure}
 import com.productfoundry.akka.cqrs.project.DomainAggregator.DomainAggregatorRevision
-import com.productfoundry.akka.cqrs.{AggregateEvent, Commit, PersistenceId}
+import com.productfoundry.akka.cqrs.{AggregateEvent, Commit}
 
 /**
  * Persistent actor that aggregates all received commits.
  *
- * Simplifies building projections.
+ * Simplifies rebuilding projections.
  *
- * Having a single aggregator for all commits is not a good idea.
+ * There are some drawbacks to this as well:
  *
  * - All commits are stored twice, once in the aggregate and once in the aggregator.
- * - Storing commits twice means logs can get out of sync; preferably the aggregate is leading.
- * - Commit aggregator becomes a bottleneck because it needs to handle all commits in the system.
- * - Even worse when clustering.
+ * - Storing commits twice means logs can get out of sync; however the domain aggregator is a projection in itself and eventually consistent.
+ * - Commit aggregator can become a bottleneck since the updates all need to go a single actor.
  *
- * Unfortunately there is no better journal-independent solution for rebuilding projections right now.
+ * Unfortunately there is no better journal-independent solution for rebuilding projections right now. At some point
+ * it makes sense to use something like Akka streams for this.
+ *
+ * @param persistenceId used for persisting all received events.
+ * @param snapshotInterval defines how often a snapshot is created, defaults to snapshot after every 100 aggregated commits.
  */
-class DomainAggregator
+class DomainAggregator(override val persistenceId: String, val snapshotInterval: Int = 100)
   extends PersistentActor
   with ActorLogging {
 
   /**
-   * Persistence id is based on the actor path.
+   * Keeps track of the current revision.
+   *
+   * The revision should increment with every aggregated commit without creating gaps.
+   * Not backed by [[lastSequenceNr]], because mixins can also persist events for internal use, which shouldn't
+   * affect the aggregator revision.
    */
-  override val persistenceId: String = PersistenceId(self.path).value
+  private var revision = DomainRevision.Initial
 
   /**
-   * @return the current revision of this aggregate.
+   * @return the current revision of this aggregator.
    */
-  def revision = DomainRevision(lastSequenceNr)
+  def currentRevision = revision
 
   /**
-   * Simply persists all received commits.
+   * Persist all commits.
    */
   override def receiveCommand: Receive = {
-    case commit: Commit[AggregateEvent] =>
-      persist(DomainCommit(revision.next, commit)) { domainCommit =>
-        if (revision != domainCommit.revision) {
-          log.warning("Unexpected domain commit revision, expected: {}, actual: {}", revision, domainCommit.revision)
-        }
-
-        sender() ! DomainAggregatorRevision(domainCommit.revision)
-      }
-
-    case unexpected =>
-      log.error("Unexpected: {}", unexpected)
+    case commit: Commit[AggregateEvent] => aggregateCommit(commit)
   }
 
   /**
-   * Nothing to recover, projections are created using views.
+   * Persists the commit and notifies the sender of the domain revision.
+   * @param commit to persist.
+   */
+  def aggregateCommit(commit: Commit[AggregateEvent]): Unit = {
+    persist(DomainCommit(revision.next, System.currentTimeMillis(), commit)) { domainCommit =>
+      updateState(domainCommit)
+
+      sender() ! DomainAggregatorRevision(revision)
+
+      if (revision.value % snapshotInterval == 0) {
+        saveSnapshot(revision)
+      }
+    }
+  }
+
+  private def updateState(domainCommit: DomainCommit[AggregateEvent]): Unit = {
+    revision = domainCommit.revision
+  }
+
+  /**
+   * Recover domain revision
    */
   override def receiveRecover: Receive = {
+
     case RecoveryFailure(cause) =>
       log.error(cause, "Unable to recover: {}", persistenceId)
-    case msg =>
-      log.debug("Recover: {}", msg)
+
+    case domainCommit: DomainCommit[AggregateEvent] =>
+      log.debug("Recovered: {}", domainCommit)
+      updateState(domainCommit)
+
+    case SnapshotOffer(_, snapshot: DomainRevision) =>
+      log.debug("Recovered revision from snapshot: {}", snapshot)
+      revision = snapshot
   }
 }
 
 object DomainAggregator {
 
   case class DomainAggregatorRevision(revision: DomainRevision)
+
 }
