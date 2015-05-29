@@ -2,91 +2,109 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
+import com.productfoundry.akka.cqrs.Commit
 import com.productfoundry.akka.cqrs.project.Projection
 
 import scala.concurrent.duration._
-import scala.concurrent.stm.{Ref, _}
+import scala.concurrent.{Future, Promise}
+
 
 object DomainAggregatorView {
   def apply[P <: Projection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
     new DomainAggregatorView(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
-  }
-
-  object RecoveryStatus extends Enumeration {
-    type RecoveryStatus = Value
-    val Idle, Recovering, Done = Value
   }
 }
 
 /**
  * Projects domain commits.
  */
-class DomainAggregatorView[P <: Projection[P]] private (actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends DomainProjectionProvider[P] {
+class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends DomainProjectionProvider[P] {
 
-  import DomainAggregatorView.RecoveryStatus
-  
-  private val recoveryStatus: Ref[RecoveryStatus.RecoveryStatus] = Ref(RecoveryStatus.Idle)
-  private val state: Ref[P] = Ref(initial)
-  private val revision: Ref[DomainRevision] = Ref(DomainRevision.Initial)
   private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
 
-  awaitRecover()
-
-  /**
-   * Blocks until initial recovery is complete.
-   */
-  private def awaitRecover(): Unit = {
-    atomic { implicit txn =>
-      if (recoveryStatus() != RecoveryStatus.Done) {
-        retry
-      }
-    }
-  }
-
-  override def get: P = state.single.get
-
-  override def getWithRevision(minimum: DomainRevision): (P, DomainRevision) = {
-    ref ! Update(replayMax = minimum.value)
-
-    atomic { implicit txn =>
-      if (revision() < minimum) {
-        retry
-      }
-      else {
-        (state(), revision())
-      }
-    }
-  }
-
-  /**
-   * Projects the given commit.
-   * @param domainCommit to apply.
-   */
-  def project(domainCommit: DomainCommit): Unit = {
-    atomic { implicit txn =>
-      state.transform(_.project(domainCommit.commit))
-      revision() = domainCommit.revision
-    }
+  override def getWithRevision(minimum: DomainRevision): Future[StateWithRevision] = {
+    val stateWithRevisionPromise = Promise[StateWithRevision]()
+    ref ! DomainView.RequestState(minimum, stateWithRevisionPromise)
+    stateWithRevisionPromise.future
   }
 
   class DomainView(val persistenceId: String) extends PersistentView with ActorLogging {
+
+    import DomainView._
+
     override val viewId: String = s"$persistenceId-view"
 
-    override def preStart(): Unit = {
-      recoveryStatus.single.update(RecoveryStatus.Recovering)
-      context.setReceiveTimeout(recoveryThreshold)
+    private var stateWithRevision: StateWithRevision = (initial, DomainRevision.Initial)
 
+    private var promisesByRevision: Map[DomainRevision, Vector[Promise[StateWithRevision]]] = Map.empty
+
+    override def preStart(): Unit = {
+      context.become(recovering)
+      context.setReceiveTimeout(recoveryThreshold)
       super.preStart()
     }
 
-    override def receive: Receive = {
-      case commit: DomainCommit =>
-        project(commit)
+    private def updateState(revision: DomainRevision, commit: Commit): Unit = {
+      stateWithRevision = (stateWithRevision._1.project(commit), revision)
+    }
+
+    private def savePromise(revision: DomainRevision, promise: Promise[StateWithRevision]): Unit = {
+      val promises = promisesByRevision.get(revision).fold(Vector(promise))(promises => promises :+ promise)
+      promisesByRevision = promisesByRevision.updated(revision, promises)
+    }
+
+    private def completePromises(revision: DomainRevision): Unit = {
+      promisesByRevision.get(revision).foreach { promises =>
+        promisesByRevision = promisesByRevision - revision
+        promises.foreach(completePromise)
+      }
+    }
+
+    private def completePromise(promise: Promise[StateWithRevision]): Unit = {
+      promise.complete(util.Success(stateWithRevision))
+    }
+
+    def recovering: Receive = {
+
+      case DomainCommit(revision, commit) =>
+        updateState(revision, commit)
+
+      case RequestState(minimum, promise) =>
+        savePromise(minimum, promise)
 
       case ReceiveTimeout =>
-        log.info("Assuming recovery is complete due to receive timeout: {}", persistenceId)
-        recoveryStatus.single.update(RecoveryStatus.Done)
-        context.setReceiveTimeout(Duration.Undefined)
+        context.setReceiveTimeout(2.seconds)
+
+        DomainRevision.Initial.value to stateWithRevision._2.value foreach { revision =>
+          completePromises(DomainRevision(revision))
+        }
+
+        context.become(receive)
+    }
+
+    override def receive: Receive = {
+
+      case DomainCommit(revision, commit) =>
+        updateState(revision, commit)
+        completePromises(revision)
+
+      case RequestState(minimum, promise) =>
+        if (minimum <= stateWithRevision._2) {
+          completePromise(promise)
+        } else {
+          savePromise(minimum, promise)
+          self ! Update()
+        }
+
+      case ReceiveTimeout =>
+        if (promisesByRevision.nonEmpty) self ! Update()
     }
   }
+
+  object DomainView {
+
+    case class RequestState(minimum: DomainRevision, promise: Promise[StateWithRevision])
+
+  }
+
 }

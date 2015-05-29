@@ -7,6 +7,7 @@ import com.productfoundry.akka.cqrs.project.Projection
 import com.productfoundry.akka.cqrs.project.domain.{DomainProjectionProvider, DomainRevision}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import scala.concurrent.Future
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
 
@@ -136,18 +137,15 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      */
     val projection: DomainProjectionProvider[P] = new DomainProjectionProvider[P] {
 
-      override def getWithRevision(minimum: DomainRevision): (P, DomainRevision) = {
+      override def getWithRevision(minimum: DomainRevision): Future[(P, DomainRevision)] = {
         atomic { implicit txn =>
           if (domainRevisionRef() < minimum) {
             retry
           } else {
-            (projectionRef(), domainRevisionRef())
+            Future.successful((projectionRef(), domainRevisionRef()))
           }
         }
       }
-
-      override def get: P = projectionRef.single.get
     }
   }
-
 }

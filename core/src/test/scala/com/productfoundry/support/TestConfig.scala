@@ -15,6 +15,9 @@ object TestConfig {
       |    snapshot-store {
       |      plugin = "in-memory-snapshot-store"
       |    }
+      |    view {
+      |      auto-update-interval = 4s
+      |    }
       |  }
       |}
     """.stripMargin
