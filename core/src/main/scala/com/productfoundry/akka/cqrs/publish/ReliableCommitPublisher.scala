@@ -2,7 +2,8 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
 import akka.persistence.{AtLeastOnceDelivery, PersistentActor}
-import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol._
+import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol
+import ConfirmationProtocol._
 import com.productfoundry.akka.cqrs.{Aggregate, Commit}
 
 import scala.concurrent.duration._

@@ -1,4 +1,4 @@
-package com.productfoundry.akka.cqrs.publish
+package com.productfoundry.akka.cqrs.confirm
 
 import com.productfoundry.akka.cqrs.Persistable
 import play.api.libs.json.{Format, Reads, Writes}

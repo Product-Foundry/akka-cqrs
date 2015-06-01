@@ -33,8 +33,8 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
       commitPublication.commanderOption should be(Some(self))
     }
     
-    "not have delivery id" in new fixture {
-      commitPublication.deliveryIdOption should be('empty)
+    "not have confirmation" in new fixture {
+      commitPublication.confirmationOption should be('empty)
     }
 
     "not request confirmation" in new fixture {

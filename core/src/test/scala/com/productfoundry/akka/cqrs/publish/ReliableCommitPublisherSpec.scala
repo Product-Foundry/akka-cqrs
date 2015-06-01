@@ -43,8 +43,8 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       commitPublication.commanderOption should be(Some(self))
     }
 
-    "have delivery id" in new fixture {
-      commitPublication.deliveryIdOption should be('nonEmpty)
+    "have confirmation" in new fixture {
+      commitPublication.confirmationOption should be('nonEmpty)
     }
 
     "republish if not confirmed" in new fixture {

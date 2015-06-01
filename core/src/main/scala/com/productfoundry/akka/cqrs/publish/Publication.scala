@@ -2,34 +2,16 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
 import com.productfoundry.akka.cqrs.Commit
-import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.confirm.{Confirmable, Confirmation}
 
-trait Publication {
+trait Publication extends Confirmable {
+
+  override type self = Publication
 
   /**
    * @return The commit to publish.
    */
   def commit: Commit
-
-  /**
-   * Request confirmation for this publication.
-   *
-   * @param deliveryId to keep track of confirmations.
-   * @param requester to receive the confirmation.
-   *
-   * @return Updated commit publication that can send back confirmations.
-   */
-  def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication
-
-  /**
-   * @return Optional delivery id for confirmation.
-   */
-  def deliveryIdOption: Option[Long]
-
-  /**
-   * Confirm delivery if requested.
-   */
-  def confirmIfRequested(): Unit
 
   /**
    * Includes the commander, which can be used to send additional info when handling the published commit.
@@ -61,19 +43,11 @@ object Publication {
 }
 
 private[this] case class CommitPublication(commit: Commit,
-                                           requestedConfirmationOption: Option[(ActorRef, Long)] = None,
+                                           confirmationOption: Option[Confirmation] = None,
                                            commanderOption: Option[ActorRef] = None) extends Publication {
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication = {
-    copy(requestedConfirmationOption = Some(requester -> deliveryId))
-  }
-
-  override def deliveryIdOption: Option[Long] = requestedConfirmationOption.map(_._2)
-
-  override def confirmIfRequested(): Unit = {
-    requestedConfirmationOption.foreach {
-      case (requester, deliveryId) => requester ! Confirm(deliveryId)
-    }
+    copy(confirmationOption = Some(Confirmation(requester, deliveryId)))
   }
 
   override def includeCommander(commander: ActorRef): Publication = {

@@ -1,8 +1,8 @@
 package com.productfoundry.akka.serialization.json
 
 import com.productfoundry.akka.cqrs._
+import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol
 import com.productfoundry.akka.cqrs.project.domain.DomainCommit
-import com.productfoundry.akka.cqrs.publish.ConfirmationProtocol
 import play.api.libs.json.{Format, Json}
 
 case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {

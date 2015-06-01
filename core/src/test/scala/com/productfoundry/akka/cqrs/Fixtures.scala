@@ -1,5 +1,6 @@
 package com.productfoundry.akka.cqrs
 
+import com.productfoundry.akka.cqrs.confirm.TestConfirmable
 import org.scalacheck.{Gen, Arbitrary}
 
 import Arbitrary._
@@ -20,5 +21,9 @@ trait Fixtures {
       revision <- arbitrary[AggregateRevision]
       values <- arbitrary[Seq[Int]]
     } yield Commit(CommitMetadata(id.toString, revision), values.map(value => TestEvent(id, value)))
+  }
+
+  implicit def ArbitraryConfirmable: Arbitrary[TestConfirmable]= Arbitrary {
+    arbitrary[Long].map(value => TestConfirmable(value))
   }
 }
