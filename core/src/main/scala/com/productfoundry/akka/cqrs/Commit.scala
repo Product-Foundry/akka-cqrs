@@ -11,7 +11,12 @@ case class Commit(metadata: CommitMetadata, events: Seq[AggregateEvent]) extends
   /**
    * @return unique commit id.
    */
-  def id = metadata.persistenceId
+  def id = metadata.id
+
+  /**
+   * @return id of the aggregate.
+   */
+  def aggregateId = metadata.aggregateId
 
   /**
    * @return revision of the commit.

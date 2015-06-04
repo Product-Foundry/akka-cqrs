@@ -10,5 +10,4 @@ trait AggregateId extends Identifier
 abstract class AggregateIdCompanion[I <: AggregateId : ClassTag] extends IdentifierCompanion[I] {
 
   implicit val AggregateIdCompanionObject: AggregateIdCompanion[I] = this
-
 }

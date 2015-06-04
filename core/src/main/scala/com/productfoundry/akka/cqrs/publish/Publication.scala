@@ -46,6 +46,7 @@ private[this] case class CommitPublication(commit: Commit,
                                            confirmationOption: Option[Confirmation] = None,
                                            commanderOption: Option[ActorRef] = None) extends Publication {
 
+
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): Publication = {
     copy(confirmationOption = Some(Confirmation(requester, deliveryId)))
   }

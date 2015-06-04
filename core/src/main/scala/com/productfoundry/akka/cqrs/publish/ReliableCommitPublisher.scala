@@ -1,10 +1,9 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
-import akka.persistence.{AtLeastOnceDelivery, PersistentActor}
-import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol
-import ConfirmationProtocol._
-import com.productfoundry.akka.cqrs.{Aggregate, Commit}
+import akka.persistence.{PersistentActor, AtLeastOnceDelivery}
+import com.productfoundry.akka.cqrs._
+import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol._
 
 import scala.concurrent.duration._
 
@@ -14,15 +13,20 @@ import scala.concurrent.duration._
  * A commit is only published after the previous published commit is confirmed to ensure aggregate
  * events are published in the right order, even in case of redelivery.
  */
-trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with AtLeastOnceDelivery with ActorLogging {
+trait ReliableCommitPublisher
+  extends CommitPublisher
+  with PersistentActor
+  with AtLeastOnceDelivery
+  with ActorLogging {
+
   this: Aggregate =>
 
   implicit def system: ActorSystem = context.system
 
   /**
-   * PersistenceId is overridden by AtLeastOnceDelivery.
+   * Overwritten by [AtLeastOnceDelivery].
    */
-  override def persistenceId: String = aggregateId.toString
+  override def persistenceId: String = entityId
 
   /**
    * Current publication that needs to be confirmed.
