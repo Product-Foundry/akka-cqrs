@@ -12,7 +12,7 @@ import scala.util.Random
 
 import scala.concurrent.duration._
 
-class ConfirmableRouterSpec extends PersistenceTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
+class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
 
   "publication" must {
 

@@ -25,8 +25,6 @@ object ConfirmationProtocol {
   case class Confirmed(deliveryId: Long) extends Persistable
 
   object Confirmed {
-
     implicit val ConfirmedFormat: Format[Confirmed] = Format(Reads.of[Long].map(apply), Writes(a => Writes.of[Long].writes(a.deliveryId)))
   }
-
 }

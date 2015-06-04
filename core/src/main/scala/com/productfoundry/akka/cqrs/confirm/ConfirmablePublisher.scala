@@ -1,59 +1,96 @@
 package com.productfoundry.akka.cqrs.confirm
 
 import akka.actor._
-import com.productfoundry.akka.cqrs.confirm.ConfirmablePublisher.{Passivate, RedeliverUnconfirmed}
+import com.productfoundry.akka.cqrs.confirm.ConfirmableRouter.PublicationHandler._
+import com.productfoundry.akka.cqrs.confirm.ConfirmableRouter._
 import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol._
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.language.existentials
 
-private class ConfirmablePublisher(confirmable: Confirmable, destinations: Set[ActorPath], timeout: Duration) extends Actor {
+class ConfirmableRouter(val timeout: Duration = 30.minutes) extends Actor with ActorLogging {
 
-  private var destinationsByDeliveryId: Map[Long, ActorPath] = Map(
-    destinations.toSeq.zipWithIndex.map {
-      case (destination, deliveryId) => deliveryId.toLong -> destination
-    }: _*
-  )
 
-  override def preStart(): Unit = {
-    publishUnconfirmed()
+  private var subscribers: Set[ActorPath] = Set.empty
 
-    context.setReceiveTimeout(timeout)
-  }
+  private var publishersByConfirmable: Map[Confirmable, ActorRef] = Map.empty
 
   override def receive: Receive = {
 
-    case Confirm(deliveryId) =>
-      destinationsByDeliveryId = destinationsByDeliveryId - deliveryId
-      confirmIfCompleted()
+    case Subscribe(subscriber) =>
+      subscribers += subscriber
 
-    case RedeliverUnconfirmed =>
-      publishUnconfirmed()
+    case Unsubscribe(subscriber) =>
+      subscribers -= subscriber
 
-    case ReceiveTimeout =>
-      context.parent ! Passivate(confirmable)
-  }
+    case confirmable: Confirmable =>
+      publishersByConfirmable.get(confirmable).fold {
+        val publisher = context.actorOf(Props(new PublicationHandler(confirmable, subscribers, timeout)))
+        publishersByConfirmable = publishersByConfirmable.updated(confirmable, publisher)
+      } { publisher =>
+        publisher ! PublicationHandler.RedeliverUnconfirmed
+      }
 
-  private def publishUnconfirmed(): Unit = {
-    destinationsByDeliveryId.foreach { case (deliveryId, destinationPath) =>
-      context.system.actorSelection(destinationPath) ! confirmable.requestConfirmation(deliveryId)
-    }
-
-    confirmIfCompleted()
-  }
-
-  private def confirmIfCompleted(): Unit = {
-    if (destinationsByDeliveryId.isEmpty) {
-      confirmable.confirmIfRequested()
-      self ! PoisonPill
-    }
+    case Passivate(confirmable) =>
+      log.warning("Timeout handling: {}", confirmable)
+      publishersByConfirmable = publishersByConfirmable - confirmable
+      sender() ! PoisonPill
   }
 }
 
-case object ConfirmablePublisher {
+object ConfirmableRouter {
 
-  case object RedeliverUnconfirmed
+  case class Subscribe(subscriber: ActorPath)
 
-  case class Passivate(confirmable: Confirmable)
+  case class Unsubscribe(subscriber: ActorPath)
 
+  private class PublicationHandler(confirmable: Confirmable, destinations: Set[ActorPath], timeout: Duration) extends Actor {
+
+    private var destinationsByDeliveryId: Map[Long, ActorPath] = Map(
+      destinations.toSeq.zipWithIndex.map {
+        case (destination, deliveryId) => deliveryId.toLong -> destination
+      }: _*
+    )
+
+    override def preStart(): Unit = {
+      publishUnconfirmed()
+
+      context.setReceiveTimeout(timeout)
+    }
+
+    override def receive: Receive = {
+
+      case Confirm(deliveryId) =>
+        destinationsByDeliveryId = destinationsByDeliveryId - deliveryId
+        confirmIfCompleted()
+
+      case RedeliverUnconfirmed =>
+        publishUnconfirmed()
+
+      case ReceiveTimeout =>
+        context.parent ! Passivate(confirmable)
+    }
+
+    private def publishUnconfirmed(): Unit = {
+      destinationsByDeliveryId.foreach { case (deliveryId, destinationPath) =>
+        context.system.actorSelection(destinationPath) ! confirmable.requestConfirmation(deliveryId)
+      }
+
+      confirmIfCompleted()
+    }
+
+    private def confirmIfCompleted(): Unit = {
+      if (destinationsByDeliveryId.isEmpty) {
+        confirmable.confirmIfRequested()
+        self ! PoisonPill
+      }
+    }
+  }
+
+  case object PublicationHandler {
+
+    case object RedeliverUnconfirmed
+
+    case class Passivate(confirmable: Confirmable)
+  }
 }
