@@ -15,6 +15,9 @@ class SimpleAggregateFactory[A <: Aggregate : ClassTag] extends AggregateFactory
  * Creates aggregate supervisors for aggregates without a specialized constructor.
  */
 object SimpleAggregateFactory {
+
+  implicit def IdResolution[A] = new AggregateIdResolution[A]
+
   def supervisor[A <: Aggregate : ClassTag](implicit domainContext: DomainContext): ActorRef = {
     implicit lazy val aggregateFactory = new SimpleAggregateFactory[A]
     implicit lazy val aggregateSupervisorFactory = domainContext.entitySupervisorFactory[A]

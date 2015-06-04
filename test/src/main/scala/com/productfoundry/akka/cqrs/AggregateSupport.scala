@@ -21,7 +21,7 @@ import CommandRequest._
  * @tparam A Aggregate type.
  */
 abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit aggregateClass: ClassTag[A],
-                                                                         aggregateFactory: AggregateFactory[A])
+                                                                      aggregateFactory: AggregateFactory[A])
   extends TestKit(_system)
   with ImplicitSender
   with WordSpecLike
@@ -37,6 +37,8 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
     timeout = scaled(Span(1, Second)),
     interval = scaled(Span(10, Millis))
   )
+
+  implicit def entityIdResolution: EntityIdResolution[A] = new AggregateIdResolution[A]()
 
   /**
    * Test local entities by default, requires implicit entity factory.

@@ -2,6 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.util.Timeout
+import com.productfoundry.akka.cqrs.Entity.EntityId
 import com.productfoundry.akka.{ActorContextCreationSupport, Passivate, PassivationConfig}
 
 import scala.concurrent.Await
@@ -23,8 +24,7 @@ case class BufferedMessage(sender: ActorRef, message: EntityMessage)
  * @param entityFactory to create the entity.
  * @tparam E Entity type.
  */
-class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minutes)(implicit classTag: ClassTag[E],
-                                                                                   entityFactory: EntityFactory[E])
+class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minutes)(implicit classTag: ClassTag[E], entityFactory: EntityFactory[E], entityIdResolution: EntityIdResolution[E])
   extends ActorContextCreationSupport
   with Actor
   with ActorLogging {
@@ -45,7 +45,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
       val bufferedMessages = bufferedMessagesByPath.getOrElse(childPath, Vector.empty)
       log.debug("Terminated: {}, buffered messages: {}", childPath, bufferedMessages.size)
       bufferedMessages.foreach { buffered =>
-        getOrCreateEntity(buffered.message.id).tell(buffered.message, buffered.sender)
+        getOrCreateEntity(resolveEntityId(buffered.message)).tell(buffered.message, buffered.sender)
       }
 
       // Remove all buffered messages for this actor, so it doesn't continue buffering when it is recreated
@@ -53,7 +53,8 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
 
     case msg: EntityMessage =>
       // Buffer messages when required
-      val childPath = self.path / msg.id.toString
+      val entityId = resolveEntityId(msg)
+      val childPath = self.path / entityId
       val bufferedMessagesOption = bufferedMessagesByPath.get(childPath)
       bufferedMessagesOption match {
         case Some(bufferedMessages) =>
@@ -61,9 +62,11 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
           log.debug("Buffered for: {}, message: {}", childPath, bufferedMessage)
           bufferedMessagesByPath = bufferedMessagesByPath.updated(childPath, bufferedMessages :+ bufferedMessage)
         case None =>
-          getOrCreateEntity(msg.id) forward msg
+          getOrCreateEntity(entityId) forward msg
       }
   }
+
+  private def resolveEntityId(msg: Any) = entityIdResolution.entityIdResolver(msg)
 
   /**
    * @param entityId of the entity.
@@ -84,9 +87,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  */
 class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
 
-  import LocalDomainContext._
-
-  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalDomainContextActor), domainName)
+  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalDomainContextActor), "Domain")
 
   class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
     override def receive: Actor.Receive = {
@@ -96,10 +97,11 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
 
   case class GetOrCreateSupervisor(props: Props, name: String)
 
-  override def entitySupervisorFactory[E <: Entity : EntityFactory : ClassTag]: EntitySupervisorFactory[E] = {
+  override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
       override def getOrCreate: ActorRef = {
         import akka.pattern.ask
+
         import scala.concurrent.duration._
 
         implicit val timeout = Timeout(30.seconds)
@@ -109,10 +111,4 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
       }
     }
   }
-}
-
-object LocalDomainContext {
-  val domainName = "Domain"
-
-  val domainAggregatorName = "DomainAggregator"
 }

@@ -5,9 +5,9 @@ import scala.reflect.ClassTag
 /**
  * All aggregates have identity.
  */
-trait AggregateId extends EntityId
+trait AggregateId extends Identifier
 
-abstract class AggregateIdCompanion[I <: AggregateId : ClassTag] extends EntityIdCompanion[I] {
+abstract class AggregateIdCompanion[I <: AggregateId : ClassTag] extends IdentifierCompanion[I] {
 
   implicit val AggregateIdCompanionObject: AggregateIdCompanion[I] = this
 

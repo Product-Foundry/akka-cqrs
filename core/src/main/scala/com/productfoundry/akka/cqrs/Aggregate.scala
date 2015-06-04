@@ -34,12 +34,12 @@ trait Aggregate
   /**
    * Id is based on the actor path and determined only once
    */
-  val id: String = PersistenceId(self.path).value
+  val entityId: String = self.path.name
 
   /**
    * Persistence id is the same as id, but needs to be a def in order to mix in behavior that relies on persistence.
    */
-  override def persistenceId: String = id
+  override def persistenceId: String = entityId
 
   /**
    * Defines a factory that can create initial state from one or more events.
