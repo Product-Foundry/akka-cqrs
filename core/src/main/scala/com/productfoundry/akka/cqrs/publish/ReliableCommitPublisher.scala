@@ -20,6 +20,11 @@ trait ReliableCommitPublisher extends PersistentActor with CommitPublisher with 
   implicit def system: ActorSystem = context.system
 
   /**
+   * PersistenceId is overridden by AtLeastOnceDelivery.
+   */
+  override def persistenceId: String = aggregateId.toString
+
+  /**
    * Current publication that needs to be confirmed.
    */
   private var currentPublicationOption: Option[Publication] = None

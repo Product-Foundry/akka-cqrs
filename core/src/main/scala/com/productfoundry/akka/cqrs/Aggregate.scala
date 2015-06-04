@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs
 
+import java.util.UUID
+
 import akka.actor._
 import akka.persistence.{PersistentActor, RecoveryFailure}
 import com.productfoundry.akka.GracefulPassivation
@@ -32,14 +34,18 @@ trait Aggregate
   }
 
   /**
-   * Id is based on the actor path and determined only once
+   * Id is based on the actor path and determined only once.
    */
-  val entityId: String = self.path.name
+  val aggregateId: Uuid = UUID.fromString(self.path.name)
 
   /**
    * Persistence id is the same as id, but needs to be a def in order to mix in behavior that relies on persistence.
    */
-  override def persistenceId: String = entityId
+  override def persistenceId: String = aggregateId.toString
+
+  if (aggregateId.toString != persistenceId) {
+    throw new AggregateInternalException(s"Persistence id is invalid, is it changed by a trait? Expected: $aggregateId, actual: $persistenceId")
+  }
 
   /**
    * Defines a factory that can create initial state from one or more events.
