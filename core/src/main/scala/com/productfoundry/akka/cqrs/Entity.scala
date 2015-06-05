@@ -13,7 +13,7 @@ object Entity {
  */
 trait Entity extends PersistentActor with GracefulPassivation {
 
-  final val entityId = self.path.name
+  final val entityId = s"${context.parent.path.name}/${self.path.name}"
 
   override def persistenceId: String = entityId
 
