@@ -1,8 +1,9 @@
 package com.productfoundry.akka.cqrs
 
 /**
- * Persisted aggregate event.
- * @param revision of the aggregate after the event will be applied.
+ * Event that is persisted and applied to an aggregate.
+ *
+ * @param headers with info about the aggregate related to the event.
  * @param event with the actual change.
  */
-case class AggregateEventRecord(revision: AggregateRevision, event: AggregateEvent)
+case class AggregateEventRecord(headers: AggregateEventHeaders, event: AggregateEvent)

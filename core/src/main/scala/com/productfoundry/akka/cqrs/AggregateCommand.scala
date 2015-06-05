@@ -51,16 +51,16 @@ trait CommandRequest extends AggregateMessage {
   def checkRevision(actual: AggregateRevision)(success: () => Unit)(failed: (AggregateRevision) => Unit): Unit
 
   /**
-   * Appends the specified headers to the command request headers.
-   * @param headers to append.
-   * @return command request with updated headers.
+   * Appends the specified metadata to the command request metadata.
+   * @param metadata to append.
+   * @return command request with updated metadata.
    */
-  def withHeaders(headers: Map[String, String]): CommandRequest
+  def withMetadata(metadata: Map[String, String]): CommandRequest
 
   /**
-   * @return All headers to append to the commit.
+   * @return All metadata specified with the command.
    */
-  def headers: Map[String, String]
+  def metadata: Map[String, String]
 }
 
 object CommandRequest {
@@ -86,9 +86,9 @@ object CommandRequest {
  *
  * @param command to execute.
  * @param expectedOption for revision check.
- * @param headers to store in the commit.
+ * @param metadata to store in the commit.
  */
-private[this] case class AggregateCommandRequest(command: AggregateCommand, expectedOption: Option[AggregateRevision] = None, headers: Map[String, String] = Map.empty) extends CommandRequest {
+private[this] case class AggregateCommandRequest(command: AggregateCommand, expectedOption: Option[AggregateRevision] = None, metadata: Map[String, String] = Map.empty) extends CommandRequest {
   type Id = command.Id
 
   /**
@@ -123,11 +123,11 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand, expe
   }
 
   /**
-   * Appends the specified headers to the command request headers.
-   * @param headers to append.
-   * @return command request with updated headers.
+   * Appends the specified metadata to the command request metadata.
+   * @param metadata to append.
+   * @return command request with updated metadata.
    */
-  override def withHeaders(headers: Map[String, String]): CommandRequest = {
-    copy(headers = this.headers ++ headers)
+  override def withMetadata(metadata: Map[String, String]): CommandRequest = {
+    copy(metadata = this.metadata ++ metadata)
   }
 }

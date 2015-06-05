@@ -15,7 +15,7 @@ trait EventProjection[P <: EventProjection[P]] extends Projection[P] {
    * Projects a single event container.
    */
   override def project(commit: Commit): P = {
-    commit.events.zipWithIndex.foldLeft(this) { case (state, (event, index)) =>
+    commit.records.zipWithIndex.foldLeft(this) { case (state, (event, index)) =>
       state.project(commit, index, event.event)
     }
   }

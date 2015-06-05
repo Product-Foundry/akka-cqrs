@@ -7,7 +7,7 @@ import play.api.libs.json.{Format, Json}
 
 case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {
 
-  implicit val AggregateEventRecordFormat: Format[AggregateEventRecord] = Json.format[AggregateEventRecord]
+  implicit val CommitEntryFormat: Format[CommitEntry] = Json.format[CommitEntry]
 
   implicit val CommitFormat: Format[Commit] = Json.format[Commit]
 

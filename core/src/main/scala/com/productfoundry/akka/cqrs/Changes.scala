@@ -13,7 +13,7 @@ sealed trait Changes {
   /**
    * @return additional commit info
    */
-  def headers: Map[String, String]
+  def metadata: Map[String, String]
 
   /**
    * @return payload for additional response.
@@ -29,12 +29,12 @@ sealed trait Changes {
   def withResponse(response: Any): Changes
 
   /**
-   * Add additional headers.
+   * Adds additional metadata.
    *
-   * @param headers to add.
-   * @return updated headers.
+   * @param metadata to add.
+   * @return updated metadata.
    */
-  def withHeaders(headers: (String, String)*): Changes
+  def withMetadata(metadata: (String, String)*): Changes
 
   /**
    * Creates a commit from the specified changes.
@@ -65,7 +65,7 @@ object Changes {
   def apply(event: AggregateEvent, eventOptions: Seq[Option[AggregateEvent]]): Changes = AggregateChanges(event +: eventOptions.flatten)
 }
 
-private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, metadata: Map[String, String] = Map.empty) extends Changes {
 
   /**
    * Sets aggregate response payload.
@@ -76,12 +76,12 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
   override def withResponse(response: Any) = copy(response = response)
 
   /**
-   * Add additional headers.
+   * Adds additional metadata.
    *
-   * @param headers to add.
-   * @return updated headers.
+   * @param metadata to add.
+   * @return updated metadata.
    */
-  override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
+  override def withMetadata(metadata: (String, String)*) = copy(metadata = this.metadata ++ metadata)
 
   /**
    * Creates a commit from the specified changes.
@@ -89,10 +89,11 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @return created commit.
    */
   override def createCommit(snapshot: AggregateSnapshot): Commit = {
-    val eventRecords = events.zip(snapshot.revision.upcoming).map { case (event, expectedRevision) =>
-      AggregateEventRecord(expectedRevision, event)
-    }
-
-    Commit(snapshot, headers, System.currentTimeMillis(), eventRecords)
+    Commit(
+      AggregateEventHeaders(snapshot, metadata, System.currentTimeMillis()),
+      events.zip(snapshot.revision.upcoming).map { case (event, expectedRevision) =>
+        CommitEntry(expectedRevision, event)
+      }
+    )
   }
 }

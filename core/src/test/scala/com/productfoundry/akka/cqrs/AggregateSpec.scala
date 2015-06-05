@@ -225,9 +225,9 @@ class AggregateSpec extends AggregateTestSupport {
           conflict.actual should be(actual)
           conflict.commits.size should be(actual.value - expected.value)
           conflict.commits.zip(snapshots).foreach { case (commit, result) =>
-            commit.snapshot.revision should be(result.revision)
-            commit.events should have size 1
-            commit.events.head shouldBe a[Counted]
+            commit.headers.snapshot.revision should be(result.revision)
+            commit.records should have size 1
+            commit.records.head.event shouldBe a[Counted]
           }
       }
     }
@@ -267,7 +267,7 @@ class AggregateSpec extends AggregateTestSupport {
 
     "be stored in commit" in new AggregateFixture {
       val headers = Map("a" -> "b")
-      supervisor ! Count(testId).withHeaders(headers)
+      supervisor ! Count(testId).withMetadata(headers)
       expectMsgType[AggregateResult.Success]
 
       supervisor ! Count(testId).withExpectedRevision(AggregateRevision(1L))

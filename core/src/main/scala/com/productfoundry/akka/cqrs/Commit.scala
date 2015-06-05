@@ -1,14 +1,27 @@
 package com.productfoundry.akka.cqrs
 
 /**
- * A commit with aggregate event records.
+ * A commit with aggregate event records to keep revisions per event.
  *
- * @param snapshot at the time of the commit.
- * @param headers with additional commit info.
- * @param timestamp of the commit.
- * @param events in the commit.
+ * @param headers for the event entries.
+ * @param entries in the commit.
  */
-case class Commit(snapshot: AggregateSnapshot,
-                  headers: Map[String, String] = Map.empty,
-                  timestamp: Long = System.currentTimeMillis(),
-                  events: Seq[AggregateEventRecord]) extends Persistable
+case class Commit(headers: AggregateEventHeaders, entries: Seq[CommitEntry]) extends Persistable {
+
+  /**
+   * @return All event records from this commit.
+   */
+  def records: Seq[AggregateEventRecord] = {
+    entries.map { entry =>
+      AggregateEventRecord(
+        headers.copy(snapshot = headers.snapshot.copy(revision = entry.revision)),
+        entry.event
+      )
+    }
+  }
+}
+
+/**
+ * Contains an event with its revision for effective storage.
+ */
+case class CommitEntry(revision: AggregateRevision, event: AggregateEvent)

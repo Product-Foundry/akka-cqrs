@@ -20,7 +20,7 @@ class AggregateConflictView(override val persistenceId: String, val originalSend
 
   override def receive: Receive = {
     case commit: Commit =>
-      if (commit.snapshot.revision > conflict.expected) {
+      if (commit.headers.snapshot.revision > conflict.expected) {
         commits = commits :+ commit
       }
 

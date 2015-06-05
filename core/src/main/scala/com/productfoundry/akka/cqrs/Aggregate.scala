@@ -50,15 +50,15 @@ trait Aggregate
      * Creates a copy with the commit applied to this state.
      */
     def applyCommit(commit: Commit): RevisedState = {
-      commit.events.foldLeft(this)(_ applyEvent _)
+      commit.entries.foldLeft(this)(_ applyEntry _)
     }
 
     /**
      * Creates a copy with the event applied to this state.
      */
-    private def applyEvent(eventRecord: AggregateEventRecord): RevisedState = {
+    private def applyEntry(commitEntry: CommitEntry): RevisedState = {
 
-      val event = eventRecord.event
+      val event = commitEntry.event
 
       /**
        * Creates new state with the event in scope.
@@ -85,7 +85,7 @@ trait Aggregate
       }
 
       copy(
-        revision = eventRecord.revision,
+        revision = commitEntry.revision,
         stateOption = stateOption.fold(createState)(updateState)
       )
     }
@@ -252,7 +252,7 @@ trait Aggregate
 
     def performCommit(): Unit = {
       // Construct commit to persist
-      val commit = changes.withHeaders(commandRequest.headers.toSeq: _*).createCommit(snapshot)
+      val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(snapshot)
 
       // Dry run commit to make sure this aggregate does not persist invalid state
       revisedState.applyCommit(commit)
