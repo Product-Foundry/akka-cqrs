@@ -18,7 +18,7 @@ sealed trait Changes {
   /**
    * @return payload for additional response.
    */
-  def payload: Any
+  def response: Any
 
   /**
    * Sets payload.
@@ -58,9 +58,9 @@ object Changes {
   def apply(event: AggregateEvent, eventOptions: Seq[Option[AggregateEvent]]): Changes = AggregateChanges(event +: eventOptions.flatten)
 }
 
-private[this] case class AggregateChanges(events: Seq[AggregateEvent], payload: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes {
 
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
-  override def withResponse(payload: Any) = copy(payload = payload)
+  override def withResponse(response: Any) = copy(response = response)
 }

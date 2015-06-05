@@ -26,7 +26,7 @@ trait ReliableCommitPublisher
   /**
    * Overwritten by [AtLeastOnceDelivery].
    */
-  override def persistenceId: String = entityId
+  override def persistenceId: String = _persistenceId
 
   /**
    * Current publication that needs to be confirmed.

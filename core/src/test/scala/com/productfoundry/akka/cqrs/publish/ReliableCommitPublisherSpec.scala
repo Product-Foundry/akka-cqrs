@@ -86,13 +86,13 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
 
     "maintain revision order when publishing" in new fixture {
       // Send a lot of updates and make sure they are all successful
-      val revisions = 1 to 5 map { _ =>
+      val snapshots = 1 to 5 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].response.revision
+        expectMsgType[AggregateResult.Success].snapshot
       }
 
       // Force redelivery and make sure commits on higher revisions are only published after the previous commit
-      revisions.foreach { revision =>
+      snapshots.foreach { snapshot =>
         val publications = 1 to 3 map { _ =>
           publishedEventProbe.expectMsgType[CommitPublication]
         }
@@ -101,7 +101,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
         publications.head.confirmIfRequested()
 
         // The published commits should match the expected revision and should all be identical
-        publications.head.commit.revision should be(revision)
+        publications.head.commit.revision should be(snapshot.revision)
         publications.toSet.size should be(1)
       }
     }

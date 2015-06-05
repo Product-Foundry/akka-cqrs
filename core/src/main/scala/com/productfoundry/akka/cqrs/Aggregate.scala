@@ -130,6 +130,11 @@ trait Aggregate
   def revision = revisedState.revision
 
   /**
+   * A snapshot uniquely identifies a specific revision of an aggregate.
+   */
+  def snapshot = AggregateSnapshot(entityName, entityId, revision)
+
+  /**
    * The current command request.
    */
   private var commandRequestOption: Option[CommandRequest] = None
@@ -257,7 +262,7 @@ trait Aggregate
         updateState(persistedCommit)
 
         // Notify the sender of the commit
-        sender() ! AggregateResult.Success(AggregateResponse(revision, changes.payload))
+        sender() ! AggregateResult.Success(snapshot, changes.response)
 
         // Perform additional mixed in commit handling logic
         handleCommit(persistedCommit)

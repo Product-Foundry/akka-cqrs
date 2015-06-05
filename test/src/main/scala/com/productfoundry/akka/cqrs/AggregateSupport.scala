@@ -179,12 +179,10 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
 
   /**
    * Asserts a success message is sent from the aggregate.
-   * @param t wrapped message type tag.
-   * @tparam T wrapped message type.
-   * @return the message wrapped in the success message.
+   * @return the success message.
    */
-  def expectMsgSuccess[T](implicit t: ClassTag[T]): T = {
-    expectMsgType[AggregateResult.Success].response.asInstanceOf[T]
+  def expectMsgSuccess: AggregateResult.Success = {
+    expectMsgType[AggregateResult.Success]
   }
 
   /**
@@ -212,7 +210,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    */
   def assertValidationError(message: ValidationMessage, status: AggregateResult): Unit = {
     status match {
-      case AggregateResult.Success(success) =>
+      case success: AggregateResult.Success =>
         fail(s"Unexpected success: $success")
 
       case AggregateResult.Failure(cause) =>
@@ -233,7 +231,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    */
   def assertFailure[C: ClassTag](status: AggregateResult): Unit = {
     status match {
-      case AggregateResult.Success(success) => fail(s"Unexpected success: $success")
+      case success: AggregateResult.Success => fail(s"Unexpected success: $success")
       case AggregateResult.Failure(cause: C) =>
       case AggregateResult.Failure(cause) => fail(s"Unexpected cause: $cause")
     }
@@ -257,7 +255,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
             supervisor ! command.withExpectedRevision(rev)
-            expectMsgSuccess[AggregateResponse].revision
+            expectMsgSuccess.snapshot.revision
           }
         }
       }
@@ -276,9 +274,9 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         revisionRef.transform { revision =>
           supervisor ! cmd.withExpectedRevision(revision)
           expectMsgPF() {
-            case success@AggregateResult.Success(response: AggregateResponse) =>
+            case success: AggregateResult.Success =>
               statusOptionRef.set(Some(success))
-              response.revision
+              success.snapshot.revision
 
             case failure@AggregateResult.Failure(_) =>
               statusOptionRef.set(Some(failure))

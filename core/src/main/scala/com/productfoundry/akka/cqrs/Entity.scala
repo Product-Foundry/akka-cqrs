@@ -13,11 +13,15 @@ object Entity {
  */
 trait Entity extends PersistentActor with GracefulPassivation {
 
-  final val entityId = s"${context.parent.path.name}/${self.path.name}"
+  final val entityName = context.parent.path.name
 
-  override def persistenceId: String = entityId
+  final val entityId = self.path.name
 
-  if (entityId != persistenceId) {
+  final val _persistenceId = s"$entityName/$entityId"
+
+  override def persistenceId: String = _persistenceId
+
+  if (persistenceId != _persistenceId) {
     throw new AssertionError(s"Persistence id is invalid, is it changed by a trait? Expected: $entityId, actual: $persistenceId")
   }
 }

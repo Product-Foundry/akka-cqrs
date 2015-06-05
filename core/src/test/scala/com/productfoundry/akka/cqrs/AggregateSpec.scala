@@ -29,7 +29,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Create(TestId.generate())
 
       val success = expectMsgType[AggregateResult.Success]
-      success.response.revision should be(AggregateRevision(1L))
+      success.snapshot.revision should be(AggregateRevision(1L))
     }
 
     "fail for existing" in {
@@ -68,7 +68,7 @@ class AggregateSpec extends AggregateTestSupport {
     "update revision" in new AggregateFixture {
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.response.revision should be(2L)
+      success.snapshot.revision should be(2L)
     }
 
     "update state" in new AggregateFixture {
@@ -163,7 +163,7 @@ class AggregateSpec extends AggregateTestSupport {
       val expected = AggregateRevision(1L)
       supervisor ! Count(testId).withExpectedRevision(expected)
       val status = expectMsgType[AggregateResult.Success]
-      status.response.revision should be(expected.next)
+      status.snapshot.revision should be(expected.next)
     }
 
     "fail on update with wrong revision" in new AggregateFixture {
@@ -186,7 +186,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! CountWithRequiredRevisionCheck(testId).withExpectedRevision(expected)
 
       val status = expectMsgType[AggregateResult.Success]
-      status.response.revision should be(expected.next)
+      status.snapshot.revision should be(expected.next)
     }
 
     "fail when enforced by command with wrong revision" in new AggregateFixture {
@@ -210,12 +210,12 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "provide differences in revisions" in new AggregateFixture {
-      val results = 1 to 10 map { _ =>
+      val snapshots = 1 to 10 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].response
+        expectMsgType[AggregateResult.Success].snapshot
       }
 
-      val actual = results.last.revision
+      val actual = snapshots.last.revision
       val expected = AggregateRevision(1L)
 
       supervisor ! Count(testId).withExpectedRevision(expected)
@@ -224,7 +224,7 @@ class AggregateSpec extends AggregateTestSupport {
           conflict.expected should be(expected)
           conflict.actual should be(actual)
           conflict.commits.size should be(actual.value - expected.value)
-          conflict.commits.zip(results).foreach { case (commit, result) =>
+          conflict.commits.zip(snapshots).foreach { case (commit, result) =>
             commit.revision should be(result.revision)
             commit.events should have size 1
             commit.events.head shouldBe a[Counted]
@@ -253,13 +253,13 @@ class AggregateSpec extends AggregateTestSupport {
     "be unspecified" in new AggregateFixture {
       supervisor ! Count(testId)
       val status = expectMsgType[AggregateResult.Success]
-      status.response.payload should be(Unit)
+      status.response should be(Unit)
     }
 
     "be defined by aggregate" in new AggregateFixture {
       supervisor ! CountWithPayload(testId)
       val status = expectMsgType[AggregateResult.Success]
-      status.response.payload should be(0L)
+      status.response should be(0L)
     }
   }
 
@@ -287,7 +287,7 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.response.revision should be(AggregateRevision(2))
+      success.snapshot.revision should be(AggregateRevision(2))
     }
   }
 
