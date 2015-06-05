@@ -25,7 +25,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
 
     case CountWithPayload(aggregateId) =>
       tryCommit {
-        Right(Changes(Counted(aggregateId, state.count + 1)).withPayload(state.count))
+        Right(Changes(Counted(aggregateId, state.count + 1)).withResponse(state.count))
       }
 
     case Increment(aggregateId, amount) =>

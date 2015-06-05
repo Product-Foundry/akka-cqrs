@@ -257,7 +257,7 @@ trait Aggregate
         updateState(persistedCommit)
 
         // Notify the sender of the commit
-        sender() ! AggregateResult.Success(CommitResult(revision, changes.payload))
+        sender() ! AggregateResult.Success(AggregateResponse(revision, changes.payload))
 
         // Perform additional mixed in commit handling logic
         handleCommit(persistedCommit)

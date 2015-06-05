@@ -184,7 +184,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @return the message wrapped in the success message.
    */
   def expectMsgSuccess[T](implicit t: ClassTag[T]): T = {
-    expectMsgType[AggregateResult.Success].result.asInstanceOf[T]
+    expectMsgType[AggregateResult.Success].response.asInstanceOf[T]
   }
 
   /**
@@ -257,7 +257,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
             supervisor ! command.withExpectedRevision(rev)
-            expectMsgSuccess[CommitResult].revision
+            expectMsgSuccess[AggregateResponse].revision
           }
         }
       }
@@ -276,9 +276,9 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         revisionRef.transform { revision =>
           supervisor ! cmd.withExpectedRevision(revision)
           expectMsgPF() {
-            case success@AggregateResult.Success(commitResult: CommitResult) =>
+            case success@AggregateResult.Success(response: AggregateResponse) =>
               statusOptionRef.set(Some(success))
-              commitResult.revision
+              response.revision
 
             case failure@AggregateResult.Failure(_) =>
               statusOptionRef.set(Some(failure))

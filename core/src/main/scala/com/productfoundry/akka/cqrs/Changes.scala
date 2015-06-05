@@ -23,10 +23,10 @@ sealed trait Changes {
   /**
    * Sets payload.
    *
-   * @param payload to set.
+   * @param response to set.
    * @return updated payload.
    */
-  def withPayload(payload: Any): Changes
+  def withResponse(response: Any): Changes
 
   /**
    * Add additional headers.
@@ -62,5 +62,5 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], payload: 
 
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
-  override def withPayload(payload: Any) = copy(payload = payload)
+  override def withResponse(payload: Any) = copy(payload = payload)
 }

@@ -103,17 +103,17 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      * Mocks a successful update to an aggregate though its supervisor.
      *
      * @param events to generate as a result of the update.
-     * @param payload to send back on success.
+     * @param response to send back on success.
      * @tparam I aggregate id type.
      * @tparam E event type.
      */
-    def mockUpdateSuccess[I <: AggregateId, E <: AggregateEvent](events: (I) => Seq[E], payload: Any = Unit): I = {
+    def mockUpdateSuccess[I <: AggregateId, E <: AggregateEvent](events: (I) => Seq[E], response: Any = Unit): I = {
       val message = aggregateFactoryProbe.expectMsgType[AggregateMessage]
       val aggregateId = message.id.asInstanceOf[I]
       val updateEvents = events(aggregateId)
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateResult.Success(CommitResult(aggregateRevision, payload)))
+      aggregateFactoryProbe.reply(AggregateResult.Success(AggregateResponse(aggregateRevision, response)))
       aggregateId
     }
 

@@ -88,7 +88,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       // Send a lot of updates and make sure they are all successful
       val revisions = 1 to 5 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].result.revision
+        expectMsgType[AggregateResult.Success].response.revision
       }
 
       // Force redelivery and make sure commits on higher revisions are only published after the previous commit
