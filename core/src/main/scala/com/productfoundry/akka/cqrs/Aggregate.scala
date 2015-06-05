@@ -39,18 +39,73 @@ trait Aggregate
   val factory: StateFactory
 
   /**
-   * Aggregate is created before state is initialized and is therefore optional.
+   * Specifies the aggregate state with its revision.
    *
-   * Keep this private, since this is the only mutable member of the aggregate and handling should be uniform.
+   * @param revision of the aggregate state.
+   * @param stateOption containing aggregate state.
    */
-  private var stateOpt: Option[S] = None
+  case class RevisedState(revision: AggregateRevision, stateOption: Option[S]) {
+
+    /**
+     * Creates a copy with the commit applied to this state.
+     */
+    def applyCommit(commit: Commit): RevisedState = {
+      commit.events.foldLeft(this)(_ applyEvent _).copy(revision = commit.revision)
+    }
+
+    /**
+     * Creates a copy with the event applied to this state.
+     */
+    private def applyEvent(event: AggregateEvent): RevisedState = {
+
+      /**
+       * Creates new state with the event in scope.
+       */
+      def createState: Option[S] = {
+        if (factory.isDefinedAt(event)) Some(factory.apply(event)) else throw AggregateNotInitializedException(event)
+      }
+
+      /**
+       * Updates the state with the event in scope.
+       */
+      def updateState(state: S): Option[S] = {
+        if (event.isDeleteEvent) {
+          None
+        } else if (state.update.isDefinedAt(event)) {
+          Some(state.update(event))
+        } else {
+          if (factory.isDefinedAt(event)) {
+            throw AggregateAlreadyInitializedException(revision)
+          } else {
+            throw AggregateInternalException(s"Update not defined for $event")
+          }
+        }
+      }
+
+      // TODO [AK] Update revision based on event rather than commit
+      copy(stateOption = stateOption.fold(createState)(updateState))
+    }
+  }
+
+  object RevisedState {
+
+    /**
+     * Initially, we start counting from the initial revision and without any predefined state.
+     */
+    val Initial = RevisedState(AggregateRevision.Initial, None)
+  }
+
+  /**
+   * Holds the aggregate state with its revision.
+   */
+  private var revisedState = RevisedState.Initial
 
   /**
    * Aggregate is created before state is initialized and is therefore optional.
    *
    * @return `Some` aggregate state if initialized, otherwise `None`.
    */
-  def stateOption: Option[S] = stateOpt
+  def stateOption: Option[S] = revisedState.stateOption
 
   /**
    * Provides access to the aggregate state.
@@ -58,10 +113,24 @@ trait Aggregate
    * @return current aggregate state.
    * @throws AggregateInternalException if the state is not initialized
    */
-  def state: S = stateOpt.getOrElse(throw AggregateInternalException("Aggregate state not initialized"))
+  def state: S = stateOption.getOrElse(throw AggregateInternalException("Aggregate state not initialized"))
 
   /**
-   * The current command request
+   * Indication whether the state is initialized or not.
+   * @return true if this aggregate is initialized, otherwise false.
+   */
+  def initialized = stateOption.isDefined
+
+  /**
+   * Keeps track of the current revision.
+   *
+   * We are not using [[lastSequenceNr]] for this, since we need to make sure the revision is only incremented with
+   * actual state changes.
+   */
+  def revision = revisedState.revision
+
+  /**
+   * The current command request.
    */
   private var commandRequestOption: Option[CommandRequest] = None
 
@@ -72,26 +141,6 @@ trait Aggregate
    * @throws AggregateInternalException if no current command request is available.
    */
   def commandRequest: CommandRequest = commandRequestOption.getOrElse(throw AggregateInternalException("Current command request not defined"))
-
-  /**
-   * Indication whether the state is initialized or not.
-   * @return true if this aggregate is initialized, otherwise false.
-   */
-  def initialized = stateOpt.isDefined
-
-  /**
-   * Keeps track of the current revision.
-   *
-   * The revision should increment with every commit without creating gaps.
-   * At first sight, this could be backed by [[lastSequenceNr]]. However, commit handlers can also persist additional
-   * events for internal use, which shouldn't affect the aggregate revision.
-   */
-  private var revision = AggregateRevision.Initial
-
-  /**
-   * @return the current revision of this aggregate.
-   */
-  def currentRevision = revision
 
   /**
    * Handles incoming messages.
@@ -114,7 +163,7 @@ trait Aggregate
    * @throws AggregateDeletedException if the aggregate was deleted.
    */
   private def executeIfNotDeleted(block: => Unit): Unit = {
-    if (stateOpt.isEmpty && revision > AggregateRevision.Initial) {
+    if (stateOption.isEmpty && revision > AggregateRevision.Initial) {
       throw AggregateDeletedException(revision)
     } else {
       block
@@ -158,51 +207,9 @@ trait Aggregate
    * Applies the commit to the current aggregate state.
    */
   private def updateState(commit: Commit): Unit = {
-    revision = commit.revision
-    stateOpt = applyCommit(stateOpt, commit)
+    revisedState = revisedState.applyCommit(commit)
   }
 
-  /**
-   * Applies a commit to the specified state.
-   *
-   * Can be used for dry run or aggregate update.
-   */
-  private def applyCommit(stateOption: Option[S], commit: Commit): Option[S] = {
-    commit.events.foldLeft(stateOption)((s, e) => applyEvent(s, e))
-  }
-
-  /**
-   * Initializes or updates state with the specified event.
-   *
-   * Can be used for dry run or aggregate update.
-   */
-  private def applyEvent(stateOption: Option[S], event: AggregateEvent): Option[S] = {
-    stateOption.fold[Option[S]] {
-      if (factory.isDefinedAt(event)) {
-        // We have no state, but we know how to create it from the specified event.
-        Some(factory.apply(event))
-      } else {
-        // State is empty, but the factory also doesn't know how to deal with this event, rather this than a MatchError
-        throw AggregateNotInitializedException(event)
-      }
-    } { state =>
-      if (event.isDeleteEvent) {
-        // A delete sets the state to None, but keeps the revision, allowing us to detect the delete
-        None
-      } else if (state.update.isDefinedAt(event)) {
-        // We have state and we know how to update it
-        Some(state.update(event))
-      } else {
-        if (factory.isDefinedAt(event)) {
-          // We don't know how to update the state, but the factory has a handler, so let's give a helpful exception
-          throw AggregateAlreadyInitializedException(revision)
-        } else {
-          // Most likely, the developer forgot to handle the event in the state update method, rather this than a MatchError
-          throw AggregateInternalException(s"Update not defined for $event")
-        }
-      }
-    }
-  }
 
   /**
    * Attempts to commit changes.
@@ -240,7 +247,7 @@ trait Aggregate
     val commit = Commit(CommitMetadata(entityId, revision.next, headers), changes.events)
 
     // Dry run commit to make sure this aggregate does not persist invalid state
-    applyCommit(stateOpt, commit)
+    revisedState.applyCommit(commit)
 
     // No exception thrown, persist and update state for real
     persist(commit) { persistedCommit =>
