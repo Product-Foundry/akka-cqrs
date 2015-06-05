@@ -46,10 +46,9 @@ trait CommandRequest extends AggregateMessage {
    * @param actual revision of the aggregate.
    * @param success executed when the revision check passed.
    * @param failed is executed when the revision check fails.
-   * @param missing is executed when the revision is required for the command but unknown.
    * @return True when the revision is correct or expected is empty.
    */
-  def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit)(missing: => Unit): Unit
+  def checkRevision(actual: AggregateRevision)(success: () => Unit)(failed: (AggregateRevision) => Unit): Unit
 
   /**
    * Appends the specified headers to the command request headers.
@@ -112,13 +111,15 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand, expe
    * @param actual revision of the aggregate.
    * @param success executed when the revision check passed.
    * @param failed is executed when the revision check fails.
-   * @param missing is executed when the revision is required for the command but unknown.
    * @return True when the revision is correct or expected is empty.
    */
-  override def checkRevision(actual: AggregateRevision)(success: => Unit)(failed: (AggregateRevision) => Unit)(missing: => Unit): Unit = {
-    expectedOption.fold(if (command.isRevisionCheckRequired) missing else success) { expected =>
-       if (actual == expected) success else failed(expected)
-    }
+  override def checkRevision(actual: AggregateRevision)(success: () => Unit)(failed: (AggregateRevision) => Unit): Unit = {
+
+    def unspecified() = if (command.isRevisionCheckRequired) throw AggregateRevisionRequiredException(command) else success()
+
+    def specified(expected: AggregateRevision) = if (actual == expected) success() else failed(expected)
+
+    expectedOption.fold(unspecified())(specified)
   }
 
   /**

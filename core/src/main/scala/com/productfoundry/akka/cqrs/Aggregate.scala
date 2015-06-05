@@ -176,18 +176,19 @@ trait Aggregate
    * @param commandRequest to execute.
    */
   private def handleCommandRequest(commandRequest: CommandRequest): Unit = {
-    commandRequest.checkRevision(revision) {
+
+    def handleCommandInContext() = {
       try {
         commandRequestOption = Some(commandRequest)
         handleCommand.applyOrElse(commandRequest.command, unhandled)
       } finally {
         commandRequestOption = None
       }
-    } { expected =>
-      handleConflict(RevisionConflict(expected, revision))
-    } {
-      throw AggregateRevisionRequiredException(commandRequest.command)
     }
+
+    def revisionConflict(expected: AggregateRevision) = handleConflict(RevisionConflict(expected, revision))
+
+    commandRequest.checkRevision(revision)(handleCommandInContext)(revisionConflict)
   }
 
   /**
@@ -240,26 +241,34 @@ trait Aggregate
    */
   private def commit(changes: Changes): Unit = {
 
-    // Construct full headers, prefer changes headers over user-specified command headers in case of duplicates
-    val headers = commandRequest.headers ++ changes.headers
+    def performCommit(): Unit = {
+      // Construct full headers, prefer changes headers over user-specified command headers in case of duplicates
+      val headers = commandRequest.headers ++ changes.headers
 
-    // Construct commit to persist
-    val commit = Commit(CommitMetadata(entityId, revision.next, headers), changes.events)
+      // Construct commit to persist
+      val commit = Commit(CommitMetadata(entityId, revision.next, headers), changes.events)
 
-    // Dry run commit to make sure this aggregate does not persist invalid state
-    revisedState.applyCommit(commit)
+      // Dry run commit to make sure this aggregate does not persist invalid state
+      revisedState.applyCommit(commit)
 
-    // No exception thrown, persist and update state for real
-    persist(commit) { persistedCommit =>
-      // Updating state should never fail, since we already performed a dry run
-      updateState(persistedCommit)
+      // No exception thrown, persist and update state for real
+      persist(commit) { persistedCommit =>
+        // Updating state should never fail, since we already performed a dry run
+        updateState(persistedCommit)
 
-      // Notify the sender of the commit
-      sender() ! AggregateResult.Success(CommitResult(revision, changes.payload))
+        // Notify the sender of the commit
+        sender() ! AggregateResult.Success(CommitResult(revision, changes.payload))
 
-      // Perform additional mixed in commit handling logic
-      handleCommit(persistedCommit)
+        // Perform additional mixed in commit handling logic
+        handleCommit(persistedCommit)
+      }
     }
+
+    def unexpectedRevision(expected: AggregateRevision): Unit = {
+      throw new AggregateInternalException("Revision unexpectedly updated between commits")
+    }
+
+    commandRequest.checkRevision(revision)(performCommit)(unexpectedRevision)
   }
 
   /**
