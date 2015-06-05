@@ -12,3 +12,10 @@ trait EntityIdResolution[A] {
 
   def entityIdResolver: EntityIdResolver
 }
+
+class DefaultEntityIdResolution[A] extends EntityIdResolution[A] {
+
+  override def entityIdResolver: EntityIdResolver = {
+    case msg: EntityMessage => msg.entityId
+  }
+}
