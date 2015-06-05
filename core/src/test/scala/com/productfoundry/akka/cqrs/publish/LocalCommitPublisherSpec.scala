@@ -26,7 +26,7 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
     "publish commit" in new fixture {
       val commit = commitPublication.commit
       commit.events should be(Seq(Created(testId)))
-      commit.revision should be(AggregateRevision(1L))
+      commit.snapshot.revision should be(AggregateRevision(1L))
     }
 
     "include commander" in new fixture {

@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.{PoisonPill, Props, Terminated}
 import com.productfoundry.akka.cqrs.project.domain.DomainAggregator.DomainAggregatorRevision
-import com.productfoundry.akka.cqrs.{AggregateRevision, Commit, CommitMetadata, TestId}
+import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.PersistenceTestSupport
 
 class DomainAggregatorSpec extends PersistenceTestSupport {
@@ -48,6 +48,6 @@ class DomainAggregatorSpec extends PersistenceTestSupport {
 
     val subject = system.actorOf(domainAggregatorProps)
 
-    def createCommit(revision: Int) = Commit(CommitMetadata(persistenceId, AggregateRevision(revision.toLong)), Seq.empty)
+    def createCommit(revision: Int) = Changes().createCommit(AggregateSnapshot("", persistenceId, AggregateRevision(revision.toLong)))
   }
 }

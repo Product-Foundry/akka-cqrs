@@ -21,7 +21,7 @@ sealed trait Changes {
   def response: Any
 
   /**
-   * Sets payload.
+   * Sets aggregate response payload.
    *
    * @param response to set.
    * @return updated payload.
@@ -35,6 +35,13 @@ sealed trait Changes {
    * @return updated headers.
    */
   def withHeaders(headers: (String, String)*): Changes
+
+  /**
+   * Creates a commit from the specified changes.
+   * @param snapshot to base the commit on.
+   * @return created commit.
+   */
+  def createCommit(snapshot: AggregateSnapshot): Commit
 }
 
 /**
@@ -60,7 +67,32 @@ object Changes {
 
 private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, headers: Map[String, String] = Map.empty) extends Changes {
 
+  /**
+   * Sets aggregate response payload.
+   *
+   * @param response to set.
+   * @return updated payload.
+   */
+  override def withResponse(response: Any) = copy(response = response)
+
+  /**
+   * Add additional headers.
+   *
+   * @param headers to add.
+   * @return updated headers.
+   */
   override def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
-  override def withResponse(response: Any) = copy(response = response)
+  /**
+   * Creates a commit from the specified changes.
+   * @param snapshot to base the commit on.
+   * @return created commit.
+   */
+  override def createCommit(snapshot: AggregateSnapshot): Commit = {
+    val eventRecords = events.zip(snapshot.revision.upcoming).map { case (event, expectedRevision) =>
+      AggregateEventRecord(expectedRevision, event)
+    }
+
+    Commit(snapshot, headers, System.currentTimeMillis(), eventRecords)
+  }
 }

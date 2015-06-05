@@ -38,6 +38,15 @@ class RevisionSpec extends Spec with Fixtures {
       }
     }
 
+    "determine upcoming values" in {
+      forAll { revision: TestRevision =>
+        val upcoming = revision.upcoming.iterator
+        upcoming.next() should be(revision.value + 1L)
+        upcoming.next() should be(revision.value + 2L)
+        upcoming.next() should be(revision.value + 3L)
+      }
+    }
+
     "have initial value" in {
       TestRevision.Initial.value should be(0L)
     }

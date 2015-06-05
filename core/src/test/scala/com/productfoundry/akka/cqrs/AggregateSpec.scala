@@ -225,7 +225,7 @@ class AggregateSpec extends AggregateTestSupport {
           conflict.actual should be(actual)
           conflict.commits.size should be(actual.value - expected.value)
           conflict.commits.zip(snapshots).foreach { case (commit, result) =>
-            commit.revision should be(result.revision)
+            commit.snapshot.revision should be(result.revision)
             commit.events should have size 1
             commit.events.head shouldBe a[Counted]
           }

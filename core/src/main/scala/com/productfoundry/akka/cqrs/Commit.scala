@@ -1,35 +1,14 @@
 package com.productfoundry.akka.cqrs
 
 /**
- * A successful commit to the aggregate.
+ * A commit with aggregate event records.
  *
- * @param metadata about the commit.
- * @param events describing all aggregate changes.
+ * @param snapshot at the time of the commit.
+ * @param headers with additional commit info.
+ * @param timestamp of the commit.
+ * @param events in the commit.
  */
-case class Commit(metadata: CommitMetadata, events: Seq[AggregateEvent]) extends Persistable {
-
-  /**
-   * @return unique commit id.
-   */
-  def id = metadata.id
-
-  /**
-   * @return id of the aggregate.
-   */
-  def aggregateId = metadata.aggregateId
-
-  /**
-   * @return revision of the commit.
-   */
-  def revision: AggregateRevision = metadata.revision
-
-  /**
-   * @return timestamp when the commit was created.
-   */
-  def timestamp: Long = metadata.timestamp
-
-  /**
-   * @return additional commit information.
-   */
-  def headers: Map[String, String] = metadata.headers
-}
+case class Commit(snapshot: AggregateSnapshot,
+                  headers: Map[String, String] = Map.empty,
+                  timestamp: Long = System.currentTimeMillis(),
+                  events: Seq[AggregateEventRecord]) extends Persistable

@@ -15,7 +15,7 @@ class EventProjectionSpec extends Spec with Fixtures {
 
     "provide access to projected events" in {
       forAll { commit: Commit =>
-        EventCollector().project(commit).events should contain theSameElementsAs commit.events
+        EventCollector().project(commit).events should contain theSameElementsAs commit.events.map(_.event)
       }
     }
   }

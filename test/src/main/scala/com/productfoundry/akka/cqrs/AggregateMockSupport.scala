@@ -94,7 +94,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       atomic { implicit txn =>
         domainRevisionRef.transform(_.next)
         aggregateRevisionRef.transform(_.next)
-        val commit = Commit(CommitMetadata("", aggregateRevisionRef()), events)
+        val commit = Changes(events: _*).createCommit(AggregateSnapshot("", "", aggregateRevisionRef()))
         projectionRef.transform(_.project(commit))
       }
     }

@@ -16,7 +16,7 @@ trait EventProjection[P <: EventProjection[P]] extends Projection[P] {
    */
   override def project(commit: Commit): P = {
     commit.events.zipWithIndex.foldLeft(this) { case (state, (event, index)) =>
-      state.project(commit, index, event)
+      state.project(commit, index, event.event)
     }
   }
 
