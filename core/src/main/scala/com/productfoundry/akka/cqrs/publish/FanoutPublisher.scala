@@ -2,15 +2,14 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor._
 import com.productfoundry.akka.cqrs.Confirmable
-import com.productfoundry.akka.cqrs.ConfirmationProtocol._
-import com.productfoundry.akka.cqrs.publish.ConfirmablePublisher.PublicationHandler._
-import com.productfoundry.akka.cqrs.publish.ConfirmablePublisher._
+import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.publish.FanoutPublisher.PublicationHandler._
+import com.productfoundry.akka.cqrs.publish.FanoutPublisher._
 
 import scala.concurrent.duration._
 import scala.language.existentials
 
-class ConfirmablePublisher(val timeout: Duration = 30.minutes) extends Actor with ActorLogging {
-
+class FanoutPublisher(val timeout: Duration = 30.minutes) extends Actor with ActorLogging {
 
   private var subscribers: Set[ActorPath] = Set.empty
 
@@ -39,7 +38,7 @@ class ConfirmablePublisher(val timeout: Duration = 30.minutes) extends Actor wit
   }
 }
 
-object ConfirmablePublisher {
+object FanoutPublisher {
 
   case class Subscribe(subscriber: ActorPath)
 
@@ -93,5 +92,7 @@ object ConfirmablePublisher {
     case object RedeliverUnconfirmed
 
     case class Passivate(confirmable: Confirmable)
+
   }
+
 }

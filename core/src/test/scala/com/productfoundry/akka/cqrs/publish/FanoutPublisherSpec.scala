@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.Props
 import akka.testkit.TestProbe
 import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
-import com.productfoundry.akka.cqrs.publish.ConfirmablePublisher.Subscribe
+import com.productfoundry.akka.cqrs.publish.FanoutPublisher.Subscribe
 import com.productfoundry.akka.cqrs.{Confirmable, Fixtures, TestConfirmable}
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
@@ -11,13 +11,13 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import scala.concurrent.duration._
 import scala.util.Random
 
-class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
+class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
 
   "publication" must {
 
     "succeed for single subscriber" in {
       forAll { confirmables: List[TestConfirmable] =>
-        val subject = system.actorOf(Props(new ConfirmablePublisher()))
+        val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscriber = TestProbe()
         subject ! Subscribe(subscriber.ref.path)
@@ -31,7 +31,7 @@ class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDriv
 
     "succeed for multiple subscribers" in {
       forAll { confirmables: List[TestConfirmable] =>
-        val subject = system.actorOf(Props(new ConfirmablePublisher()))
+        val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 5 map { _ =>
           val subscriber = TestProbe()
@@ -54,7 +54,7 @@ class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDriv
 
     "be confirmed to sender when publications are confirmed" in {
       forAll { confirmables: List[TestConfirmable] =>
-        val subject = system.actorOf(Props(new ConfirmablePublisher()))
+        val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 5 map { _ =>
           val subscriber = TestProbe()
@@ -78,7 +78,7 @@ class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDriv
 
     "be confirmed without subscribers" in {
       forAll { confirmable: TestConfirmable =>
-        val subject = system.actorOf(Props(new ConfirmablePublisher()))
+        val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val deliveryId = Random.nextLong()
         subject ! confirmable.requestConfirmation(deliveryId)
@@ -91,7 +91,7 @@ class ConfirmablePublisherSpec extends PersistenceTestSupport with GeneratorDriv
 
     "succeed when subscriber does not confirm" in {
       forAll { confirmable: TestConfirmable =>
-        val subject = system.actorOf(Props(new ConfirmablePublisher()))
+        val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 10 map { _ =>
           val subscriber = TestProbe()
