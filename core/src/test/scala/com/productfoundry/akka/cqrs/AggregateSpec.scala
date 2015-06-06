@@ -29,7 +29,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Create(TestId.generate())
 
       val success = expectMsgType[AggregateResult.Success]
-      success.snapshot.revision should be(AggregateRevision(1L))
+      success.tag.revision should be(AggregateRevision(1L))
     }
 
     "fail for existing" in {
@@ -68,7 +68,7 @@ class AggregateSpec extends AggregateTestSupport {
     "update revision" in new AggregateFixture {
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.snapshot.revision should be(2L)
+      success.tag.revision should be(2L)
     }
 
     "update state" in new AggregateFixture {
@@ -163,7 +163,7 @@ class AggregateSpec extends AggregateTestSupport {
       val expected = AggregateRevision(1L)
       supervisor ! Count(testId).withExpectedRevision(expected)
       val status = expectMsgType[AggregateResult.Success]
-      status.snapshot.revision should be(expected.next)
+      status.tag.revision should be(expected.next)
     }
 
     "fail on update with wrong revision" in new AggregateFixture {
@@ -186,7 +186,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! CountWithRequiredRevisionCheck(testId).withExpectedRevision(expected)
 
       val status = expectMsgType[AggregateResult.Success]
-      status.snapshot.revision should be(expected.next)
+      status.tag.revision should be(expected.next)
     }
 
     "fail when enforced by command with wrong revision" in new AggregateFixture {
@@ -210,12 +210,12 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "provide differences in revisions" in new AggregateFixture {
-      val snapshots = 1 to 10 map { _ =>
+      val tags = 1 to 10 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].snapshot
+        expectMsgType[AggregateResult.Success].tag
       }
 
-      val actual = snapshots.last.revision
+      val actual = tags.last.revision
       val expected = AggregateRevision(1L)
 
       supervisor ! Count(testId).withExpectedRevision(expected)
@@ -282,7 +282,7 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! Count(testId)
       val success = expectMsgType[AggregateResult.Success]
-      success.snapshot.revision should be(AggregateRevision(2))
+      success.tag.revision should be(AggregateRevision(2))
     }
   }
 

@@ -5,11 +5,11 @@ import play.api.libs.json.{Format, Json}
 /**
  * Contains additional info stored for an aggregate.
  *
- * @param snapshot indicating an aggregate with a specific revision.
+ * @param tag indicating an aggregate with a specific revision.
  * @param metadata additional info.
  * @param timestamp of creation.
  */
-case class AggregateEventHeaders(snapshot: AggregateSnapshot,
+case class AggregateEventHeaders(tag: AggregateTag,
                                  metadata: Map[String, String] = Map.empty,
                                  timestamp: Long = System.currentTimeMillis())
 

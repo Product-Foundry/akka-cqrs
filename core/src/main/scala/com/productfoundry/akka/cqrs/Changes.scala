@@ -38,10 +38,10 @@ sealed trait Changes {
 
   /**
    * Creates a commit from the specified changes.
-   * @param snapshot to base the commit on.
+   * @param tag to base the commit on.
    * @return created commit.
    */
-  def createCommit(snapshot: AggregateSnapshot): Commit
+  def createCommit(tag: AggregateTag): Commit
 }
 
 /**
@@ -85,13 +85,13 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
 
   /**
    * Creates a commit from the specified changes.
-   * @param snapshot to base the commit on.
+   * @param tag to base the commit on.
    * @return created commit.
    */
-  override def createCommit(snapshot: AggregateSnapshot): Commit = {
+  override def createCommit(tag: AggregateTag): Commit = {
     Commit(
-      AggregateEventHeaders(snapshot, metadata, System.currentTimeMillis()),
-      events.zip(snapshot.revision.upcoming).map { case (event, expectedRevision) =>
+      AggregateEventHeaders(tag, metadata, System.currentTimeMillis()),
+      events.zip(tag.revision.upcoming).map { case (event, expectedRevision) =>
         CommitEntry(expectedRevision, event)
       }
     )

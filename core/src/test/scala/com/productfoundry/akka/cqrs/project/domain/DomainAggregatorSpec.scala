@@ -48,6 +48,6 @@ class DomainAggregatorSpec extends PersistenceTestSupport {
 
     val subject = system.actorOf(domainAggregatorProps)
 
-    def createCommit(revision: Int) = Changes().createCommit(AggregateSnapshot("", persistenceId, AggregateRevision(revision.toLong)))
+    def createCommit(revision: Int) = Changes().createCommit(AggregateTag("", persistenceId, AggregateRevision(revision.toLong)))
   }
 }

@@ -36,7 +36,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
     "publish commit" in new fixture {
       val commit = commitPublication.commit
       commit.records.map(_.event) should be(Seq(Created(testId)))
-      commit.records.head.headers.snapshot.revision should be(AggregateRevision(1L))
+      commit.records.head.headers.tag.revision should be(AggregateRevision(1L))
     }
 
     "include commander" in new fixture {
@@ -81,18 +81,18 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       // Commit should be republished as part of the recovery process
       val publication = publishedEventProbe.expectMsgType[CommitPublication]
       publication.confirmIfRequested()
-      publication.commit.records.head.headers.snapshot.revision should be(AggregateRevision(2L))
+      publication.commit.records.head.headers.tag.revision should be(AggregateRevision(2L))
     }
 
     "maintain revision order when publishing" in new fixture {
       // Send a lot of updates and make sure they are all successful
-      val snapshots = 1 to 5 map { _ =>
+      val tags = 1 to 5 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].snapshot
+        expectMsgType[AggregateResult.Success].tag
       }
 
       // Force redelivery and make sure commits on higher revisions are only published after the previous commit
-      snapshots.foreach { snapshot =>
+      tags.foreach { snapshot =>
         val publications = 1 to 3 map { _ =>
           publishedEventProbe.expectMsgType[CommitPublication]
         }
@@ -101,7 +101,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
         publications.head.confirmIfRequested()
 
         // The published commits should match the expected revision and should all be identical
-        publications.head.commit.records.head.headers.snapshot.revision should be(snapshot.revision)
+        publications.head.commit.records.head.headers.tag.revision should be(snapshot.revision)
         publications.toSet.size should be(1)
       }
     }

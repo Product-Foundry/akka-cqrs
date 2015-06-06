@@ -134,9 +134,9 @@ trait Aggregate
   def revision = revisedState.revision
 
   /**
-   * A snapshot uniquely identifies a specific revision of an aggregate.
+   * A tag uniquely identifies a specific revision of an aggregate.
    */
-  def snapshot = AggregateSnapshot(entityName, entityId, revision)
+  def tag = AggregateTag(entityName, entityId, revision)
 
   /**
    * The current command request.
@@ -252,7 +252,7 @@ trait Aggregate
 
     def performCommit(): Unit = {
       // Construct commit to persist
-      val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(snapshot)
+      val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(tag)
 
       // Dry run commit to make sure this aggregate does not persist invalid state
       revisedState.applyCommit(commit)
@@ -263,7 +263,7 @@ trait Aggregate
         updateState(commit)
 
         // Notify the sender of the commit
-        sender() ! AggregateResult.Success(snapshot, changes.response)
+        sender() ! AggregateResult.Success(tag, changes.response)
 
         // Perform additional mixed in commit handling logic
         handleCommit(commit)

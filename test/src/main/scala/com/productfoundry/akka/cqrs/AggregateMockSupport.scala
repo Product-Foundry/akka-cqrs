@@ -94,7 +94,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       atomic { implicit txn =>
         domainRevisionRef.transform(_.next)
         aggregateRevisionRef.transform(_.next)
-        val commit = Changes(events: _*).createCommit(AggregateSnapshot("", "", aggregateRevisionRef()))
+        val commit = Changes(events: _*).createCommit(AggregateTag("", "", aggregateRevisionRef()))
         projectionRef.transform(_.project(commit))
       }
     }
@@ -113,7 +113,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(aggregateId)
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateResult.Success(AggregateSnapshot("Mock", aggregateId.toString, aggregateRevision), response))
+      aggregateFactoryProbe.reply(AggregateResult.Success(AggregateTag("Mock", aggregateId.toString, aggregateRevision), response))
       aggregateId
     }
 

@@ -14,7 +14,7 @@ case class Commit(headers: AggregateEventHeaders, entries: Seq[CommitEntry]) ext
   def records: Seq[AggregateEventRecord] = {
     entries.map { entry =>
       AggregateEventRecord(
-        headers.copy(snapshot = headers.snapshot.copy(revision = entry.revision)),
+        headers.copy(tag = headers.tag.copy(revision = entry.revision)),
         entry.event
       )
     }
