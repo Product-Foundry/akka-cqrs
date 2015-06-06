@@ -1,15 +1,15 @@
-package com.productfoundry.akka.cqrs.confirm
+package com.productfoundry.akka.cqrs.publish
 
 import akka.actor._
-import com.productfoundry.akka.cqrs.confirm.ConfirmableRouter.PublicationHandler._
-import com.productfoundry.akka.cqrs.confirm.ConfirmableRouter._
-import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol._
+import com.productfoundry.akka.cqrs.Confirmable
+import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.publish.FanoutPublisher.PublicationHandler._
+import com.productfoundry.akka.cqrs.publish.FanoutPublisher._
 
 import scala.concurrent.duration._
 import scala.language.existentials
 
-class ConfirmableRouter(val timeout: Duration = 30.minutes) extends Actor with ActorLogging {
-
+class FanoutPublisher(val timeout: Duration = 30.minutes) extends Actor with ActorLogging {
 
   private var subscribers: Set[ActorPath] = Set.empty
 
@@ -38,7 +38,7 @@ class ConfirmableRouter(val timeout: Duration = 30.minutes) extends Actor with A
   }
 }
 
-object ConfirmableRouter {
+object FanoutPublisher {
 
   case class Subscribe(subscriber: ActorPath)
 
@@ -92,5 +92,7 @@ object ConfirmableRouter {
     case object RedeliverUnconfirmed
 
     case class Passivate(confirmable: Confirmable)
+
   }
+
 }

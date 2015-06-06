@@ -83,6 +83,6 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
    * @return a view of all the committed events extracted from the commits.
    */
   def events: Vector[AggregateEvent] = {
-    commits.single.get.flatMap(_.events)
+    commits.single.get.flatMap(_.records.map(_.event))
   }
 }

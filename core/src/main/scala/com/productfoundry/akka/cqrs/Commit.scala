@@ -1,35 +1,29 @@
 package com.productfoundry.akka.cqrs
 
 /**
- * A successful commit to the aggregate.
+ * A commit with aggregate event records to keep revisions per event.
  *
- * @param metadata about the commit.
- * @param events describing all aggregate changes.
+ * @param tag of the aggregate to which the commit was applied.
+ * @param headers for the event entries.
+ * @param entries in the commit.
  */
-case class Commit(metadata: CommitMetadata, events: Seq[AggregateEvent]) extends Persistable {
+case class Commit(tag: AggregateTag, headers: AggregateEventHeaders, entries: Seq[CommitEntry]) extends Persistable {
 
   /**
-   * @return unique commit id.
+   * @return All event records from this commit.
    */
-  def id = metadata.id
-
-  /**
-   * @return id of the aggregate.
-   */
-  def aggregateId = metadata.aggregateId
-
-  /**
-   * @return revision of the commit.
-   */
-  def revision: AggregateRevision = metadata.revision
-
-  /**
-   * @return timestamp when the commit was created.
-   */
-  def timestamp: Long = metadata.timestamp
-
-  /**
-   * @return additional commit information.
-   */
-  def headers: Map[String, String] = metadata.headers
+  def records: Seq[AggregateEventRecord] = {
+    entries.map { entry =>
+      AggregateEventRecord(
+        tag.copy(revision = entry.revision),
+        headers,
+        entry.event
+      )
+    }
+  }
 }
+
+/**
+ * Contains an event with its revision for effective storage.
+ */
+case class CommitEntry(revision: AggregateRevision, event: AggregateEvent)

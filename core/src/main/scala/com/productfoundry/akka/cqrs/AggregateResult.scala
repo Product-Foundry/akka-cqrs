@@ -9,10 +9,10 @@ object AggregateResult {
 
   /**
    * Indicates a successful update to the aggregate.
-   * @param snapshot after the update.
+   * @param tag after the update.
    * @param response of the aggregate.
    */
-  case class Success(snapshot: AggregateSnapshot, response: Any = Unit) extends AggregateResult
+  case class Success(tag: AggregateTag, response: Any = Unit) extends AggregateResult
 
   /**
    * Indicates an update failure that can be corrected by the user.

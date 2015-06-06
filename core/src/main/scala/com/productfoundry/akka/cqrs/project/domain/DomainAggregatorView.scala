@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
-import com.productfoundry.akka.cqrs.Commit
+import com.productfoundry.akka.cqrs.AggregateEventRecord
 import com.productfoundry.akka.cqrs.project.Projection
 
 import scala.concurrent.duration._
@@ -44,8 +44,8 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
       super.preStart()
     }
 
-    private def updateState(revision: DomainRevision, commit: Commit): Unit = {
-      stateWithRevision = (stateWithRevision._1.project(commit), revision)
+    private def updateState(revision: DomainRevision, eventRecord: AggregateEventRecord): Unit = {
+      stateWithRevision = (stateWithRevision._1.project(eventRecord), revision)
     }
 
     private def savePromise(revision: DomainRevision, promise: Promise[StateWithRevision]): Unit = {
@@ -66,8 +66,8 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
 
     def recovering: Receive = {
 
-      case DomainCommit(revision, commit) =>
-        updateState(revision, commit)
+      case DomainCommit(revision, eventRecord) =>
+        updateState(revision, eventRecord)
 
       case RequestState(minimum, promise) =>
         savePromise(minimum, promise)
@@ -84,8 +84,8 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
 
     override def receive: Receive = {
 
-      case DomainCommit(revision, commit) =>
-        updateState(revision, commit)
+      case DomainCommit(revision, eventRecord) =>
+        updateState(revision, eventRecord)
         completePromises(revision)
 
       case RequestState(minimum, promise) =>

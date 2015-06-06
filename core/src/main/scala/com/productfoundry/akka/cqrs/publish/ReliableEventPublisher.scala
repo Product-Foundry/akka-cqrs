@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
 import akka.persistence.{PersistentActor, AtLeastOnceDelivery}
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol._
+import ConfirmationProtocol._
 
 import scala.concurrent.duration._
 
@@ -13,8 +13,8 @@ import scala.concurrent.duration._
  * A commit is only published after the previous published commit is confirmed to ensure aggregate
  * events are published in the right order, even in case of redelivery.
  */
-trait ReliableCommitPublisher
-  extends CommitPublisher
+trait ReliableEventPublisher
+  extends EventPublisher
   with PersistentActor
   with AtLeastOnceDelivery
   with ActorLogging {
@@ -31,12 +31,12 @@ trait ReliableCommitPublisher
   /**
    * Current publication that needs to be confirmed.
    */
-  private var currentPublicationOption: Option[Publication] = None
+  private var currentPublicationOption: Option[EventPublication] = None
 
   /**
    * Publications are queued until the current publication is confirmed.
    */
-  private var pendingPublications: Vector[Publication] = Vector.empty
+  private var pendingPublications: Vector[EventPublication] = Vector.empty
 
   /**
    * @return the target actor to publish to.
@@ -57,7 +57,7 @@ trait ReliableCommitPublisher
 
     case commit: Commit =>
       super.receiveRecover(commit)
-      publishCommit(Publication(commit))
+      publishCommit(commit)
 
     case Confirmed(deliveryId) =>
       handleConfirmation(deliveryId)
@@ -81,14 +81,14 @@ trait ReliableCommitPublisher
   }
 
   /**
-   * Publish to the target actor if no publications are pending, otherwise enqueue.
-   * @param commitPublication to publish.
+   * Publish an event with all commit related data.
+   * @param eventPublication to publish.
    */
-  override def publishCommit(commitPublication: Publication): Unit = {
+  override def publishEvent(eventPublication: EventPublication): Unit = {
     if (currentPublicationOption.isEmpty) {
-      publishDirectly(commitPublication)
+      publishDirectly(eventPublication)
     } else {
-      pendingPublications = pendingPublications :+ commitPublication
+      pendingPublications = pendingPublications :+ eventPublication
       log.debug("Pending publications: {}", pendingPublications.size)
     }
   }
@@ -96,7 +96,7 @@ trait ReliableCommitPublisher
   /**
    * Confirms the delivery.
    *
-   * Also publishes next commit if pending.
+   * Also publishes next event if pending.
    *
    * @param deliveryId to confirm.
    */
@@ -116,16 +116,16 @@ trait ReliableCommitPublisher
   }
 
   /**
-   * Publishes the commit to the target actor.
+   * Publishes the event to the target actor.
    *
-   * Also keeps track of the current unconfirmed commit publication.
+   * Also keeps track of the current unconfirmed event publication.
    *
-   * @param commitPublication to publish.
+   * @param eventPublication to publish.
    */
-  private def publishDirectly(commitPublication: Publication): Unit = {
+  private def publishDirectly(eventPublication: EventPublication): Unit = {
     deliver(publishTarget, deliveryId => {
       assert(currentPublicationOption.isEmpty, "Unconfirmed publication pending")
-      val publication = commitPublication.requestConfirmation(deliveryId)
+      val publication = eventPublication.requestConfirmation(deliveryId)
       currentPublicationOption = Some(publication)
       publication
     })

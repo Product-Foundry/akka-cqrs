@@ -1,11 +1,11 @@
 package com.productfoundry.akka.cqrs.project.domain
 
-import com.productfoundry.akka.cqrs.{Commit, Persistable}
+import com.productfoundry.akka.cqrs.{AggregateEventRecord, Persistable}
 
 /**
- * A successful aggregated commit.
+ * A successful aggregated event record.
  *
  * @param revision of the domain aggregator.
- * @param commit that was aggregated.
+ * @param eventRecord that was aggregated.
  */
-case class DomainCommit(revision: DomainRevision, commit: Commit) extends Persistable
+case class DomainCommit(revision: DomainRevision, eventRecord: AggregateEventRecord) extends Persistable

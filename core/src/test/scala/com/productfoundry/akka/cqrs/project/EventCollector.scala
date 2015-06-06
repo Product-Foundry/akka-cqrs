@@ -1,9 +1,13 @@
 package com.productfoundry.akka.cqrs.project
 
-import com.productfoundry.akka.cqrs.{AggregateEvent, Commit}
+import com.productfoundry.akka.cqrs.{AggregateEvent, AggregateEventRecord}
 
-case class EventCollector(events: Vector[AggregateEvent] = Vector.empty) extends EventProjection[EventCollector] {
-  override def project(commit: Commit, index: Int, event: AggregateEvent): EventCollector = {
-    copy(events = events :+ event)
+case class EventCollector(events: Vector[AggregateEvent] = Vector.empty) extends Projection[EventCollector] {
+
+  /**
+   * Projects a single event record.
+   */
+  override def project(eventRecord: AggregateEventRecord): EventCollector = {
+    copy(events = events :+ eventRecord.event)
   }
 }

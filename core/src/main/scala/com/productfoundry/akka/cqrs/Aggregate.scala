@@ -50,13 +50,15 @@ trait Aggregate
      * Creates a copy with the commit applied to this state.
      */
     def applyCommit(commit: Commit): RevisedState = {
-      commit.events.foldLeft(this)(_ applyEvent _).copy(revision = commit.revision)
+      commit.entries.foldLeft(this)(_ applyEntry _)
     }
 
     /**
      * Creates a copy with the event applied to this state.
      */
-    private def applyEvent(event: AggregateEvent): RevisedState = {
+    private def applyEntry(commitEntry: CommitEntry): RevisedState = {
+
+      val event = commitEntry.event
 
       /**
        * Creates new state with the event in scope.
@@ -82,8 +84,10 @@ trait Aggregate
         }
       }
 
-      // TODO [AK] Update revision based on event rather than commit
-      copy(stateOption = stateOption.fold(createState)(updateState))
+      copy(
+        revision = commitEntry.revision,
+        stateOption = stateOption.fold(createState)(updateState)
+      )
     }
   }
 
@@ -130,9 +134,9 @@ trait Aggregate
   def revision = revisedState.revision
 
   /**
-   * A snapshot uniquely identifies a specific revision of an aggregate.
+   * A tag uniquely identifies a specific revision of an aggregate.
    */
-  def snapshot = AggregateSnapshot(entityName, entityId, revision)
+  def tag = AggregateTag(entityName, entityId, revision)
 
   /**
    * The current command request.
@@ -247,25 +251,22 @@ trait Aggregate
   private def commit(changes: Changes): Unit = {
 
     def performCommit(): Unit = {
-      // Construct full headers, prefer changes headers over user-specified command headers in case of duplicates
-      val headers = commandRequest.headers ++ changes.headers
-
       // Construct commit to persist
-      val commit = Commit(CommitMetadata(entityId, revision.next, headers), changes.events)
+      val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(tag)
 
       // Dry run commit to make sure this aggregate does not persist invalid state
       revisedState.applyCommit(commit)
 
       // No exception thrown, persist and update state for real
-      persist(commit) { persistedCommit =>
+      persist(commit) { _ =>
         // Updating state should never fail, since we already performed a dry run
-        updateState(persistedCommit)
+        updateState(commit)
 
         // Notify the sender of the commit
-        sender() ! AggregateResult.Success(snapshot, changes.response)
+        sender() ! AggregateResult.Success(tag, changes.response)
 
         // Perform additional mixed in commit handling logic
-        handleCommit(persistedCommit)
+        handleCommit(commit)
       }
     }
 

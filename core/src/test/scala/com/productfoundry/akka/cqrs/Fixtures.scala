@@ -1,9 +1,7 @@
 package com.productfoundry.akka.cqrs
 
-import com.productfoundry.akka.cqrs.confirm.TestConfirmable
-import org.scalacheck.{Gen, Arbitrary}
-
-import Arbitrary._
+import org.scalacheck.Arbitrary._
+import org.scalacheck.{Arbitrary, Gen}
 
 trait Fixtures {
 
@@ -20,7 +18,7 @@ trait Fixtures {
       id <- arbitrary[TestId]
       revision <- arbitrary[AggregateRevision]
       values <- arbitrary[Seq[Int]]
-    } yield Commit(CommitMetadata(id.toString, revision), values.map(value => TestEvent(id, value)))
+    } yield Changes(values.map(value => TestEvent(id, value)): _*).createCommit(AggregateTag("", id.toString, revision))
   }
 
   implicit def ArbitraryConfirmable: Arbitrary[TestConfirmable]= Arbitrary {

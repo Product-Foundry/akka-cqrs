@@ -5,38 +5,56 @@ import akka.persistence.{RecoveryFailure, PersistentView, Recover}
 
 import scala.concurrent.duration._
 
-class AggregateConflictView(override val persistenceId: String, val originalSender: ActorRef, val conflict: RevisionConflict)
+/**
+ * In case of a conflicting aggregate update, gathers all events between two revisions and send them to the commander.
+ * 
+ * @param persistenceId of the aggregate.
+ * @param commander that send the command to the aggregate.
+ * @param conflict that occurred while handling the update.
+ */
+class AggregateConflictView(override val persistenceId: String, val commander: ActorRef, val conflict: RevisionConflict)
   extends PersistentView
   with ActorLogging {
 
-  override val viewId: String = s"$persistenceId-conflict"
+  /**
+   * We're not using snapshots, but the best way to represent it is by including conflict details.
+   */
+  override val viewId: String = s"$persistenceId-conflict-${conflict.expected}-${conflict.actual}"
 
-  var commits: Vector[Commit] = Vector.empty
+  /**
+   * Gathers all events that happened between the conflicting revisions.
+   */
+  private var records: Vector[AggregateEventRecord] = Vector.empty
 
   override def preStart(): Unit = {
+    // Don't let the user wait to long for a response.
     context.setReceiveTimeout(5.seconds)
-    self ! Recover(toSequenceNr = conflict.actual.value)
+
+    super.preStart()
   }
 
   override def receive: Receive = {
     case commit: Commit =>
-      if (commit.revision > conflict.expected) {
-        commits = commits :+ commit
-      }
+      commit.records.foreach { record =>
+        val revision = record.tag.revision
 
-      if (AggregateRevision(lastSequenceNr) == conflict.actual) {
-        originalSender ! AggregateResult.Failure(conflict.copy(commits = commits.toSeq))
-        self ! PoisonPill
+        if (revision > conflict.expected && revision <= conflict.actual) {
+          records = records :+ record
+        }
+
+        if (revision == conflict.actual) {
+          commander ! AggregateResult.Failure(conflict.withRecords(records.toSeq))
+          self ! PoisonPill
+        }
       }
 
     case ReceiveTimeout =>
-      originalSender ! AggregateResult.Failure(conflict)
+      commander ! AggregateResult.Failure(conflict)
       self ! PoisonPill
 
-
     case RecoveryFailure(cause) =>
-      log.error(cause, "Unable to get conflict info for {}", persistenceId)
-      originalSender ! AggregateResult.Failure(conflict)
+      log.error(cause, "Unable to get conflict info for {}", viewId)
+      commander ! AggregateResult.Failure(conflict)
       self ! PoisonPill
   }
 }

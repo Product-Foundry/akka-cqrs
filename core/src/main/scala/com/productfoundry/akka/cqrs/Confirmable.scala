@@ -1,7 +1,7 @@
-package com.productfoundry.akka.cqrs.confirm
+package com.productfoundry.akka.cqrs
 
 import akka.actor.ActorRef
-import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol.Confirm
+import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
 
 trait Confirmable {
 

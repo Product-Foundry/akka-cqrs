@@ -1,13 +1,14 @@
 package com.productfoundry.akka.serialization.json
 
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.cqrs.confirm.ConfirmationProtocol
 import com.productfoundry.akka.cqrs.project.domain.DomainCommit
 import play.api.libs.json.{Format, Json}
 
 case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {
 
-  implicit val CommitMetadataFormat: Format[CommitMetadata] = Json.format[CommitMetadata]
+  implicit val AggregateEventRecordFormat: Format[AggregateEventRecord] = Json.format[AggregateEventRecord]
+
+  implicit val CommitEntryFormat: Format[CommitEntry] = Json.format[CommitEntry]
 
   implicit val CommitFormat: Format[Commit] = Json.format[Commit]
 
