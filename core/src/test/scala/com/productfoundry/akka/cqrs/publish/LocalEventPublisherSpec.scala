@@ -9,11 +9,11 @@ import com.productfoundry.support.AggregateTestSupport
 
 import scala.concurrent.duration._
 
-class LocalCommitPublisherSpec extends AggregateTestSupport {
+class LocalEventPublisherSpec extends AggregateTestSupport {
 
   implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
     override def props(config: PassivationConfig): Props = {
-      Props(new TestAggregate(config) with LocalCommitPublisher)
+      Props(new TestAggregate(config) with LocalEventPublisher)
     }
   }
 
@@ -21,24 +21,24 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
 
   val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
   
-  "Local commit publisher" must {
+  "Local event publisher" must {
     
-    "publish commit" in new fixture {
-      val commit = commitPublication.commit
-      commit.records.map(_.event) should be(Seq(Created(testId)))
-      commit.records.head.tag.revision should be(AggregateRevision(1L))
+    "publish events" in new fixture {
+      eventRecord.event should be(Created(testId))
+      eventRecord.tag.revision should be(AggregateRevision(1L))
     }
 
     "include commander" in new fixture {
-      commitPublication.commanderOption should be(Some(self))
+      eventPublication.notifyCommanderIfDefined("test")
+      expectMsg("test")
     }
     
     "not have confirmation" in new fixture {
-      commitPublication.confirmationOption should be('empty)
+      eventPublication.confirmationOption should be('empty)
     }
 
     "not request confirmation" in new fixture {
-      commitPublication.confirmIfRequested()
+      eventPublication.confirmIfRequested()
       expectNoMsg(100.millis)
     }
 
@@ -50,7 +50,8 @@ class LocalCommitPublisherSpec extends AggregateTestSupport {
       supervisor ! Create(testId)
       expectMsgType[AggregateResult.Success]
 
-      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication]
+      val eventPublication = publishedEventProbe.expectMsgType[EventPublication]
+      val eventRecord = eventPublication.eventRecord
     }
   }
 }

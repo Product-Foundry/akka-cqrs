@@ -11,7 +11,7 @@ import org.scalatest.BeforeAndAfterEach
 import scala.concurrent.duration._
 import scala.util.Random
 
-class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAfterEach {
+class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfterEach {
 
   val publishedEventProbe = TestProbe()
 
@@ -19,7 +19,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
 
   implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
     override def props(config: PassivationConfig): Props = {
-      Props(new TestAggregate(config) with ReliableCommitPublisher {
+      Props(new TestAggregate(config) with ReliableEventPublisher {
         override def publishTarget: ActorPath = publishedEventProbe.ref.path
 
         override def redeliverInterval: FiniteDuration = redeliver
@@ -31,36 +31,37 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
 
   val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
 
-  "Reliable commit publisher" must {
+  "Reliable event publisher" must {
 
-    "publish commit" in new fixture {
-      val commit = commitPublication.commit
-      commit.records.map(_.event) should be(Seq(Created(testId)))
-      commit.records.head.tag.revision should be(AggregateRevision(1L))
+    "publish event" in new fixture {
+      val eventRecord = eventPublication.eventRecord
+      eventRecord.event should be(Created(testId))
+      eventRecord.tag.revision should be(AggregateRevision(1L))
     }
 
     "include commander" in new fixture {
-      commitPublication.commanderOption should be(Some(self))
+      eventPublication.notifyCommanderIfDefined("test")
+      expectMsg("test")
     }
 
     "have confirmation" in new fixture {
-      commitPublication.confirmationOption should be('nonEmpty)
+      eventPublication.confirmationOption should be('nonEmpty)
     }
 
     "republish if not confirmed" in new fixture {
       supervisor ! Count(testId)
       expectMsgType[AggregateResult.Success]
 
-      val publications = 1 to 5 map { _ =>
-        publishedEventProbe.expectMsgType[CommitPublication]
+      val eventPublications = 1 to 5 map { _ =>
+        publishedEventProbe.expectMsgType[EventPublication]
       }
 
       // Confirm any message
-      publications.toArray.apply(Random.nextInt(publications.size)).confirmIfRequested()
+      eventPublications.toArray.apply(Random.nextInt(eventPublications.size)).confirmIfRequested()
 
-      // All commits should be identical
-      publications.size should be > 1
-      publications.toSet.size should be(1)
+      // All events should be identical
+      eventPublications.size should be > 1
+      eventPublications.toSet.size should be(1)
     }
 
     "republish after crash" in new fixture {
@@ -68,7 +69,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       expectMsgType[AggregateResult.Success]
 
       // Commit should be published, but we are not confirming
-      publishedEventProbe.expectMsgType[CommitPublication]
+      publishedEventProbe.expectMsgType[EventPublication]
 
       // Let the aggregate crash by sending an invalid command
       supervisor ! Create(testId)
@@ -79,9 +80,9 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       expectMsgType[Int]
 
       // Commit should be republished as part of the recovery process
-      val publication = publishedEventProbe.expectMsgType[CommitPublication]
-      publication.confirmIfRequested()
-      publication.commit.records.head.tag.revision should be(AggregateRevision(2L))
+      val republished = publishedEventProbe.expectMsgType[EventPublication]
+      republished.confirmIfRequested()
+      republished.eventRecord.tag.revision should be(AggregateRevision(2L))
     }
 
     "maintain revision order when publishing" in new fixture {
@@ -91,17 +92,17 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
         expectMsgType[AggregateResult.Success].tag
       }
 
-      // Force redelivery and make sure commits on higher revisions are only published after the previous commit
+      // Force redelivery and make sure events on higher revisions are only published after the previous event
       tags.foreach { snapshot =>
         val publications = 1 to 3 map { _ =>
-          publishedEventProbe.expectMsgType[CommitPublication]
+          publishedEventProbe.expectMsgType[EventPublication]
         }
 
         // We've waited long enough, simply confirm the first received message
         publications.head.confirmIfRequested()
 
-        // The published commits should match the expected revision and should all be identical
-        publications.head.commit.records.head.tag.revision should be(snapshot.revision)
+        // The published events should match the expected revision and should all be identical
+        publications.head.eventRecord.tag.revision should be(snapshot.revision)
         publications.toSet.size should be(1)
       }
     }
@@ -111,8 +112,8 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       supervisor ! Create(testId)
       expectMsgType[AggregateResult.Success]
 
-      val commitPublication = publishedEventProbe.expectMsgType[CommitPublication]
-      commitPublication.confirmIfRequested()
+      val eventPublication = publishedEventProbe.expectMsgType[EventPublication]
+      eventPublication.confirmIfRequested()
     }
   }
 
