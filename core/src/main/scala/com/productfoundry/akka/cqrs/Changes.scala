@@ -89,11 +89,11 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @return created commit.
    */
   override def createCommit(tag: AggregateTag): Commit = {
-    Commit(
-      AggregateEventHeaders(tag, metadata, System.currentTimeMillis()),
-      events.zip(tag.revision.upcoming).map { case (event, expectedRevision) =>
-        CommitEntry(expectedRevision, event)
-      }
-    )
+    val headers = AggregateEventHeaders(metadata, System.currentTimeMillis())
+    val entries = events.zip(tag.revision.upcoming).map { case (event, expectedRevision) =>
+      CommitEntry(expectedRevision, event)
+    }
+
+    Commit(tag, headers, entries)
   }
 }

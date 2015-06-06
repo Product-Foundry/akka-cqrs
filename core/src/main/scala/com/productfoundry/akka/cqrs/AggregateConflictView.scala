@@ -36,7 +36,7 @@ class AggregateConflictView(override val persistenceId: String, val commander: A
   override def receive: Receive = {
     case commit: Commit =>
       commit.records.foreach { record =>
-        val revision = record.headers.tag.revision
+        val revision = record.tag.revision
 
         if (revision > conflict.expected && revision <= conflict.actual) {
           records = records :+ record

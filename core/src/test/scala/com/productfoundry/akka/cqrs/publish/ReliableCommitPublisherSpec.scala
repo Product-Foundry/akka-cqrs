@@ -36,7 +36,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
     "publish commit" in new fixture {
       val commit = commitPublication.commit
       commit.records.map(_.event) should be(Seq(Created(testId)))
-      commit.records.head.headers.tag.revision should be(AggregateRevision(1L))
+      commit.records.head.tag.revision should be(AggregateRevision(1L))
     }
 
     "include commander" in new fixture {
@@ -81,7 +81,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
       // Commit should be republished as part of the recovery process
       val publication = publishedEventProbe.expectMsgType[CommitPublication]
       publication.confirmIfRequested()
-      publication.commit.records.head.headers.tag.revision should be(AggregateRevision(2L))
+      publication.commit.records.head.tag.revision should be(AggregateRevision(2L))
     }
 
     "maintain revision order when publishing" in new fixture {
@@ -101,7 +101,7 @@ class ReliableCommitPublisherSpec extends AggregateTestSupport with BeforeAndAft
         publications.head.confirmIfRequested()
 
         // The published commits should match the expected revision and should all be identical
-        publications.head.commit.records.head.headers.tag.revision should be(snapshot.revision)
+        publications.head.commit.records.head.tag.revision should be(snapshot.revision)
         publications.toSet.size should be(1)
       }
     }
