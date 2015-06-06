@@ -1,8 +1,7 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
-import com.productfoundry.akka.cqrs.Commit
-import com.productfoundry.akka.cqrs.confirm.{Confirmable, Confirmation}
+import com.productfoundry.akka.cqrs.{Commit, Confirmable, Confirmation}
 
 trait Publication extends Confirmable {
 

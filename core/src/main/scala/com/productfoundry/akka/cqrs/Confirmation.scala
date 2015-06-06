@@ -1,4 +1,4 @@
-package com.productfoundry.akka.cqrs.confirm
+package com.productfoundry.akka.cqrs
 
 import akka.actor.ActorRef
 

@@ -1,9 +1,7 @@
 package com.productfoundry.akka.cqrs
 
-import com.productfoundry.akka.cqrs.confirm.TestConfirmable
-import org.scalacheck.{Gen, Arbitrary}
-
-import Arbitrary._
+import org.scalacheck.Arbitrary._
+import org.scalacheck.{Arbitrary, Gen}
 
 trait Fixtures {
 
