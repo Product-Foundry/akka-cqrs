@@ -205,7 +205,7 @@ class AggregateSpec extends AggregateTestSupport {
         case AggregateResult.Failure(conflict: RevisionConflict) =>
           conflict.expected should be(expected)
           conflict.actual should be(actual)
-          conflict.commits should be(empty)
+          conflict.recordsOption should be('empty)
       }
     }
 
@@ -223,12 +223,7 @@ class AggregateSpec extends AggregateTestSupport {
         case AggregateResult.Failure(conflict: RevisionConflict) =>
           conflict.expected should be(expected)
           conflict.actual should be(actual)
-          conflict.commits.size should be(actual.value - expected.value)
-          conflict.commits.zip(snapshots).foreach { case (commit, result) =>
-            commit.headers.snapshot.revision should be(result.revision)
-            commit.records should have size 1
-            commit.records.head.event shouldBe a[Counted]
-          }
+          conflict.recordsOption.get.size should be(actual.value - expected.value)
       }
     }
   }
@@ -263,18 +258,18 @@ class AggregateSpec extends AggregateTestSupport {
     }
   }
 
-  "Aggregate headers" must {
+  "Aggregate metadata" must {
 
     "be stored in commit" in new AggregateFixture {
-      val headers = Map("a" -> "b")
-      supervisor ! Count(testId).withMetadata(headers)
+      val metadata = Map("a" -> "b")
+      supervisor ! Count(testId).withMetadata(metadata)
       expectMsgType[AggregateResult.Success]
 
       supervisor ! Count(testId).withExpectedRevision(AggregateRevision(1L))
       expectMsgPF() {
         case AggregateResult.Failure(conflict: RevisionConflict) =>
-          conflict.commits.size should be(1)
-          conflict.commits.head.headers should be(headers)
+          conflict.recordsOption.get.size should be(1)
+          conflict.recordsOption.get.head.headers.metadata should be(metadata)
       }
     }
   }
