@@ -93,9 +93,14 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     def updateState[E <: AggregateEvent](events: E*): Unit = {
       atomic { implicit txn =>
         domainRevisionRef.transform(_.next)
-        aggregateRevisionRef.transform(_.next)
-        val commit = Changes(events: _*).createCommit(AggregateTag("", "", aggregateRevisionRef()))
-        projectionRef.transform(_.project(commit))
+
+        events.foreach { event =>
+          aggregateRevisionRef.transform(_.next)
+          val tag = AggregateTag("", "", aggregateRevisionRef())
+          val headers = AggregateEventHeaders()
+          val eventRecord = AggregateEventRecord(tag, headers, event)
+          projectionRef.transform(_.project(eventRecord))
+        }
       }
     }
 
@@ -148,4 +153,5 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       }
     }
   }
+
 }

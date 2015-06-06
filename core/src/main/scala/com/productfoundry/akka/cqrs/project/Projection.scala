@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.project
 
-import com.productfoundry.akka.cqrs.Commit
+import com.productfoundry.akka.cqrs.AggregateEventRecord
 
 /**
  * Defines a projection.
@@ -10,7 +10,7 @@ import com.productfoundry.akka.cqrs.Commit
 trait Projection[R] {
 
   /**
-   * Projects a single commit.
+   * Projects a single event record.
    */
-  def project(commit: Commit): R
+  def project(eventRecord: AggregateEventRecord): R
 }
