@@ -4,7 +4,7 @@ import akka.actor.Props
 import akka.testkit.TestProbe
 import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher.Subscribe
-import com.productfoundry.akka.cqrs.{Confirmable, Fixtures, TestConfirmable}
+import com.productfoundry.akka.cqrs.{Confirmable, Fixtures, DummyConfirmable}
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
@@ -16,7 +16,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
   "publication" must {
 
     "succeed for single subscriber" in {
-      forAll { confirmables: List[TestConfirmable] =>
+      forAll { confirmables: List[DummyConfirmable] =>
         val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscriber = TestProbe()
@@ -30,7 +30,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
     }
 
     "succeed for multiple subscribers" in {
-      forAll { confirmables: List[TestConfirmable] =>
+      forAll { confirmables: List[DummyConfirmable] =>
         val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 5 map { _ =>
@@ -53,7 +53,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
   "confirmations" must {
 
     "be confirmed to sender when publications are confirmed" in {
-      forAll { confirmables: List[TestConfirmable] =>
+      forAll { confirmables: List[DummyConfirmable] =>
         val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 5 map { _ =>
@@ -77,7 +77,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
     }
 
     "be confirmed without subscribers" in {
-      forAll { confirmable: TestConfirmable =>
+      forAll { confirmable: DummyConfirmable =>
         val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val deliveryId = Random.nextLong()
@@ -90,7 +90,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
   "redeliver" must {
 
     "succeed when subscriber does not confirm" in {
-      forAll { confirmable: TestConfirmable =>
+      forAll { confirmable: DummyConfirmable =>
         val subject = system.actorOf(Props(new FanoutPublisher()))
 
         val subscribers = 1 to 10 map { _ =>
