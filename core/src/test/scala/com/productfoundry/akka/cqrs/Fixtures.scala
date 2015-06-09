@@ -21,7 +21,15 @@ trait Fixtures {
     } yield Changes(values.map(value => DummyEvent(id, value)): _*).createCommit(AggregateTag("", id.toString, revision))
   }
 
-  implicit def ArbitraryConfirmable: Arbitrary[DummyConfirmable]= Arbitrary {
+  implicit def ArbitraryConfirmable: Arbitrary[DummyConfirmable] = Arbitrary {
     arbitrary[Long].map(value => DummyConfirmable(value))
+  }
+
+  implicit def ArbitraryAggregateTag: Arbitrary[AggregateTag] = Arbitrary {
+    for {
+      name <- arbitrary[String]
+      id <- arbitrary[TestId]
+      revision <- arbitrary[AggregateRevision]
+    } yield AggregateTag(name, id.toString, revision)
   }
 }
