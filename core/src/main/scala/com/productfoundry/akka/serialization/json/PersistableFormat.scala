@@ -2,6 +2,7 @@ package com.productfoundry.akka.serialization.json
 
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.project.domain.DomainCommit
+import com.productfoundry.akka.messaging.Confirmable.Confirmed
 import play.api.libs.json.{Format, Json}
 
 case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {
@@ -18,7 +19,7 @@ case class PersistableFormat(implicit val eventFormat: Format[AggregateEvent]) {
     TypeChoiceFormat(
       "Commit" -> CommitFormat,
       "DomainCommit" -> DomainCommitFormat,
-      "Confirmed" -> ConfirmationProtocol.Confirmed.ConfirmedFormat
+      "Confirmed" -> Confirmed.ConfirmedFormat
     )
   }
 }

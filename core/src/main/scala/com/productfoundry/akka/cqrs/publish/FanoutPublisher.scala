@@ -1,10 +1,10 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor._
-import com.productfoundry.akka.cqrs.Confirmable
-import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher.PublicationHandler._
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher._
+import com.productfoundry.akka.messaging.Confirmable
+import com.productfoundry.akka.messaging.Confirmable.Confirm
 
 import scala.concurrent.duration._
 import scala.language.existentials

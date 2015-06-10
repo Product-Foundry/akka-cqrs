@@ -1,7 +1,9 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, Confirmable, Confirmation}
+import com.productfoundry.akka.cqrs.AggregateEventRecord
+import com.productfoundry.akka.messaging.Confirmable
+import com.productfoundry.akka.messaging.Confirmable._
 
 trait EventPublication extends Confirmable {
 
@@ -44,11 +46,11 @@ object EventPublication {
 }
 
 private[this] case class EventPublicationImpl(eventRecord: AggregateEventRecord,
-                                              confirmationOption: Option[Confirmation] = None,
+                                              confirmationOption: Option[ConfirmationRequest] = None,
                                               commanderOption: Option[ActorRef] = None) extends EventPublication {
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): EventPublication = {
-    copy(confirmationOption = Some(Confirmation(requester, deliveryId)))
+    copy(confirmationOption = Some(ConfirmationRequest(requester, deliveryId)))
   }
 
   override def includeCommander(commander: ActorRef): EventPublication = {

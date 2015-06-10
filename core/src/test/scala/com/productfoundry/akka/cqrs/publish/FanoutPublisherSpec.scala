@@ -2,9 +2,10 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.Props
 import akka.testkit.TestProbe
-import com.productfoundry.akka.cqrs.ConfirmationProtocol.Confirm
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher.Subscribe
-import com.productfoundry.akka.cqrs.{Confirmable, Fixtures, DummyConfirmable}
+import com.productfoundry.akka.cqrs.{DummyConfirmable, Fixtures}
+import com.productfoundry.akka.messaging.Confirmable
+import com.productfoundry.akka.messaging.Confirmable._
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
