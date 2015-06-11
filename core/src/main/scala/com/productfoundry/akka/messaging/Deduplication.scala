@@ -1,24 +1,22 @@
 package com.productfoundry.akka.messaging
 
-import com.productfoundry.akka.cqrs.Entity.EntityId
-
 /**
  * Prevent duplicate messages from being handled multiple times.
  */
 trait Deduplication {
 
-  private var processedMessageIds: Set[String] = Set.empty
+  private var processedDeduplicationIds: Set[String] = Set.empty
 
   /**
    * Indicates if a message is already processed.
-   * @param messageId to check.
+   * @param deduplicationId to check.
    * @return true if the message is already processed, otherwise false.
    */
-  def isAlreadyProcessed(messageId: String): Boolean = processedMessageIds.contains(messageId)
+  def isAlreadyProcessed(deduplicationId: String): Boolean = processedDeduplicationIds.contains(deduplicationId)
 
   /**
    * Marks a message as processed.
-   * @param messageId to mark as processed.
+   * @param deduplicationId to mark as processed.
    */
-  def markAsProcessed(messageId: EntityId): Unit = processedMessageIds += messageId
+  def markAsProcessed(deduplicationId: String): Unit = processedDeduplicationIds += deduplicationId
 }
