@@ -15,7 +15,7 @@ trait AggregateMessage extends EntityMessage {
   def id: Id
 
   /**
-   * Entity id is required to properly route entity messages.
+   * Entity id is used by default to route entity messages.
    */
   final def entityId: EntityId = id.toString
 }
