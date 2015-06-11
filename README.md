@@ -37,7 +37,7 @@ process using a finite state machine implementation. A process can subscribe to 
 
 #### Creation
 
-![Entity creation](doc/entity-creation.svg)
+![Entity creation](doc/entity-creation.png)
 
 ## Query side
 
