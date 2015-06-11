@@ -2,11 +2,11 @@ package com.productfoundry.akka.messaging
 
 import akka.actor.Actor
 
-trait MessagePublisher {
+trait MessagePublisher[T] {
   this: Actor =>
 
   /**
    * Publishes a message.
    */
-  def publishMessage(message: Any): Unit
+  def publishMessage(message: T): Unit
 }

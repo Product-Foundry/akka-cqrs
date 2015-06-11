@@ -80,11 +80,11 @@ trait ReliableEventPublisher
       super.receiveCommand(command)
   }
 
+
   /**
-   * Publish an event with all commit related data.
-   * @param eventPublication to publish.
+   * Publishes a message.
    */
-  override def publishEvent(eventPublication: EventPublication): Unit = {
+  override def publishMessage(eventPublication: EventPublication): Unit = {
     if (currentPublicationOption.isEmpty) {
       publishDirectly(eventPublication)
     } else {

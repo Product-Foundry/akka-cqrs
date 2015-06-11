@@ -9,10 +9,9 @@ trait LocalEventPublisher extends EventPublisher {
   this: Aggregate =>
 
   /**
-   * Publish an event with all commit related data.
-   * @param eventPublication to publish.
+   * Publishes a message.
    */
-  override def publishEvent(eventPublication: EventPublication): Unit = {
+  override def publishMessage(eventPublication: EventPublication): Unit = {
     context.system.eventStream.publish(eventPublication)
   }
 }
