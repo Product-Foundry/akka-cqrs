@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.{Status, ActorPath, ActorRef, Props}
 import akka.testkit.TestProbe
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.TestAggregate._
+import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.AggregateTestSupport
 import org.scalatest.BeforeAndAfterEach
@@ -17,9 +17,9 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
 
   val redeliver = 50.millis
 
-  implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
+  implicit object TestAggregateFactory extends AggregateFactory[DummyAggregate] {
     override def props(config: PassivationConfig): Props = {
-      Props(new TestAggregate(config) with ReliableEventPublisher {
+      Props(new DummyAggregate(config) with ReliableEventPublisher {
         override def publishTarget: ActorPath = publishedEventProbe.ref.path
 
         override def redeliverInterval: FiniteDuration = redeliver
@@ -27,9 +27,9 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
     }
   }
 
-  implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
+  implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyAggregate]
 
-  val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
+  val supervisor: ActorRef = EntitySupervisor.forType[DummyAggregate]
 
   "Reliable event publisher" must {
 

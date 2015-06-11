@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.{ActorRef, Props}
 import akka.testkit.TestProbe
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.TestAggregate._
+import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.AggregateTestSupport
 
@@ -11,15 +11,15 @@ import scala.concurrent.duration._
 
 class LocalEventPublisherSpec extends AggregateTestSupport {
 
-  implicit object TestAggregateFactory extends AggregateFactory[TestAggregate] {
+  implicit object TestAggregateFactory extends AggregateFactory[DummyAggregate] {
     override def props(config: PassivationConfig): Props = {
-      Props(new TestAggregate(config) with LocalEventPublisher)
+      Props(new DummyAggregate(config) with LocalEventPublisher)
     }
   }
 
-  implicit val supervisorFactory = domainContext.entitySupervisorFactory[TestAggregate]
+  implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyAggregate]
 
-  val supervisor: ActorRef = EntitySupervisor.forType[TestAggregate]
+  val supervisor: ActorRef = EntitySupervisor.forType[DummyAggregate]
   
   "Local event publisher" must {
     

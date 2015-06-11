@@ -1,6 +1,7 @@
 package com.productfoundry.akka.cqrs.project.domain
 
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, Persistable}
+import com.productfoundry.akka.cqrs.AggregateEventRecord
+import com.productfoundry.akka.serialization.Persistable
 
 /**
  * A successful aggregated event record.

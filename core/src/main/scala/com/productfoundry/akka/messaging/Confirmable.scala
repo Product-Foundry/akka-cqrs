@@ -1,8 +1,8 @@
 package com.productfoundry.akka.messaging
 
 import akka.actor.ActorRef
-import com.productfoundry.akka.cqrs.Persistable
 import com.productfoundry.akka.messaging.Confirmable._
+import com.productfoundry.akka.serialization.Persistable
 import play.api.libs.json.{Format, Reads, Writes}
 
 /**

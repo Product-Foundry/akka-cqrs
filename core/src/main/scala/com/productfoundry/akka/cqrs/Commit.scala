@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs
 
+import com.productfoundry.akka.serialization.Persistable
+
 /**
  * A commit with aggregate event records to keep revisions per event.
  *

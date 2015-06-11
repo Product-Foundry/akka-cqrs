@@ -1,11 +1,11 @@
 package com.productfoundry.akka.cqrs
 
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.TestAggregate._
+import com.productfoundry.akka.cqrs.DummyAggregate._
 
-class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate {
+class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate {
 
-  type S = TestState
+  type S = DummyState
 
   override def handleCommand: Receive = {
     case Create(aggregateId) =>
@@ -47,10 +47,10 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
   }
 
   override val factory: StateFactory = {
-    case Created(_) => TestState(0)
+    case Created(_) => DummyState(0)
   }
 
-  case class TestState(count: Int) extends AggregateState {
+  case class DummyState(count: Int) extends AggregateState {
     override def update = {
       case Counted(_, _count) => copy(count = _count)
       case Incremented(_, amount) => copy(count = count + amount)
@@ -58,7 +58,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
   }
 }
 
-object TestAggregate {
+object DummyAggregate {
   sealed trait TestMessage extends AggregateMessage {
     override type Id = TestId
   }

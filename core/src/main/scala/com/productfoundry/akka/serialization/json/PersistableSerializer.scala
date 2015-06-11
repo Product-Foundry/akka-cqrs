@@ -3,7 +3,8 @@ package com.productfoundry.akka.serialization.json
 import java.nio.charset.Charset
 
 import akka.serialization.Serializer
-import com.productfoundry.akka.cqrs.{AggregateEvent, Persistable}
+import com.productfoundry.akka.cqrs.AggregateEvent
+import com.productfoundry.akka.serialization.Persistable
 import play.api.libs.json.{Format, Json}
 
 class PersistableSerializer(implicit val eventFormat: Format[AggregateEvent]) extends Serializer {

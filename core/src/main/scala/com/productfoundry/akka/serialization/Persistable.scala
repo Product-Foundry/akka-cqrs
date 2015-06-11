@@ -1,4 +1,4 @@
-package com.productfoundry.akka.cqrs
+package com.productfoundry.akka.serialization
 
 /**
  * Marker trait for persistables.
