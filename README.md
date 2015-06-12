@@ -28,7 +28,10 @@ Entities are persistent objects that implement DDD concepts. There are different
 ##### Aggregates
 
 Aggregates process commands, validate business rules and generate events. They act as a context boundary for a single
-domain concept. Typically, the aggregate represents a single instance, rather than a group.
+domain concept. Typically, the aggregate represents a single instance, rather than a group. All aggregates reply with a
+message indicating the update result.
+
+![Aggregate](doc/aggregate.png)
 
 ##### Process managers
 
