@@ -1,10 +1,8 @@
 package com.productfoundry.support
 
-import com.productfoundry.akka.cqrs.{AggregateIdResolution, EntityIdResolution, LocalDomainContext}
+import com.productfoundry.akka.cqrs.AggregateIdResolution
 
-abstract class AggregateTestSupport extends PersistenceTestSupport {
+abstract class AggregateTestSupport extends EntityTestSupport {
 
-  implicit def entityIdResolution[A]: EntityIdResolution[A] = new AggregateIdResolution[A]()
-
-  implicit val domainContext = new LocalDomainContext(system)
+  implicit def aggregateIdResolution[A]: AggregateIdResolution[A] = new AggregateIdResolution[A]()
 }

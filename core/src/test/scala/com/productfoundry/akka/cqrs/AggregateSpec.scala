@@ -8,7 +8,7 @@ import com.productfoundry.support.AggregateTestSupport
 
 class AggregateSpec extends AggregateTestSupport {
 
-  implicit object TestAggregateFactory extends AggregateFactory[DummyAggregate] {
+  implicit object DummyAggregateFactory extends AggregateFactory[DummyAggregate] {
     override def props(config: PassivationConfig): Props = {
       Props(new DummyAggregate(config))
     }
