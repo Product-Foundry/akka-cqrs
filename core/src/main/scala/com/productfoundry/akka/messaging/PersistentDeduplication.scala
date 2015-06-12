@@ -14,11 +14,9 @@ trait PersistentDeduplication
   with ActorLogging {
 
   override def uniqueMessageReceived(deduplicationId: String): Unit = {
-    self ! MarkAsProcessed(deduplicationId)
-  }
-
-  override def receiveDuplicate: Receive = super.receiveDuplicate orElse {
-    case MarkAsProcessed(deduplicationId) => persist(Processed(deduplicationId)) { _ =>
+    if (recoveryFinished) {
+      // TODO [AK] Deduplication is not properly guaranteed in this implementation
+      persistAsync(Processed(deduplicationId))(_ => Unit)
       markAsProcessed(deduplicationId)
     }
   }
@@ -33,8 +31,6 @@ trait PersistentDeduplication
 }
 
 object PersistentDeduplication {
-
-  case class MarkAsProcessed(deduplicationId: String)
 
   case class Processed(deduplicationId: String) extends Persistable
 
