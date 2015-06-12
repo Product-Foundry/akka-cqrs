@@ -8,9 +8,11 @@ import play.api.libs.json.{Format, Json}
 case class AggregateTag(name: String, id: String, revision: AggregateRevision) {
 
   /**
-   * Unique handle for the tag.
+   * Unique tag value.
    */
-  lazy val handle: String = s"$name:$id:$revision"
+  lazy val value: String = s"$name:$id:$revision"
+
+  override def toString: String = value
 }
 
 object AggregateTag {

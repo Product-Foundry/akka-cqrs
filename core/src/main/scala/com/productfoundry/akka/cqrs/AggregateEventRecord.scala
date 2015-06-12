@@ -18,5 +18,5 @@ case class AggregateEventRecord(tag: AggregateTag, headers: AggregateEventHeader
    * Used to publish events, for deduplication and handling it makes sense to base the id entirely on the tag,
    * which uniquely identifies the persisted record.
    */
-  override def entityId: EntityId = tag.handle
+  override def entityId: EntityId = tag.value
 }

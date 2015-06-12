@@ -2,10 +2,10 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.messaging.Confirmable
+import com.productfoundry.akka.messaging.{Deduplicatable, Confirmable}
 import com.productfoundry.akka.messaging.Confirmable._
 
-trait EventPublication extends Confirmable {
+trait EventPublication extends Confirmable with Deduplicatable {
 
   override type self = EventPublication
 
@@ -30,6 +30,11 @@ trait EventPublication extends Confirmable {
    * @param message with the notification.
    */
   def notifyCommanderIfDefined(message: Any)(implicit sender: ActorRef = Actor.noSender): Unit
+
+  /**
+   * Used for deduplication.
+   */
+  override def deduplicationId: String = eventRecord.tag.value
 }
 
 /**

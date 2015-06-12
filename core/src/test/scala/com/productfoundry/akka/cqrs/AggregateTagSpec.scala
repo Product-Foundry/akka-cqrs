@@ -10,7 +10,7 @@ class AggregateTagSpec extends Spec with Fixtures {
 
     "have unique handle" in {
       forAll { aggregateTags: Set[AggregateTag] =>
-        aggregateTags.map(_.handle).size should be(aggregateTags.size)
+        aggregateTags.map(_.value).size should be(aggregateTags.size)
       }
     }
 
