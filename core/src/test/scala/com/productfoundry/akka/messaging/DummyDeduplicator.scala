@@ -5,7 +5,7 @@ import com.productfoundry.akka.messaging.DummyDeduplicator.DummyDeduplicatable
 
 class DummyDeduplicator(val persistenceId: String) extends Actor with PersistentDeduplication {
 
-  override def receiveOnce: Receive = {
+  override def receiveCommand: Receive = receiveDuplicate orElse {
     case DummyDeduplicatable(deduplicationId) => sender() ! deduplicationId
   }
 }

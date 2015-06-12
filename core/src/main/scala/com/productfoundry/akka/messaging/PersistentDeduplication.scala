@@ -7,39 +7,32 @@ import com.productfoundry.akka.serialization.Persistable
 
 trait PersistentDeduplication
   extends PersistentActor
-  with Deduplication
+  with DeduplicationHandler
   with ActorLogging {
-  
-  def receiveCommandAndDeduplicate: Receive = {
-    case message if receiveOnce.isDefinedAt(message) =>
 
-      message match {
-        case deduplicatable: Deduplicatable =>
-          if (isAlreadyProcessed(deduplicatable.deduplicationId)) {
-            log.debug("Skipping duplicate: {}", deduplicatable.deduplicationId)
-          } else {
-            receiveOnce(message)
-            persist(DeduplicatableReceived(deduplicatable.deduplicationId))(_ => markAsProcessed(deduplicatable.deduplicationId))
-          }
-
-        case _ =>
-          receiveOnce(message)
-      }
+  override def uniqueMessageReceived(deduplicationId: String): Unit = {
+    self ! MarkAsProcessed(deduplicationId)
   }
 
-  override def receiveCommand: Receive = receiveCommandAndDeduplicate
-
-  def receiveOnce: Receive
-
-  def receiveRecoverDeduplication: Receive = {
-    case DeduplicatableReceived(deduplicationId) =>
+  override def receiveDuplicate: Receive = super.receiveDuplicate orElse {
+    case MarkAsProcessed(deduplicationId) => persist(Processed(deduplicationId)) { _ =>
       markAsProcessed(deduplicationId)
+    }
   }
 
-  override def receiveRecover: Receive = receiveRecoverDeduplication
+  override def receiveCommand: Receive = receiveDuplicate
+
+  def receiveRecoverProcessed: Receive = {
+    case Processed(deduplicationId) => markAsProcessed(deduplicationId)
+  }
+
+  override def receiveRecover: Receive = receiveRecoverProcessed
 }
 
 object PersistentDeduplication {
 
-  case class DeduplicatableReceived(deduplicationId: String) extends Persistable
+  case class MarkAsProcessed(deduplicationId: String)
+
+  case class Processed(deduplicationId: String) extends Persistable
+
 }

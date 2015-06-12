@@ -30,7 +30,7 @@ trait ProcessManager[S, D]
   /**
    * Handles an event message.
    */
-  override def handlePublishedMessage: Receive = {
+  override def receiveCommand: Receive = {
     case eventRecord: AggregateEventRecord =>
       try {
         eventRecordOption = Some(eventRecord)
