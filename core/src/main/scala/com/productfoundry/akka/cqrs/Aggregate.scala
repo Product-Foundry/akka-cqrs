@@ -50,7 +50,9 @@ trait Aggregate
      * Creates a copy with the commit applied to this state.
      */
     def applyCommit(commit: Commit): RevisedState = {
-      commit.entries.foldLeft(this)(_ applyEntry _)
+      val updated = commit.entries.foldLeft(this)(_ applyEntry _)
+      assert(updated.revision == commit.nextTag.revision)
+      updated
     }
 
     /**

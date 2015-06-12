@@ -23,6 +23,14 @@ case class Commit(tag: AggregateTag, headers: AggregateEventHeaders, entries: Se
       )
     }
   }
+
+  /**
+   * Predicts the next tag of the aggregate after this commit is applied.
+   * @return next tag.
+   */
+  def nextTag: AggregateTag = {
+    tag.copy(revision = entries.lastOption.map(_.revision).getOrElse(tag.revision))
+  }
 }
 
 /**
