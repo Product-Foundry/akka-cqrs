@@ -2,7 +2,6 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.util.Timeout
-import com.productfoundry.akka.cqrs.Entity.EntityId
 import com.productfoundry.akka.{ActorContextCreationSupport, Passivate, PassivationConfig}
 
 import scala.concurrent.Await
@@ -72,7 +71,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
    * @param entityId of the entity.
    * @return Entity actor ref.
    */
-  private def getOrCreateEntity(entityId: EntityId): ActorRef = {
+  private def getOrCreateEntity(entityId: String): ActorRef = {
     val props = entityFactory.props(PassivationConfig(PoisonPill, inactivityTimeout))
     getOrCreateChild(props, entityId.toString)
   }

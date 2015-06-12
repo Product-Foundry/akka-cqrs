@@ -3,11 +3,6 @@ package com.productfoundry.akka.cqrs
 import akka.persistence.PersistentActor
 import com.productfoundry.akka.GracefulPassivation
 
-object Entity {
-
-  type EntityId = String
-}
-
 /**
  * Defines a domain entity.
  */

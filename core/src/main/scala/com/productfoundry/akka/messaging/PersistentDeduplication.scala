@@ -5,6 +5,9 @@ import akka.persistence.PersistentActor
 import com.productfoundry.akka.messaging.PersistentDeduplication._
 import com.productfoundry.akka.serialization.Persistable
 
+/**
+ * Supports deduplication handling, where ids of handled messages are also persisted.
+ */
 trait PersistentDeduplication
   extends PersistentActor
   with DeduplicationHandler

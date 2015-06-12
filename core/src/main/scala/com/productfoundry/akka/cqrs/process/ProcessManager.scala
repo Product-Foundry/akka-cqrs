@@ -1,6 +1,7 @@
 package com.productfoundry.akka.cqrs.process
 
 import akka.actor.{ActorLogging, FSM}
+import com.productfoundry.akka.cqrs.publish.EventSubscriber
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, Entity}
 import com.productfoundry.akka.messaging.{MessageSubscriber, PersistentDeduplication}
 
@@ -9,7 +10,7 @@ import com.productfoundry.akka.messaging.{MessageSubscriber, PersistentDeduplica
  */
 trait ProcessManager[S, D]
   extends Entity
-  with MessageSubscriber
+  with EventSubscriber
   with PersistentDeduplication
   with FSM[S, D]
   with ActorLogging {
