@@ -21,19 +21,19 @@ class AggregateSpec extends AggregateTestSupport {
   "Aggregate creation" must {
 
     "succeed" in {
-      supervisor ! Create(TestId.generate())
+      supervisor ! Create(DummyId.generate())
       expectMsgType[AggregateResult.Success]
     }
 
     "have initial revision" in {
-      supervisor ! Create(TestId.generate())
+      supervisor ! Create(DummyId.generate())
 
       val success = expectMsgType[AggregateResult.Success]
       success.tag.revision should be(AggregateRevision(1L))
     }
 
     "fail for existing" in {
-      val id = TestId.generate()
+      val id = DummyId.generate()
 
       supervisor ! Create(id)
       expectMsgType[AggregateResult.Success]
@@ -44,7 +44,7 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "fail for deleted" in {
-      val id = TestId.generate()
+      val id = DummyId.generate()
 
       supervisor ! Create(id)
       expectMsgType[AggregateResult.Success]
@@ -83,7 +83,7 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "fail for unknown" in {
-      supervisor ! Count(TestId.generate())
+      supervisor ! Count(DummyId.generate())
       val failure = expectMsgType[Status.Failure]
       failure.cause shouldBe an[AggregateException]
     }
@@ -115,7 +115,7 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "fail for unknown" in new AggregateFixture {
-      supervisor ! Delete(TestId.generate())
+      supervisor ! Delete(DummyId.generate())
       val failure = expectMsgType[Status.Failure]
       failure.cause shouldBe an[AggregateException]
     }
@@ -138,7 +138,7 @@ class AggregateSpec extends AggregateTestSupport {
     }
 
     "fail for unknown" in new AggregateFixture {
-      supervisor ! GetCount(TestId.generate())
+      supervisor ! GetCount(DummyId.generate())
       val failure = expectMsgType[Status.Failure]
       failure.cause shouldBe an[AggregateException]
     }
@@ -147,14 +147,14 @@ class AggregateSpec extends AggregateTestSupport {
   "Aggregate revision check" must {
 
     "succeed with initial revision on create" in {
-      supervisor ! Create(TestId.generate()).withExpectedRevision(AggregateRevision.Initial)
+      supervisor ! Create(DummyId.generate()).withExpectedRevision(AggregateRevision.Initial)
       expectMsgType[AggregateResult.Success]
     }
 
     "fail with other revision on create" in {
       val expected = AggregateRevision(2L)
 
-      supervisor ! Create(TestId.generate()).withExpectedRevision(expected)
+      supervisor ! Create(DummyId.generate()).withExpectedRevision(expected)
       val failure = expectMsgType[AggregateResult.Failure]
       failure.cause should be(RevisionConflict(expected, AggregateRevision.Initial))
     }
@@ -287,7 +287,7 @@ class AggregateSpec extends AggregateTestSupport {
   }
 
   trait AggregateFixture {
-    val testId = TestId.generate()
+    val testId = DummyId.generate()
     supervisor ! Create(testId)
     expectMsgType[AggregateResult.Success]
   }

@@ -1,11 +1,11 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
-import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.messaging.{Deduplicatable, Confirmable}
+import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityMessage}
 import com.productfoundry.akka.messaging.Confirmable._
+import com.productfoundry.akka.messaging.{Confirmable, Deduplicatable}
 
-trait EventPublication extends Confirmable with Deduplicatable {
+trait EventPublication extends Confirmable with Deduplicatable with EntityMessage {
 
   override type self = EventPublication
 

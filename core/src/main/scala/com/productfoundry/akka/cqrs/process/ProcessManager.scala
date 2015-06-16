@@ -1,9 +1,9 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.actor.{ActorLogging, FSM}
-import com.productfoundry.akka.cqrs.publish.EventSubscriber
+import akka.actor.ActorLogging
+import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, Entity}
-import com.productfoundry.akka.messaging.{MessageSubscriber, PersistentDeduplication}
+import com.productfoundry.akka.messaging.PersistentDeduplication
 
 /**
  * Process manager receives events and generates commands.
@@ -12,8 +12,12 @@ trait ProcessManager[S, D]
   extends Entity
   with EventSubscriber
   with PersistentDeduplication
-  with FSM[S, D]
   with ActorLogging {
+
+  /**
+   * Receive function for aggregate events
+   */
+  type ReceiveEventRecord = PartialFunction[AggregateEventRecord, Unit]
 
   /**
    * The current event record.
@@ -32,14 +36,14 @@ trait ProcessManager[S, D]
    * Handles an event message.
    */
   override def receiveCommand: Receive = {
-    case eventRecord: AggregateEventRecord =>
+    case publication: EventPublication =>
       try {
-        eventRecordOption = Some(eventRecord)
+        eventRecordOption = Some(publication.eventRecord)
+        receiveEventRecord(eventRecord)
       } finally {
         eventRecordOption = None
       }
-
-    case msg =>
-      log.warning("Unexpected: {}", msg)
   }
+
+  def receiveEventRecord: ReceiveEventRecord
 }

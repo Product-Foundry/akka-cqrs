@@ -22,7 +22,7 @@ class DomainAggregatorSpec extends PersistenceTestSupport with GeneratorDrivenPr
   }
 
   trait fixture extends {
-    val persistenceId = TestId.generate().toString
+    val persistenceId = DummyId.generate().toString
 
     val domainAggregatorProps = Props(new DomainAggregator(persistenceId, snapshotInterval))
 

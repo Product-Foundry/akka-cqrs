@@ -11,6 +11,8 @@ import akka.actor.{Actor, ActorLogging}
  *
  * When non-deduplicatable messages are received, they will never be marked as duplicate.
  */
+
+// TODO [AK] For some reason this only works when mixed on with PersistentDeduplicationHandler
 trait DeduplicationHandler extends Actor with ActorLogging {
 
   /**

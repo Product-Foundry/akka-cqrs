@@ -15,7 +15,7 @@ trait Fixtures {
 
   implicit def ArbitraryCommit: Arbitrary[Commit] = Arbitrary {
     for {
-      id <- arbitrary[TestId]
+      id <- arbitrary[DummyId]
       revision <- arbitrary[AggregateRevision]
       values <- arbitrary[Seq[Int]]
     } yield Changes(values.map(value => DummyEvent(id, value)): _*).createCommit(AggregateTag("", id.toString, revision))
@@ -28,7 +28,7 @@ trait Fixtures {
   implicit def ArbitraryAggregateTag: Arbitrary[AggregateTag] = Arbitrary {
     for {
       name <- arbitrary[String]
-      id <- arbitrary[TestId]
+      id <- arbitrary[DummyId]
       revision <- arbitrary[AggregateRevision]
     } yield AggregateTag(name, id.toString, revision)
   }

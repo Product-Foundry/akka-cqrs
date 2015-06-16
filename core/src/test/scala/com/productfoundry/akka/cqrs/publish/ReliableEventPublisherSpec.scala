@@ -108,7 +108,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
     }
 
     trait fixture {
-      val testId = TestId.generate()
+      val testId = DummyId.generate()
       supervisor ! Create(testId)
       expectMsgType[AggregateResult.Success]
 
