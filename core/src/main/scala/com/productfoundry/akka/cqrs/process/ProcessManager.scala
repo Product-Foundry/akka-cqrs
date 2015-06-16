@@ -38,6 +38,10 @@ trait ProcessManager[S, D]
   override def receiveCommand: Receive = {
     case publication: EventPublication =>
       try {
+        // There are no extension hooks for Akka yet, which means we have to confirm here manually
+        publication.confirmIfRequested()
+
+        // Keep current event record and invoke behavior
         eventRecordOption = Some(publication.eventRecord)
         receiveEventRecord(eventRecord)
       } finally {

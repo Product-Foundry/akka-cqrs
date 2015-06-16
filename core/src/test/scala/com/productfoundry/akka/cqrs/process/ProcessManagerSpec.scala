@@ -45,8 +45,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
       expectNoMsg()
     }
 
-    // TODO [AK] Something is not quite right here
-    "confirm received messages" ignore new ProcessManagerFixture {
+    "confirm received messages" in new ProcessManagerFixture {
       var nextDeliveryId = 1L
 
       forAll { commit: Commit =>
@@ -57,23 +56,13 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           nextDeliveryId = nextDeliveryId + 1
         }
 
-        // TODO [AK] Confirmations are sent back multiple times, probably has to do with recovery
         if (publications.nonEmpty) {
-          var deliveryIds: Set[Long] = Set.empty
-          var events: Set[AggregateEvent] = Set.empty
+          val results = receiveN(publications.size * 2)
+          val grouped = results.groupBy(_.getClass)
 
-          eventually {
-            receiveN(1).foreach {
-              case Confirm(deliveryId) => deliveryIds = deliveryIds + deliveryId
-              case LogEvent(event) => events = events + event
-            }
-
-            println(events)
-            println(deliveryIds)
-
-            events.size should be(publications.size)
-            deliveryIds.size should be(publications.size)
-          }
+          val events = grouped(classOf[LogEvent]).map(event => event.asInstanceOf[LogEvent].event)
+          publications.map(_.eventRecord.event) should contain theSameElementsAs events
+          grouped(classOf[Confirm]).size should be(events.size)
         }
       }
     }
