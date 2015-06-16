@@ -10,6 +10,8 @@ import com.productfoundry.akka.messaging.Confirmable.Confirm
 import com.productfoundry.support.EntityTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
+import scala.concurrent.duration._
+
 class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
 
   implicit object DummyProcessManagerIdResolution extends EntityIdResolution[DummyProcessManager] {
@@ -64,6 +66,8 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           publications.map(_.eventRecord.event) should contain theSameElementsAs events
           grouped(classOf[Confirm]).size should be(events.size)
         }
+
+        expectNoMsg(100.millis)
       }
     }
   }
