@@ -1,6 +1,9 @@
 package com.productfoundry.akka.cqrs
 
-trait ValidationMessage
+/**
+ * Validation messages should be backed by case classes.
+ */
+trait ValidationMessage extends Product
 
 /**
  * Exception indicating one or more domain validation failures.
