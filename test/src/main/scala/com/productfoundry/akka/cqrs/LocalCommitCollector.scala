@@ -8,7 +8,7 @@ import scala.concurrent.stm._
 /**
  * Collects all commits published on the system event stream.
  *
- * Used to check which commits are persisted by aggregates under test.
+ * Can be used to check which commits are persisted by aggregates under test.
  * @param system test actor system.
  */
 case class LocalCommitCollector(implicit system: ActorSystem) {
@@ -27,7 +27,7 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
         dumpCommits(Logging.ErrorLevel)
 
       case c =>
-        log.error(s"Unexpected message: $c")
+        log.error("Unexpected: {}", c)
     }
 
     /**

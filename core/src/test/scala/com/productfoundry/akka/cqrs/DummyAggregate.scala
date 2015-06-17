@@ -46,42 +46,53 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
       sender() ! state.count
   }
 
-  override val factory: StateFactory = {
+  override val factory: StateModifications = {
     case Created(_) => DummyState(0)
   }
 
   case class DummyState(count: Int) extends AggregateState {
-    override def update = {
+    override def update: StateModifications = {
       case Counted(_, _count) => copy(count = _count)
       case Incremented(_, amount) => copy(count = count + amount)
     }
   }
+
 }
 
 object DummyAggregate {
-  sealed trait TestMessage extends AggregateMessage {
+
+  sealed trait DummyMessage extends AggregateMessage {
     override type Id = DummyId
   }
 
-  sealed trait TestAggregateCommand extends TestMessage with AggregateCommand
+  sealed trait DummyAggregateCommand extends DummyMessage with AggregateCommand
 
-  case class Create(id: DummyId) extends TestAggregateCommand
-  case class Count(id: DummyId) extends TestAggregateCommand
-  case class CountWithRequiredRevisionCheck(id: DummyId) extends TestAggregateCommand with RequiredRevisionCheck
-  case class CountWithPayload(id: DummyId) extends TestAggregateCommand
-  case class Increment(id: DummyId, amount: Int) extends TestAggregateCommand
-  case class Delete(id: DummyId) extends TestAggregateCommand
+  case class Create(id: DummyId) extends DummyAggregateCommand
 
-  sealed trait TestEvent extends TestMessage with AggregateEvent
+  case class Count(id: DummyId) extends DummyAggregateCommand
 
-  case class Created(id: DummyId) extends TestEvent
-  case class Counted(id: DummyId, count: Int) extends TestEvent
-  case class Incremented(id: DummyId, amount: Int) extends TestEvent
-  case class Deleted(id: DummyId) extends TestEvent with AggregateDeleteEvent
+  case class CountWithRequiredRevisionCheck(id: DummyId) extends DummyAggregateCommand with RequiredRevisionCheck
+
+  case class CountWithPayload(id: DummyId) extends DummyAggregateCommand
+
+  case class Increment(id: DummyId, amount: Int) extends DummyAggregateCommand
+
+  case class Delete(id: DummyId) extends DummyAggregateCommand
+
+  sealed trait DummyEvent extends DummyMessage with AggregateEvent
+
+  case class Created(id: DummyId) extends DummyEvent
+
+  case class Counted(id: DummyId, count: Int) extends DummyEvent
+
+  case class Incremented(id: DummyId, amount: Int) extends DummyEvent
+
+  case class Deleted(id: DummyId) extends DummyEvent with AggregateDeleteEvent
 
   sealed trait TestValidationMessage extends ValidationMessage
 
   case class InvalidIncrement(value: Int) extends TestValidationMessage
 
-  case class GetCount(id: DummyId) extends TestMessage
+  case class GetCount(id: DummyId) extends DummyMessage
+
 }

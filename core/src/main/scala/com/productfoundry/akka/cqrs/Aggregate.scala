@@ -13,6 +13,13 @@ trait Aggregate
 
   type S <: AggregateState
 
+  type StateModifications = PartialFunction[AggregateEvent, S]
+
+  /**
+   * Creates aggregate state.
+   */
+  val factory: StateModifications
+
   /**
    * Aggregate state required to validate commands.
    */
@@ -25,18 +32,8 @@ trait Aggregate
      *
      * @return updated state.
      */
-    def update: PartialFunction[AggregateEvent, S]
+    def update: StateModifications
   }
-
-  /**
-   * Defines a factory that can create initial state from one or more events.
-   */
-  type StateFactory = PartialFunction[AggregateEvent, S]
-
-  /**
-   * Creates aggregate state.
-   */
-  val factory: StateFactory
 
   /**
    * Specifies the aggregate state with its revision.
