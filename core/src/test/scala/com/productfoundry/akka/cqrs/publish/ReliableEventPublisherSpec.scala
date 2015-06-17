@@ -119,7 +119,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
 
   override protected def afterEach(): Unit = {
     eventually {
-      publishedEventProbe.expectNoMsg(redeliver * 2)
+      publishedEventProbe.expectNoMsg()
     }
   }
 }

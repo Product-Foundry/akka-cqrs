@@ -16,7 +16,7 @@ abstract class PersistenceTestSupport
   def randomPersistenceId = PersistenceId.generate().toString
 
   implicit override val patienceConfig = PatienceConfig(
-    timeout = scaled(Span(1, Second)),
+    timeout = scaled(Span(500, Millis)),
     interval = scaled(Span(10, Millis))
   )
 

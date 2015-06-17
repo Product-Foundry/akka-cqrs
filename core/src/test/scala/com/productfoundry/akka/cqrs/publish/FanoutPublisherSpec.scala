@@ -9,7 +9,6 @@ import com.productfoundry.akka.messaging.Confirmable._
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-import scala.concurrent.duration._
 import scala.util.Random
 
 class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
@@ -127,9 +126,6 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
         }
 
         expectMsgType[Confirm].deliveryId should be(deliveryId)
-        for (subscriber <- subscribers) {
-          subscriber.expectNoMsg(1.millis)
-        }
       }
     }
   }

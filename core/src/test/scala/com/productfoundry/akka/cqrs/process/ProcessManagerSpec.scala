@@ -30,9 +30,9 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
 
   val supervisor: ActorRef = EntitySupervisor.forType[DummyProcessManager]
 
-  "Process manager" must {
+  "Event publications" must {
 
-    "receive published events" in new ProcessManagerFixture {
+    "be received" in new ProcessManagerFixture {
       forAll { commit: Commit =>
         val publications = createUniquePublications(commit)
 
@@ -47,7 +47,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
       expectNoMsg()
     }
 
-    "confirm received messages" in new ProcessManagerFixture {
+    "be confirmed" in new ProcessManagerFixture {
       var nextDeliveryId = 1L
 
       forAll { commit: Commit =>
@@ -67,8 +67,24 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           grouped(classOf[Confirm]).size should be(events.size)
         }
 
-        expectNoMsg(100.millis)
+        expectNoMsg()
       }
+    }
+
+    "be deduplicated" in new ProcessManagerFixture {
+      forAll { commit: Commit =>
+        val publications = createUniquePublications(commit)
+
+        publications.foreach { publication =>
+          supervisor ! publication
+          supervisor ! publication
+        }
+
+        val events = receiveN(publications.size).map(_.asInstanceOf[LogEvent].event)
+        publications.map(_.eventRecord.event) should contain theSameElementsAs events
+      }
+
+      expectNoMsg()
     }
   }
 

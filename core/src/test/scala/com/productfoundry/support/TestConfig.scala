@@ -19,6 +19,9 @@ object TestConfig {
       |      auto-update-interval = 4s
       |    }
       |  }
+      |  test {
+      |    single-expect-default = 100ms
+      |  }
       |}
     """.stripMargin
   )

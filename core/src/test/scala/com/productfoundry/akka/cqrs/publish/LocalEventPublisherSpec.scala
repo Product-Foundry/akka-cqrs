@@ -39,7 +39,7 @@ class LocalEventPublisherSpec extends AggregateTestSupport {
 
     "not request confirmation" in new fixture {
       eventPublication.confirmIfRequested()
-      expectNoMsg(100.millis)
+      expectNoMsg()
     }
 
     trait fixture extends {
