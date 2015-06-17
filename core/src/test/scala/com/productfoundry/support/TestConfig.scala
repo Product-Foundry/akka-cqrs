@@ -20,7 +20,7 @@ object TestConfig {
       |    }
       |  }
       |  test {
-      |    single-expect-default = 100ms
+      |    single-expect-default = 500ms
       |  }
       |}
     """.stripMargin

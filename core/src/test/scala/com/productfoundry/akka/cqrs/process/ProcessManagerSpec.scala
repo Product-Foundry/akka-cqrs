@@ -66,9 +66,9 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           publications.map(_.eventRecord.event) should contain theSameElementsAs events
           grouped(classOf[Confirm]).size should be(events.size)
         }
-
-        expectNoMsg()
       }
+
+      expectNoMsg()
     }
 
     "be deduplicated" in new ProcessManagerFixture {
