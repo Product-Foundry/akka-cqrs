@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs.process
 
 import akka.actor.ActorLogging
-import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
+import com.productfoundry.akka.cqrs.publish.EventSubscriber
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, Entity}
 import com.productfoundry.akka.messaging.PersistentDeduplication
 
@@ -17,8 +17,6 @@ trait ProcessManager[S, D]
   /**
    * Receive function for aggregate events
    */
-  type ReceiveEventRecord = PartialFunction[AggregateEventRecord, Unit]
-
   /**
    * The current event record.
    */
@@ -35,14 +33,15 @@ trait ProcessManager[S, D]
   /**
    * Handles an event message.
    */
-  override def receiveCommand: Receive = {
-    case publication: EventPublication =>
-      try {
-        // There are no extension hooks for Akka yet, which means we have to confirm here manually
-        publication.confirmIfRequested()
+  override def receiveCommand: Receive = receivePublishedEvent
 
-        // Keep current event record and invoke behavior
-        eventRecordOption = Some(publication.eventRecord)
+  /**
+   * Partial function to handle published aggregate event records.
+   */
+  override def eventReceived: ReceiveEventRecord = {
+    case eventRecord: AggregateEventRecord =>
+      try {
+        eventRecordOption = Some(eventRecord)
         receiveEventRecord(eventRecord)
       } finally {
         eventRecordOption = None

@@ -2,8 +2,9 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.ActorLogging
 import akka.persistence.{PersistentActor, RecoveryFailure, SnapshotOffer}
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, Commit}
+import com.productfoundry.akka.cqrs.AggregateEventRecord
 import com.productfoundry.akka.cqrs.project.domain.DomainAggregator._
+import com.productfoundry.akka.cqrs.publish.EventSubscriber
 
 /**
  * Persistent actor that aggregates all received event records.
@@ -24,6 +25,7 @@ import com.productfoundry.akka.cqrs.project.domain.DomainAggregator._
  */
 class DomainAggregator(override val persistenceId: String, val snapshotInterval: Int = 100)
   extends PersistentActor
+  with EventSubscriber
   with ActorLogging {
 
   /**
@@ -41,26 +43,24 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
   def currentRevision = revision
 
   /**
-   * Persist all event records.
+   * Receive published events.
    */
-  override def receiveCommand: Receive = {
-    case eventRecord: AggregateEventRecord => aggregateEventRecord(eventRecord)
-  }
+  override def receiveCommand: Receive = receivePublishedEvent
 
   /**
-   * Persists the event record and notifies the sender of the domain revision.
-   * @param eventRecord to persist.
+   * Handle received event
    */
-  def aggregateEventRecord(eventRecord: AggregateEventRecord): Unit = {
-    persist(DomainCommit(revision.next, eventRecord)) { domainEventRecord =>
-      updateState(domainEventRecord)
+  override def eventReceived: ReceiveEventRecord = {
+    case eventRecord: AggregateEventRecord =>
+      persist(DomainCommit(revision.next, eventRecord)) { domainEventRecord =>
+        updateState(domainEventRecord)
 
-      sender() ! DomainAggregatorRevision(revision)
+        sender() ! DomainAggregatorRevision(revision)
 
-      if (revision.value % snapshotInterval == 0) {
-        saveSnapshot(revision)
+        if (revision.value % snapshotInterval == 0) {
+          saveSnapshot(revision)
+        }
       }
-    }
   }
 
   private def updateState(domainEventRecord: DomainCommit): Unit = {
