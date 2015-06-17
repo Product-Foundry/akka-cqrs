@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs
 
-trait ValidationMessage extends Product
+trait ValidationMessage
 
 /**
  * Exception indicating one or more domain validation failures.
