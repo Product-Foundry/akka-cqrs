@@ -62,16 +62,12 @@ trait Aggregate
 
       val event = commitEntry.event
 
-      /**
-       * Creates new state with the event in scope.
-       */
+      // Creates new state with the event in scope.
       def createState: Option[S] = {
         if (factory.isDefinedAt(event)) Some(factory.apply(event)) else throw AggregateNotInitializedException(event)
       }
 
-      /**
-       * Updates the state with the event in scope.
-       */
+      // Updates the state with the event in scope.
       def updateState(state: S): Option[S] = {
         if (event.isDeleteEvent) {
           None
