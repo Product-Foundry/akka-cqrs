@@ -1,7 +1,7 @@
 package com.productfoundry.akka.messaging
 
-import com.productfoundry.akka.cqrs.AggregateEvent
 import com.productfoundry.akka.serialization.Persistable
+import play.api.libs.json.{Format, Reads, Writes}
 
 /**
  * Convenience methods to prevent duplicate messages from being handled multiple times.
@@ -45,4 +45,9 @@ trait Deduplication {
 object Deduplication {
 
   case class Received(deduplicationId: String) extends Persistable
+
+  object Received {
+    implicit val ReceivedFormat: Format[Received] = Format(Reads.of[String].map(apply), Writes(a => Writes.of[String].writes(a.deduplicationId)))
+  }
+
 }
