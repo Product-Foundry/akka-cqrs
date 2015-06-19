@@ -3,14 +3,14 @@ package com.productfoundry.akka.cqrs.project.domain
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.cqrs.project.Projection
+import com.productfoundry.akka.cqrs.project.{DirectProjection, ProjectionProvider, ProjectionRevision}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
 
 object DomainAggregatorView {
-  def apply[P <: Projection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
+  def apply[P <: DirectProjection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
     new DomainAggregatorView(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
   }
 }
@@ -18,11 +18,11 @@ object DomainAggregatorView {
 /**
  * Projects domain commits.
  */
-class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends DomainProjectionProvider[P] {
+class DomainAggregatorView[P <: DirectProjection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
 
   private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
 
-  override def getWithRevision(minimum: DomainRevision): Future[StateWithRevision] = {
+  override def getWithRevision(minimum: ProjectionRevision): Future[StateWithRevision] = {
     val stateWithRevisionPromise = Promise[StateWithRevision]()
     ref ! DomainView.RequestState(minimum, stateWithRevisionPromise)
     stateWithRevisionPromise.future
@@ -34,9 +34,9 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
 
     override val viewId: String = s"$persistenceId-view"
 
-    private var stateWithRevision: StateWithRevision = (initial, DomainRevision.Initial)
+    private var stateWithRevision: StateWithRevision = (initial, ProjectionRevision.Initial)
 
-    private var promisesByRevision: Map[DomainRevision, Vector[Promise[StateWithRevision]]] = Map.empty
+    private var promisesByRevision: Map[ProjectionRevision, Vector[Promise[StateWithRevision]]] = Map.empty
 
     override def preStart(): Unit = {
       context.become(recovering)
@@ -44,16 +44,16 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
       super.preStart()
     }
 
-    private def updateState(revision: DomainRevision, eventRecord: AggregateEventRecord): Unit = {
+    private def updateState(revision: ProjectionRevision, eventRecord: AggregateEventRecord): Unit = {
       stateWithRevision = (stateWithRevision._1.project(eventRecord), revision)
     }
 
-    private def savePromise(revision: DomainRevision, promise: Promise[StateWithRevision]): Unit = {
+    private def savePromise(revision: ProjectionRevision, promise: Promise[StateWithRevision]): Unit = {
       val promises = promisesByRevision.get(revision).fold(Vector(promise))(promises => promises :+ promise)
       promisesByRevision = promisesByRevision.updated(revision, promises)
     }
 
-    private def completePromises(revision: DomainRevision): Unit = {
+    private def completePromises(revision: ProjectionRevision): Unit = {
       promisesByRevision.get(revision).foreach { promises =>
         promisesByRevision = promisesByRevision - revision
         promises.foreach(completePromise)
@@ -75,8 +75,8 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
       case ReceiveTimeout =>
         context.setReceiveTimeout(2.seconds)
 
-        DomainRevision.Initial.value to stateWithRevision._2.value foreach { revision =>
-          completePromises(DomainRevision(revision))
+        ProjectionRevision.Initial.value to stateWithRevision._2.value foreach { revision =>
+          completePromises(ProjectionRevision(revision))
         }
 
         context.become(receive)
@@ -102,9 +102,6 @@ class DomainAggregatorView[P <: Projection[P]] private(actorRefFactory: ActorRef
   }
 
   object DomainView {
-
-    case class RequestState(minimum: DomainRevision, promise: Promise[StateWithRevision])
-
+    case class RequestState(minimum: ProjectionRevision, promise: Promise[StateWithRevision])
   }
-
 }

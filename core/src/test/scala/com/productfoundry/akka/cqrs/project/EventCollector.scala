@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.project
 
 import com.productfoundry.akka.cqrs.{AggregateEvent, AggregateEventRecord}
 
-case class EventCollector(events: Vector[AggregateEvent] = Vector.empty) extends Projection[EventCollector] {
+case class EventCollector(events: Vector[AggregateEvent] = Vector.empty) extends DirectProjection[EventCollector] {
 
   /**
    * Projects a single event record.

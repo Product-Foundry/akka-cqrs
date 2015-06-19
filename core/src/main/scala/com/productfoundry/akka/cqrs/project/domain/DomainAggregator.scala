@@ -3,8 +3,7 @@ package com.productfoundry.akka.cqrs.project.domain
 import akka.actor.ActorLogging
 import akka.persistence.{PersistentActor, RecoveryFailure, SnapshotOffer}
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.cqrs.project.domain.DomainAggregator._
-import com.productfoundry.akka.cqrs.publish.EventSubscriber
+import com.productfoundry.akka.cqrs.project.{ProjectionUpdate, ProjectionRevision, Projector}
 
 /**
  * Persistent actor that aggregates all received event records.
@@ -25,20 +24,21 @@ import com.productfoundry.akka.cqrs.publish.EventSubscriber
  */
 class DomainAggregator(override val persistenceId: String, val snapshotInterval: Int = 100)
   extends PersistentActor
-  with EventSubscriber
+  with Projector
   with ActorLogging {
 
   /**
-   * Keeps track of the current revision.
-   *
-   * The revision should increment with every aggregated event record without creating gaps.
-   * Not backed by [[lastSequenceNr]], because mixins can also persist events for internal use, which shouldn't
-   * affect the domain revision.
+   * Uniquely identifies a projection created by the projector.
    */
-  private var revision = DomainRevision.Initial
+  override def projectionId: String = persistenceId
 
   /**
-   * @return the current revision of this aggregator.
+   * Keeps track of the current revision.
+   */
+  private var revision = ProjectionRevision.Initial
+
+  /**
+   * @return the current projection revision of the domain aggregator.
    */
   def currentRevision = revision
 
@@ -50,12 +50,12 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
   /**
    * Handle received event
    */
-  override def eventReceived: ReceiveEventRecord = {
+  override def project: ReceiveEventRecord = {
     case eventRecord: AggregateEventRecord =>
-      persist(DomainCommit(revision.next, eventRecord)) { domainEventRecord =>
-        updateState(domainEventRecord)
+      persist(DomainCommit(revision.next, eventRecord)) { commit =>
+        updateState(commit)
 
-        sender() ! DomainAggregatorRevision(revision)
+        handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
 
         if (revision.value % snapshotInterval == 0) {
           saveSnapshot(revision)
@@ -63,8 +63,8 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
       }
   }
 
-  private def updateState(domainEventRecord: DomainCommit): Unit = {
-    revision = domainEventRecord.revision
+  private def updateState(commit: DomainCommit): Unit = {
+    revision = commit.revision
   }
 
   /**
@@ -75,18 +75,12 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
     case RecoveryFailure(cause) =>
       log.error(cause, "Unable to recover: {}", persistenceId)
 
-    case domainEventRecord: DomainCommit =>
-      log.debug("Recovered: {}", domainEventRecord)
-      updateState(domainEventRecord)
+    case commit: DomainCommit =>
+      log.debug("Recovered: {}", commit)
+      updateState(commit)
 
-    case SnapshotOffer(_, snapshot: DomainRevision) =>
+    case SnapshotOffer(_, snapshot: ProjectionRevision) =>
       log.debug("Recovered revision from snapshot: {}", snapshot)
       revision = snapshot
   }
-}
-
-object DomainAggregator {
-
-  case class DomainAggregatorRevision(revision: DomainRevision)
-
 }

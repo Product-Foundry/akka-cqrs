@@ -3,8 +3,7 @@ package com.productfoundry.akka.cqrs
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.TestActor.{AutoPilot, KeepRunning, NoAutoPilot}
 import akka.testkit._
-import com.productfoundry.akka.cqrs.project.Projection
-import com.productfoundry.akka.cqrs.project.domain.{DomainProjectionProvider, DomainRevision}
+import com.productfoundry.akka.cqrs.project.{DirectProjection, ProjectionProvider, ProjectionRevision}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Future
@@ -28,7 +27,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     TestKit.shutdownActorSystem(system)
   }
 
-  trait AggregateMockFixture[P <: Projection[P]] {
+  trait AggregateMockFixture[P <: DirectProjection[P]] {
 
     val aggregateFactoryProbe = TestProbe()
 
@@ -72,9 +71,9 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      *
      * Revision is incremented for every given or updated event.
      */
-    private val domainRevisionRef = Ref(DomainRevision.Initial)
+    private val domainRevisionRef = Ref(ProjectionRevision.Initial)
 
-    def domainRevision: DomainRevision = domainRevisionRef.single.get
+    def domainRevision: ProjectionRevision = domainRevisionRef.single.get
 
     /**
      * Sets initial state.
@@ -140,9 +139,9 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     /**
      * Atomically provides application state using STM.
      */
-    val projection: DomainProjectionProvider[P] = new DomainProjectionProvider[P] {
+    val projection: ProjectionProvider[P] = new ProjectionProvider[P] {
 
-      override def getWithRevision(minimum: DomainRevision): Future[(P, DomainRevision)] = {
+      override def getWithRevision(minimum: ProjectionRevision): Future[(P, ProjectionRevision)] = {
         atomic { implicit txn =>
           if (domainRevisionRef() < minimum) {
             retry
