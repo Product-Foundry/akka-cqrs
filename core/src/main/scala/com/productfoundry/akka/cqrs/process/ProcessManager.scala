@@ -39,7 +39,6 @@ trait ProcessManager[S, D]
     case publication: EventPublication =>
       publication.confirmIfRequested()
       processDeduplicatable(publication)(duplicate)(unique)
-      eventReceived.applyOrElse(publication.eventRecord, unhandled)
   }
 
   /**
@@ -47,7 +46,7 @@ trait ProcessManager[S, D]
    * @param publication already processed.
    */
   private def duplicate(publication: EventPublication): Unit = {
-    log.debug("Skipping duplicate: {}", eventRecord)
+    log.debug("Skipping duplicate: {}", publication)
   }
 
   /**
@@ -57,6 +56,7 @@ trait ProcessManager[S, D]
   private def unique(publication: EventPublication): Unit = {
     persist(Deduplication.Received(publication.deduplicationId)) { _ =>
       markAsProcessed(publication.deduplicationId)
+      eventReceived.applyOrElse(publication.eventRecord, unhandled)
     }
   }
 

@@ -4,13 +4,10 @@ import akka.actor.{ActorRef, Props}
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.EntityIdResolution.EntityIdResolver
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.cqrs.process.DummyProcessManager.LogEvent
 import com.productfoundry.akka.cqrs.publish.EventPublication
 import com.productfoundry.akka.messaging.Confirmable.Confirm
 import com.productfoundry.support.EntityTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-
-import scala.concurrent.duration._
 
 class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
 
@@ -40,7 +37,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           supervisor ! publication
         }
 
-        val events = receiveN(publications.size).map(_.asInstanceOf[LogEvent].event)
+        val events = receiveN(publications.size).map(_.asInstanceOf[AggregateEvent])
         publications.map(_.eventRecord.event) should contain theSameElementsAs events
       }
 
@@ -60,11 +57,11 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
 
         if (publications.nonEmpty) {
           val results = receiveN(publications.size * 2)
-          val grouped = results.groupBy(_.getClass)
-
-          val events = grouped(classOf[LogEvent]).map(event => event.asInstanceOf[LogEvent].event)
+          val events = results.filter(p => classOf[AggregateEvent].isAssignableFrom(p.getClass))
           publications.map(_.eventRecord.event) should contain theSameElementsAs events
-          grouped(classOf[Confirm]).size should be(events.size)
+
+          val confirmations = results.filter(p => classOf[Confirm].isAssignableFrom(p.getClass))
+          confirmations.size should be(events.size)
         }
       }
 
@@ -80,7 +77,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           supervisor ! publication
         }
 
-        val events = receiveN(publications.size).map(_.asInstanceOf[LogEvent].event)
+        val events = receiveN(publications.size)
         publications.map(_.eventRecord.event) should contain theSameElementsAs events
       }
 
@@ -89,6 +86,9 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
   }
 
   trait ProcessManagerFixture {
+
+    system.eventStream.subscribe(self, classOf[Any])
+
     def createUniquePublications(commit: Commit): Seq[EventPublication] = {
       commit.records.map(EventPublication.apply).groupBy(_.deduplicationId).map(_._2.head).toSeq
     }
