@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
   resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
-lazy val akkaVersion = "2.3.11"
+lazy val akkaVersion = "2.3.12"
 
 lazy val root = (project in file("."))
   .aggregate(inmem, core, test)
