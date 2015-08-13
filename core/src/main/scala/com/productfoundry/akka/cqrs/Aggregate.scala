@@ -215,7 +215,6 @@ trait Aggregate
     revisedState = revisedState.applyCommit(commit)
   }
 
-
   /**
    * Attempts to commit changes.
    *
@@ -250,12 +249,12 @@ trait Aggregate
       val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(tag)
 
       // Dry run commit to make sure this aggregate does not persist invalid state
-      revisedState.applyCommit(commit)
+      val updatedState = revisedState.applyCommit(commit)
 
       // No exception thrown, persist and update state for real
       persist(commit) { _ =>
         // Updating state should never fail, since we already performed a dry run
-        updateState(commit)
+        revisedState = updatedState
 
         // Notify the sender of the commit
         sender() ! AggregateResult.Success(tag, changes.response)
