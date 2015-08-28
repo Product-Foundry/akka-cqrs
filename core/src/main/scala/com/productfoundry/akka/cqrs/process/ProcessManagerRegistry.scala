@@ -6,7 +6,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.productfoundry.akka.cqrs.process.ProcessManagerRegistryActor.Register
 import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
-import com.productfoundry.akka.cqrs.{EntityIdResolution, AggregateEventRecord, DomainContext}
+import com.productfoundry.akka.cqrs.{AggregateEventRecord, DomainContext, EntityIdResolution}
 
 import scala.concurrent.Future
 import scala.language.existentials
@@ -31,6 +31,43 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, domainContext: Do
     val supervisorRef = supervisorFactory.getOrCreate
     val idResolution = implicitly[EntityIdResolution[P]]
     actor ? Register(supervisorName, supervisorRef, idResolution)
+  }
+
+  /**
+   * Registers a process manager.
+   *
+   * Simplifies registering processes by using the companion to resolve dependencies rather than implicits.
+   *
+   * Usage:
+   *
+   *  MyProcess.scala
+   *
+   *  object MyProcess extends ProcessManagerCompanion[MyProcess] {
+   *
+   *    ...
+   *
+   *    def factory(dependency: Dependency, otherDependency: Dependency)
+   *               (implicit ec: ExecutionContext, timeout: Timeout) = new ProcessManagerFactory[MyProcess] {
+   *      override def props(config: PassivationConfig): Props = {
+   *        Props(new MyProcess(config, dependency, otherDependency))
+   *      }
+   *    }
+   *
+   *    ...
+   *
+   *  }
+   *
+   *  Global.scala
+   *
+   *     register(MyProcess.factory(dependency, otherDependency))
+   *
+   * @param factory to create the process manager, can be used to inject any dependency.
+   * @param timeout receive timeout for the process manager.
+   * @tparam P Process manager type.
+   * @return Future that completes when the process manager is registered.
+   */
+  def register[P <: ProcessManager[_, _] : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P])(implicit timeout: Timeout): Future[Any] = {
+    register[P](factory, implicitly[ProcessManagerCompanion[P]].idResolution, implicitly[ClassTag[P]], timeout)
   }
 }
 

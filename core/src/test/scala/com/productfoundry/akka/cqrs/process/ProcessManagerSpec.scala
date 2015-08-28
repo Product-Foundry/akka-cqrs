@@ -1,8 +1,6 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.actor.{ActorRef, Props}
-import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.EntityIdResolution.EntityIdResolver
+import akka.actor.ActorRef
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.publish.EventPublication
 import com.productfoundry.akka.messaging.Confirmable.Confirm
@@ -11,17 +9,9 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyChecks with Fixtures {
 
-  implicit object DummyProcessManagerIdResolution extends EntityIdResolution[DummyProcessManager] {
-    override def entityIdResolver: EntityIdResolver = {
-      case msg: EventPublication => msg.eventRecord.event.id.toString
-    }
-  }
+  implicit def DummyProcessManagerIdResolution = DummyProcessManager.idResolution
 
-  implicit object DummyProcessManagerFactory extends ProcessManagerFactory[DummyProcessManager] {
-    override def props(config: PassivationConfig): Props = {
-      Props(new DummyProcessManager(config))
-    }
-  }
+  implicit def DummyProcessManagerFactory = DummyProcessManager.factory()
 
   implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyProcessManager]
 

@@ -1,8 +1,6 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.actor.Props
 import akka.util.Timeout
-import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.EntityIdResolution._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.publish.EventPublication
@@ -35,11 +33,7 @@ class ProcessManagerRegistrySpec
     }
   }
 
-  implicit object DummyProcessManagerFactory extends ProcessManagerFactory[DummyProcessManager] {
-    override def props(config: PassivationConfig): Props = {
-      Props(new DummyProcessManager(config))
-    }
-  }
+  implicit def DummyProcessManagerFactory = DummyProcessManager.factory()
 
   val duration = 5.seconds
 
