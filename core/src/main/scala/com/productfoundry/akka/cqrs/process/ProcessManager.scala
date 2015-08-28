@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.process
 
 import akka.actor.ActorLogging
 import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, Entity}
+import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.messaging.Deduplication
 
 /**
@@ -72,11 +72,15 @@ trait ProcessManager[S, D]
     case eventRecord: AggregateEventRecord =>
       try {
         eventRecordOption = Some(eventRecord)
-        receiveEventRecord(eventRecord)
+        receiveEvent(eventRecord.tag, eventRecord.headers).applyOrElse(eventRecord.event, unhandled)
       } finally {
         eventRecordOption = None
       }
   }
 
-  def receiveEventRecord: ReceiveEventRecord
+  type ReceiveEvent = PartialFunction[AggregateEvent, Unit]
+
+  def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent
+
+  // TODO [AK] Correlation
 }
