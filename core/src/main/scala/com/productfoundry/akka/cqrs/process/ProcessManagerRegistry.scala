@@ -95,13 +95,18 @@ class ProcessManagerRegistryActor
 
   override def eventReceived: ReceiveEventRecord = {
     case eventRecord: AggregateEventRecord =>
+      // TODO [AK] Guaranteed delivery?
       registrations.foreach { case (supervisorName, registration) =>
-        val publication = EventPublication(eventRecord)
-        if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
-          log.info("{} subscribed to event: {}", supervisorName, eventRecord)
-          registration.supervisorRef ! publication
-        } else {
-          log.info("{} ignores event: {}", supervisorName, eventRecord)
+        try {
+          val publication = EventPublication(eventRecord)
+          if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
+            log.info("{} receives {}", supervisorName, eventRecord.tag)
+            registration.supervisorRef ! publication
+          } else {
+            log.debug("{} ignores {}", supervisorName, eventRecord.tag)
+          }
+        } catch {
+          case e: Exception => log.error(e, "{} crashes handling {}", supervisorName, eventRecord.tag)
         }
       }
   }

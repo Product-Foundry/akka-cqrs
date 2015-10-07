@@ -8,12 +8,17 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
- * Identifier backed by uuid.
+ * EntityId  backed by uuid.
  */
-trait Identifier {
+trait Identifier extends EntityId {
   def uuid: Uuid
 
   override def toString: String = uuid.toString
+
+  /**
+   * @return String representation of the id of the entity.
+   */
+  override def entityId: String = uuid.toString
 }
 
 /**

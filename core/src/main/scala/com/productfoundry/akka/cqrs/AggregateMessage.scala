@@ -5,7 +5,7 @@ package com.productfoundry.akka.cqrs
  */
 trait AggregateMessage extends EntityMessage {
 
-  type Id <: AggregateId
+  type Id <: EntityId
 
   /**
    * Aggregate identity has more specific requirements.

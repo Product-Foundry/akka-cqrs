@@ -53,7 +53,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
     case msg: EntityMessage =>
       // Buffer messages when required
       val entityId = resolveEntityId(msg)
-      val childPath = self.path / entityId
+      val childPath = self.path / entityId.entityId
       val bufferedMessagesOption = bufferedMessagesByPath.get(childPath)
       bufferedMessagesOption match {
         case Some(bufferedMessages) =>
@@ -71,9 +71,9 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
    * @param entityId of the entity.
    * @return Entity actor ref.
    */
-  private def getOrCreateEntity(entityId: String): ActorRef = {
+  private def getOrCreateEntity(entityId: EntityId): ActorRef = {
     val props = entityFactory.props(PassivationConfig(PoisonPill, inactivityTimeout))
-    getOrCreateChild(props, entityId.toString)
+    getOrCreateChild(props, entityId.entityId)
   }
 }
 

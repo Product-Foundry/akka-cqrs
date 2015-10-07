@@ -4,7 +4,7 @@ import com.productfoundry.akka.cqrs.EntityIdResolution.EntityIdResolver
 
 object EntityIdResolution {
 
-  type EntityIdResolver = PartialFunction[Any, String]
+  type EntityIdResolver = PartialFunction[Any, EntityId]
 }
 
 trait EntityIdResolution[A] {

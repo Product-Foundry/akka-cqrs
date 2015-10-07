@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.process
 
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, AggregateEvent, EntityIdResolution}
+import com.productfoundry.akka.cqrs.{EntityId, AggregateEventRecord, AggregateEvent, EntityIdResolution}
 import com.productfoundry.akka.cqrs.EntityIdResolution._
 import com.productfoundry.akka.cqrs.publish.EventPublication
 
@@ -12,7 +12,7 @@ import com.productfoundry.akka.cqrs.publish.EventPublication
  */
 trait ProcessIdResolution[A] extends EntityIdResolution[A] {
 
-  type ProcessIdResolver = PartialFunction[AggregateEvent, String]
+  type ProcessIdResolver = PartialFunction[AggregateEvent, EntityId]
 
   def processIdResolver: ProcessIdResolver
 

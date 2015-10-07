@@ -24,7 +24,7 @@ class ProcessManagerRegistrySpec
   implicit object DummyProcessManagerIdResolution extends EntityIdResolution[DummyProcessManager] {
 
     private def entityIdFromEvent: EntityIdResolver = {
-      case EventWithResolution(id) => id.toString
+      case EventWithResolution(id) => id
     }
 
     override def entityIdResolver: EntityIdResolver = {

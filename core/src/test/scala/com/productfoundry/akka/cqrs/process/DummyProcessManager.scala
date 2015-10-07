@@ -8,7 +8,7 @@ object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] 
 
   override def idResolution: EntityIdResolution[DummyProcessManager] = new ProcessIdResolution[DummyProcessManager] {
     override def processIdResolver: ProcessIdResolver = {
-      case event: AggregateEvent => event.id.toString
+      case event: AggregateEvent => event.id
     }
   }
 

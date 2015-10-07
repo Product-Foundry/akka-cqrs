@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   organization := "com.productfoundry",
-  version := "0.1.22",
+  version := "0.1.23-SNAPSHOT",
 
   scalaVersion := "2.11.7",
 
@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
   resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
-lazy val akkaVersion = "2.3.12"
+lazy val akkaVersion = "2.3.14"
 
 lazy val root = (project in file("."))
   .aggregate(inmem, core, test)
@@ -65,7 +65,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-persistence-experimental"     % akkaVersion,
       "com.typesafe.akka"      %% "akka-cluster"                      % akkaVersion,
-      "com.typesafe.play"      %% "play-json"                         % "2.4.2",
+      "com.typesafe.play"      %% "play-json"                         % "2.4.3",
       "org.scala-stm"          %% "scala-stm"                         % "0.7",
       "org.scalaz"             %% "scalaz-core"                       % "7.0.6"     % "optional",
       "org.scalatest"          %% "scalatest"                         % "2.2.4"     % "test",
