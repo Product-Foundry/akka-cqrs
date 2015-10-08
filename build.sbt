@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   organization := "com.productfoundry",
-  version := "0.1.23",
+  version := "0.1.24-SNAPSHOT",
 
   scalaVersion := "2.11.7",
 
