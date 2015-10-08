@@ -46,7 +46,7 @@ class LocalEventPublisherSpec extends AggregateTestSupport {
 
       val testId = DummyId.generate()
       supervisor ! Create(testId)
-      expectMsgType[AggregateResult.Success]
+      expectMsgType[AggregateStatus.Success]
 
       val eventPublication = publishedEventProbe.expectMsgType[EventPublication]
       val eventRecord = eventPublication.eventRecord

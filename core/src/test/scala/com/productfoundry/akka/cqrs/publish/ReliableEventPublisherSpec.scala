@@ -50,7 +50,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
 
     "republish if not confirmed" in new fixture {
       supervisor ! Count(testId)
-      expectMsgType[AggregateResult.Success]
+      expectMsgType[AggregateStatus.Success]
 
       val eventPublications = 1 to 5 map { _ =>
         publishedEventProbe.expectMsgType[EventPublication]
@@ -66,7 +66,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
 
     "republish after crash" in new fixture {
       supervisor ! Count(testId)
-      expectMsgType[AggregateResult.Success]
+      expectMsgType[AggregateStatus.Success]
 
       // Commit should be published, but we are not confirming
       publishedEventProbe.expectMsgType[EventPublication]
@@ -89,7 +89,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
       // Send a lot of updates and make sure they are all successful
       val tags = 1 to 5 map { _ =>
         supervisor ! Count(testId)
-        expectMsgType[AggregateResult.Success].tag
+        expectMsgType[AggregateStatus.Success].response.tag
       }
 
       // Force redelivery and make sure events on higher revisions are only published after the previous event
@@ -110,7 +110,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
     trait fixture {
       val testId = DummyId.generate()
       supervisor ! Create(testId)
-      expectMsgType[AggregateResult.Success]
+      expectMsgType[AggregateStatus.Success]
 
       val eventPublication = publishedEventProbe.expectMsgType[EventPublication]
       eventPublication.confirmIfRequested()

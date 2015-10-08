@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import com.productfoundry.akka.cqrs.AggregateResult.AggregateResult
+import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
@@ -181,8 +181,8 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * Asserts a success message is sent from the aggregate.
    * @return the success message.
    */
-  def expectMsgSuccess: AggregateResult.Success = {
-    expectMsgType[AggregateResult.Success]
+  def expectMsgSuccess: AggregateStatus.Success = {
+    expectMsgType[AggregateStatus.Success]
   }
 
   /**
@@ -192,7 +192,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @return the error wrapped in the failure message.
    */
   def expectMsgError[T](implicit t: ClassTag[T]): T = {
-    expectMsgType[AggregateResult.Failure].cause.asInstanceOf[T]
+    expectMsgType[AggregateStatus.Failure].cause.asInstanceOf[T]
   }
 
   /**
@@ -200,7 +200,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @param message the expected validation message.
    */
   def expectMsgValidationError(message: ValidationMessage) = {
-    assertValidationError(message, expectMsgType[AggregateResult])
+    assertValidationError(message, expectMsgType[AggregateStatus])
   }
 
   /**
@@ -208,12 +208,12 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @param message the expected failure message.
    * @param status the status.
    */
-  def assertValidationError(message: ValidationMessage, status: AggregateResult): Unit = {
+  def assertValidationError(message: ValidationMessage, status: AggregateStatus): Unit = {
     status match {
-      case success: AggregateResult.Success =>
+      case success: AggregateStatus.Success =>
         fail(s"Unexpected success: $success")
 
-      case AggregateResult.Failure(cause) =>
+      case AggregateStatus.Failure(cause) =>
         cause match {
           case ValidationError(messages) =>
             assert(Seq(message) === messages, s"Unexpected messages: $messages")
@@ -229,11 +229,11 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @tparam C the expected failure class.
    * @param status the status.
    */
-  def assertFailure[C: ClassTag](status: AggregateResult): Unit = {
+  def assertFailure[C: ClassTag](status: AggregateStatus): Unit = {
     status match {
-      case success: AggregateResult.Success => fail(s"Unexpected success: $success")
-      case AggregateResult.Failure(cause: C) =>
-      case AggregateResult.Failure(cause) => fail(s"Unexpected cause: $cause")
+      case success: AggregateStatus.Success => fail(s"Unexpected success: $success")
+      case AggregateStatus.Failure(cause: C) =>
+      case AggregateStatus.Failure(cause) => fail(s"Unexpected cause: $cause")
     }
   }
 
@@ -255,7 +255,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
             supervisor ! command.withExpectedRevision(rev)
-            expectMsgSuccess.tag.revision
+            expectMsgSuccess.response.tag.revision
           }
         }
       }
@@ -267,18 +267,18 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
      * @param cmd to execute.
      * @return status.
      */
-    def command(cmd: AggregateCommand): AggregateResult = {
+    def command(cmd: AggregateCommand): AggregateStatus = {
       atomic { implicit txn =>
-        val statusOptionRef: Ref[Option[AggregateResult]] = Ref(None)
+        val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
 
         revisionRef.transform { revision =>
           supervisor ! cmd.withExpectedRevision(revision)
           expectMsgPF() {
-            case success: AggregateResult.Success =>
+            case success: AggregateStatus.Success =>
               statusOptionRef.set(Some(success))
-              success.tag.revision
+              success.response.tag.revision
 
-            case failure@AggregateResult.Failure(_) =>
+            case failure@AggregateStatus.Failure(_) =>
               statusOptionRef.set(Some(failure))
               revision
           }

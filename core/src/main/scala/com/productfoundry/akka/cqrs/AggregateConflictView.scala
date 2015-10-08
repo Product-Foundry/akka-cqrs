@@ -43,18 +43,18 @@ class AggregateConflictView(override val persistenceId: String, val commander: A
         }
 
         if (revision == conflict.actual) {
-          commander ! AggregateResult.Failure(conflict.withRecords(records.toSeq))
+          commander ! AggregateStatus.Failure(conflict.withRecords(records.toSeq))
           self ! PoisonPill
         }
       }
 
     case ReceiveTimeout =>
-      commander ! AggregateResult.Failure(conflict)
+      commander ! AggregateStatus.Failure(conflict)
       self ! PoisonPill
 
     case RecoveryFailure(cause) =>
       log.error(cause, "Unable to get conflict info for {}", viewId)
-      commander ! AggregateResult.Failure(conflict)
+      commander ! AggregateStatus.Failure(conflict)
       self ! PoisonPill
   }
 }

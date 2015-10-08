@@ -221,9 +221,9 @@ trait Aggregate
    * @param changesAttempt containing changes or a validation failure.
    */
   def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
-    changesAttempt.fold(cause => sender() ! AggregateResult.Failure(cause), { changes =>
+    changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), { changes =>
       if (changes.isEmpty) {
-        sender() ! AggregateResult.Success(tag, AggregateResponse().withPayload(changes.response))
+        sender() ! AggregateStatus.Success(AggregateResponse(tag, changes.response))
       } else {
         commit(changes)
       }
@@ -240,7 +240,7 @@ trait Aggregate
     if (conflict.expected < conflict.actual) {
       context.actorOf(Props(new AggregateConflictView(persistenceId, originalSender, conflict)))
     } else {
-      originalSender ! AggregateResult.Failure(conflict)
+      originalSender ! AggregateStatus.Failure(conflict)
     }
   }
 
@@ -264,10 +264,10 @@ trait Aggregate
         revisedState = updatedState
 
         // Perform additional mixed in commit handling logic
-        val response = handleCommit(commit, AggregateResponse())
+        val response = handleCommit(commit, AggregateResponse(tag, changes.response))
 
         // Notify the sender of the commit
-        sender() ! AggregateResult.Success(tag, response.withPayload(changes.response))
+        sender() ! AggregateStatus.Success(response)
       }
     }
 
