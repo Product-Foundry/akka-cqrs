@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.Props
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.cqrs.project.{ProjectionUpdate, ProjectionUpdateResponseHandler}
+import com.productfoundry.akka.cqrs.project.ProjectionRevision
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
@@ -15,7 +15,7 @@ class DomainAggregatorSpec extends PersistenceTestSupport with GeneratorDrivenPr
       forAll { commit: Commit =>
         commit.records.foreach { eventRecord =>
           domainAggregator ! eventRecord
-          expectMsgType[ProjectionUpdate]
+          expectMsgType[ProjectionRevision]
         }
       }
     }
@@ -24,7 +24,7 @@ class DomainAggregatorSpec extends PersistenceTestSupport with GeneratorDrivenPr
   trait fixture extends {
     val persistenceId = DummyId.generate().toString
 
-    val domainAggregatorProps = Props(new DomainAggregator(persistenceId, snapshotInterval) with ProjectionUpdateResponseHandler)
+    val domainAggregatorProps = Props(new DomainAggregator(persistenceId, snapshotInterval))
 
     val domainAggregator = system.actorOf(domainAggregatorProps)
   }

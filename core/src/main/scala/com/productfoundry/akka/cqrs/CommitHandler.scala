@@ -9,6 +9,8 @@ trait CommitHandler {
   /**
    * Handle a persisted commit.
    * @param commit to handle.
+   * @param response which can be manipulated by additional commit handlers.
+   * @return Updated response.
    */
-  def handleCommit(commit: Commit): Unit
+  def handleCommit(commit: Commit, response: AggregateResponse): AggregateResponse
 }

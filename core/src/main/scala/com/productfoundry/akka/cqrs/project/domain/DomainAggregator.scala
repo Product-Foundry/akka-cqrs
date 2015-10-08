@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.project.domain
 import akka.actor.ActorLogging
 import akka.persistence.{PersistentActor, RecoveryFailure, SnapshotOffer}
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.cqrs.project.{ProjectionUpdate, ProjectionRevision, Projector}
+import com.productfoundry.akka.cqrs.project.{ProjectionRevision, ProjectionUpdate, Projector}
 
 /**
  * Persistent actor that aggregates all received event records.
@@ -57,6 +57,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
 
         handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
 
+        // TODO [AK] This fails when Akka does not know how to serialize revision
         if (revision.value % snapshotInterval == 0) {
           saveSnapshot(revision)
         }
@@ -82,5 +83,14 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
     case SnapshotOffer(_, snapshot: ProjectionRevision) =>
       log.debug("Recovered revision from snapshot: {}", snapshot)
       revision = snapshot
+  }
+
+  /**
+   * Handle a projected update.
+   * @param update to handle.
+   */
+  override def handleProjectedUpdate(update: ProjectionUpdate): Unit = {
+    sender() ! update.revision
+    super.handleProjectedUpdate(update)
   }
 }

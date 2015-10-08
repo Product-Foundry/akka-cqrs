@@ -12,10 +12,12 @@ trait EventPublisher extends CommitHandler with MessagePublisher[EventPublicatio
   /**
    * Handle a persisted commit.
    * @param commit to handle.
+   * @param response which can be manipulated by additional commit handlers.
+   * @return Updated response.
    */
-  override abstract def handleCommit(commit: Commit): Unit = {
+  override abstract def handleCommit(commit: Commit, response: AggregateResponse): AggregateResponse = {
     publishCommit(commit)
-    super.handleCommit(commit)
+    super.handleCommit(commit, response)
   }
 
   /**

@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.Props
-import com.productfoundry.akka.cqrs.project.{EventCollector, ProjectionUpdate, ProjectionUpdateResponseHandler, ProjectionRevision}
+import com.productfoundry.akka.cqrs.project.{EventCollector, ProjectionRevision}
 import com.productfoundry.akka.cqrs.{Commit, Fixtures}
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
@@ -17,7 +17,7 @@ class DomainAggregatorViewSpec extends PersistenceTestSupport with GeneratorDriv
       forAll { commit: Commit =>
         domainRevision = commit.records.foldLeft(domainRevision) { case (_, eventRecord) =>
           domainAggregator ! eventRecord
-          expectMsgType[ProjectionUpdate].revision
+          expectMsgType[ProjectionRevision]
         }
 
         val stateWithRevisionFuture = domainAggregatorView.getWithRevision(domainRevision)
@@ -34,7 +34,7 @@ class DomainAggregatorViewSpec extends PersistenceTestSupport with GeneratorDriv
 
     val persistenceId = randomPersistenceId
 
-    val domainAggregator = system.actorOf(Props(new DomainAggregator(persistenceId) with ProjectionUpdateResponseHandler))
+    val domainAggregator = system.actorOf(Props(new DomainAggregator(persistenceId)))
 
     val recoveryThreshold = 1.millis
 

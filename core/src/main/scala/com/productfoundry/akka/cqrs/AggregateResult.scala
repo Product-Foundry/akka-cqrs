@@ -12,7 +12,7 @@ object AggregateResult {
    * @param tag after the update.
    * @param response of the aggregate.
    */
-  case class Success(tag: AggregateTag, response: Any = Unit) extends AggregateResult
+  case class Success(tag: AggregateTag, response: AggregateResponse) extends AggregateResult
 
   /**
    * Indicates an update failure that can be corrected by the user.

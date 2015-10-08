@@ -244,6 +244,7 @@ trait Aggregate
    */
   private def commit(changes: Changes): Unit = {
 
+    // Performs a commit for the specified changes
     def performCommit(): Unit = {
       // Construct commit to persist
       val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(tag)
@@ -256,26 +257,30 @@ trait Aggregate
         // Updating state should never fail, since we already performed a dry run
         revisedState = updatedState
 
-        // Notify the sender of the commit
-        sender() ! AggregateResult.Success(tag, changes.response)
-
         // Perform additional mixed in commit handling logic
-        handleCommit(commit)
+        val response = handleCommit(commit, AggregateResponse())
+
+        // Notify the sender of the commit
+        sender() ! AggregateResult.Success(tag, response.withPayload(changes.response))
       }
     }
 
+    // Fail revision check.
     def unexpectedRevision(expected: AggregateRevision): Unit = {
       throw new AggregateInternalException("Revision unexpectedly updated between commits")
     }
 
+    // Optionally perform a revision check and only perform the commit if successful
     commandRequest.checkRevision(revision)(performCommit)(unexpectedRevision)
   }
 
   /**
-   * Can be overridden by a mixin to handle commits.
-   * @param commit that just got persisted.
+   * Can be overridden by commit handlers mixins to add additional commit behavior.
+   * @param commit to handle.
+   * @param response which can be manipulated by additional commit handlers.
+   * @return Updated response.
    */
-  override def handleCommit(commit: Commit): Unit = {}
+  override def handleCommit(commit: Commit, response: AggregateResponse): AggregateResponse = response
 
   /**
    * Sends the exception message to the caller.

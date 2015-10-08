@@ -245,16 +245,17 @@ class AggregateSpec extends AggregateTestSupport {
 
   "Aggregate payload" must {
 
-    "be unspecified" in new AggregateFixture {
+    "be empty" in new AggregateFixture {
       supervisor ! Count(testId)
       val status = expectMsgType[AggregateResult.Success]
-      status.response should be(Unit)
+      status.response.payload should be(Unit)
+      status.response.headers shouldBe empty
     }
 
     "be defined by aggregate" in new AggregateFixture {
       supervisor ! CountWithPayload(testId)
       val status = expectMsgType[AggregateResult.Success]
-      status.response should be(0L)
+      status.response.payload should be(0L)
     }
   }
 

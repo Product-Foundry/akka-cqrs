@@ -7,8 +7,6 @@ import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.AggregateTestSupport
 
-import scala.concurrent.duration._
-
 class LocalEventPublisherSpec extends AggregateTestSupport {
 
   implicit object TestAggregateFactory extends AggregateFactory[DummyAggregate] {

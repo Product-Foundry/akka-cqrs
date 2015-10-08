@@ -8,7 +8,15 @@ package com.productfoundry.akka.cqrs
 trait LocalCommitPublisher extends CommitHandler {
   this: Aggregate =>
 
-  override def handleCommit(commit: Commit): Unit = {
+
+  /**
+   * Can be overridden by commit handlers mixins to add additional commit behavior.
+   * @param commit to handle.
+   * @param response which can be manipulated by additional commit handlers.
+   * @return Updated response.
+   */
+  override def handleCommit(commit: Commit, response: AggregateResponse): AggregateResponse = {
     context.system.eventStream.publish(commit)
+    response
   }
 }

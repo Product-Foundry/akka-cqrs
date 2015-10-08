@@ -117,7 +117,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
       val updateEvents = events(aggregateId)
       require(updateEvents.nonEmpty, "At least one event is required after a successful update")
       updateState(updateEvents: _*)
-      aggregateFactoryProbe.reply(AggregateResult.Success(AggregateTag("Mock", aggregateId.toString, aggregateRevision), response))
+      aggregateFactoryProbe.reply(AggregateResult.Success(AggregateTag("Mock", aggregateId.toString, aggregateRevision), AggregateResponse().withPayload(response)))
       aggregateId
     }
 
