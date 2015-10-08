@@ -12,9 +12,9 @@ To include this library into your `sbt` project, add the following lines to your
 
     resolvers += "Product-Foundry at bintray" at "http://dl.bintray.com/productfoundry/maven"
 
-    libraryDependencies += "com.productfoundry" %% "akka-cqrs" % "0.1.20"
+    libraryDependencies += "com.productfoundry" %% "akka-cqrs" % "0.1.24"
 
-This version of `akka-cqrs` is built using Scala 2.11.6.
+This version of `akka-cqrs` is built using Scala 2.11.7.
 
 Usage
 -----
