@@ -56,6 +56,16 @@ class AggregateSpec extends AggregateTestSupport {
       val failure = expectMsgType[Status.Failure]
       failure.cause shouldBe an[AggregateDeletedException]
     }
+
+    "ignore noop" in {
+      val id = DummyId.generate()
+
+      supervisor ! NoOp(id)
+      expectMsgType[AggregateResult.Success].tag.revision should be (AggregateRevision.Initial)
+
+      supervisor ! Create(id)
+      expectMsgType[AggregateResult.Success]
+    }
   }
 
   "Aggregate update" must {
@@ -80,6 +90,16 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! GetCount(testId)
       expectMsg(1)
+    }
+
+    "ignore noop" in {
+      val id = DummyId.generate()
+
+      supervisor ! Create(id)
+      expectMsgType[AggregateResult.Success]
+
+      supervisor ! NoOp(id)
+      expectMsgType[AggregateResult.Success].tag.revision should be (AggregateRevision(1))
     }
 
     "fail for unknown" in {

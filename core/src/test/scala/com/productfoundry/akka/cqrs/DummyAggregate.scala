@@ -42,6 +42,11 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
         Right(Changes(Deleted(aggregateId)))
       }
 
+    case NoOp(aggregateId) =>
+      tryCommit {
+        Right(Changes())
+      }
+
     case GetCount(_) =>
       sender() ! state.count
   }
@@ -78,6 +83,8 @@ object DummyAggregate {
   case class Increment(id: DummyId, amount: Int) extends DummyAggregateCommand
 
   case class Delete(id: DummyId) extends DummyAggregateCommand
+
+  case class NoOp(id: DummyId) extends DummyAggregateCommand
 
   sealed trait DummyEvent extends DummyMessage with AggregateEvent
 

@@ -221,7 +221,13 @@ trait Aggregate
    * @param changesAttempt containing changes or a validation failure.
    */
   def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
-    changesAttempt.fold(cause => sender() ! AggregateResult.Failure(cause), changes => commit(changes))
+    changesAttempt.fold(cause => sender() ! AggregateResult.Failure(cause), { changes =>
+      if (changes.isEmpty) {
+        sender() ! AggregateResult.Success(tag, AggregateResponse().withPayload(changes.response))
+      } else {
+        commit(changes)
+      }
+    })
   }
 
   /**

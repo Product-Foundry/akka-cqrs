@@ -6,6 +6,11 @@ package com.productfoundry.akka.cqrs
 sealed trait Changes {
 
   /**
+   * @return True if there are no changes.
+   */
+  def isEmpty: Boolean
+
+  /**
    * @return changes to apply the aggregate state.
    */
   def events: Seq[AggregateEvent]
@@ -55,17 +60,14 @@ object Changes {
    * @return changes.
    */
   def apply(events: AggregateEvent*): Changes = AggregateChanges(events)
-
-  /**
-   * Create changes from optional changes.
-   * @param event change to apply the aggregate state.
-   * @param eventOptions optional additional changes to apply the aggregate state.
-   * @return changes.
-   */
-  def apply(event: AggregateEvent, eventOptions: Seq[Option[AggregateEvent]]): Changes = AggregateChanges(event +: eventOptions.flatten)
 }
 
 private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, metadata: Map[String, String] = Map.empty) extends Changes {
+
+  /**
+   * @return True if there are no changes.
+   */
+  override def isEmpty: Boolean = events.isEmpty
 
   /**
    * Sets aggregate response payload.
