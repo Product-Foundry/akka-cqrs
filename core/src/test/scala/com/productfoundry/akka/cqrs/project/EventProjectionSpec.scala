@@ -9,7 +9,9 @@ class EventProjectionSpec extends Spec with Fixtures {
 
     "provide access to projected events" in {
       forAll { commit: Commit =>
-        val eventCollector = commit.records.foldLeft(EventCollector())(_ project _)
+        val eventCollector = commit.records.foldLeft(EventCollector()) { case (acc, eventRecord) =>
+          acc.project(ProjectionRevision.Initial, eventRecord)
+        }
         eventCollector.events should contain theSameElementsAs commit.records.map(_.event)
       }
     }

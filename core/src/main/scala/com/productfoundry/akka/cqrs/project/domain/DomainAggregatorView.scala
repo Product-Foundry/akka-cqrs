@@ -3,14 +3,14 @@ package com.productfoundry.akka.cqrs.project.domain
 import akka.actor.{ActorLogging, ActorRefFactory, Props, ReceiveTimeout}
 import akka.persistence._
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.cqrs.project.{DirectProjection, ProjectionProvider, ProjectionRevision}
+import com.productfoundry.akka.cqrs.project.{ProjectionProvider, ProjectionRevision}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
 
 object DomainAggregatorView {
-  def apply[P <: DirectProjection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
+  def apply[P <: DomainProjection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
     new DomainAggregatorView(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
   }
 }
@@ -18,7 +18,7 @@ object DomainAggregatorView {
 /**
  * Projects domain commits.
  */
-class DomainAggregatorView[P <: DirectProjection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
+class DomainAggregatorView[P <: DomainProjection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
 
   private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
 
@@ -45,7 +45,7 @@ class DomainAggregatorView[P <: DirectProjection[P]] private(actorRefFactory: Ac
     }
 
     private def updateState(revision: ProjectionRevision, eventRecord: AggregateEventRecord): Unit = {
-      stateWithRevision = (stateWithRevision._1.project(eventRecord), revision)
+      stateWithRevision = (stateWithRevision._1.project(revision, eventRecord), revision)
     }
 
     private def savePromise(revision: ProjectionRevision, promise: Promise[StateWithRevision]): Unit = {
@@ -102,6 +102,9 @@ class DomainAggregatorView[P <: DirectProjection[P]] private(actorRefFactory: Ac
   }
 
   object DomainView {
+
     case class RequestState(minimum: ProjectionRevision, promise: Promise[StateWithRevision])
+
   }
+
 }

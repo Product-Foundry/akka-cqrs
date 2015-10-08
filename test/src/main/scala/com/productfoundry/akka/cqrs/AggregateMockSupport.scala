@@ -3,7 +3,8 @@ package com.productfoundry.akka.cqrs
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.TestActor.{AutoPilot, KeepRunning, NoAutoPilot}
 import akka.testkit._
-import com.productfoundry.akka.cqrs.project.{DirectProjection, ProjectionProvider, ProjectionRevision}
+import com.productfoundry.akka.cqrs.project.domain.DomainProjection
+import com.productfoundry.akka.cqrs.project.{ProjectionProvider, ProjectionRevision}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Future
@@ -27,7 +28,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     TestKit.shutdownActorSystem(system)
   }
 
-  trait AggregateMockFixture[P <: DirectProjection[P]] {
+  trait AggregateMockFixture[P <: DomainProjection[P]] {
 
     val aggregateFactoryProbe = TestProbe()
 
@@ -98,7 +99,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
           val tag = AggregateTag("", "", aggregateRevisionRef())
           val headers = AggregateEventHeaders()
           val eventRecord = AggregateEventRecord(tag, headers, event)
-          projectionRef.transform(_.project(eventRecord))
+          projectionRef.transform(_.project(domainRevisionRef(), eventRecord))
         }
       }
     }
