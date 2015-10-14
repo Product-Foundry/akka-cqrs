@@ -57,9 +57,8 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
 
         handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
 
-        // TODO [AK] This fails when Akka does not know how to serialize revision
         if (revision.value % snapshotInterval == 0) {
-          saveSnapshot(revision)
+          saveSnapshot(revision.value)
         }
       }
   }
@@ -80,9 +79,9 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
       log.debug("Recovered: {}", commit)
       updateState(commit)
 
-    case SnapshotOffer(_, snapshot: ProjectionRevision) =>
-      log.debug("Recovered revision from snapshot: {}", snapshot)
-      revision = snapshot
+    case SnapshotOffer(_, revisionValue: Long) =>
+      log.debug("Recovered revision from snapshot: {}", revisionValue)
+      revision = ProjectionRevision(revisionValue)
   }
 
   /**
