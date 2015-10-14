@@ -91,6 +91,7 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
   class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
     override def receive: Actor.Receive = {
       case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
+      case Terminated(child) => log.warning("Terminated: {}", child.path)
     }
   }
 
