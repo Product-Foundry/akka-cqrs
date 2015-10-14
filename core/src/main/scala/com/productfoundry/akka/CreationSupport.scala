@@ -18,9 +18,9 @@ trait ActorContextCreationSupport extends CreationSupport {
   def getChild(name: String): Option[ActorRef] = context.child(name)
 
   def createChild(props: Props, name: String): ActorRef = {
-    val actor: ActorRef = context.actorOf(props, name)
+    val actor = context.actorOf(props, name)
     log.debug(s"Actor created: $actor")
-    actor
+    context.watch(actor)
   }
 }
 
