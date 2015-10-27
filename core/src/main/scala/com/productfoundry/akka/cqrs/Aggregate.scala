@@ -151,28 +151,19 @@ trait Aggregate
    */
   override def receiveCommand: Receive = {
     case commandRequest: CommandRequest =>
-      executeIfNotDeleted(handleCommandRequest(commandRequest))
+      handleCommandRequest(commandRequest)
 
     case command: AggregateCommand =>
-      executeIfNotDeleted(handleCommandRequest(CommandRequest(command)))
+      handleCommandRequest(CommandRequest(command))
 
     case message =>
-      executeIfNotDeleted(handleCommand.applyOrElse(message, unhandled))
+      handleCommand.applyOrElse(message, unhandled)
   }
 
   /**
-   * Ensures the block is only executed when the aggregate is not deleted.
-   *
-   * @param block to execute if not deleted.
-   * @throws AggregateDeletedException if the aggregate was deleted.
+   * @return Indication if the aggregate is deleted.
    */
-  private def executeIfNotDeleted(block: => Unit): Unit = {
-    if (stateOption.isEmpty && revision > AggregateRevision.Initial) {
-      throw AggregateDeletedException(revision)
-    } else {
-      block
-    }
-  }
+  private def isDeleted: Boolean = stateOption.isEmpty && revision > AggregateRevision.Initial
 
   /**
    * Handle all commands and keep the command for reference in the aggregate.
@@ -221,13 +212,17 @@ trait Aggregate
    * @param changesAttempt containing changes or a validation failure.
    */
   def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
-    changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), { changes =>
-      if (changes.isEmpty) {
-        sender() ! AggregateStatus.Success(AggregateResponse(tag, changes.response))
-      } else {
-        commit(changes)
-      }
-    })
+    if (isDeleted) {
+      throw AggregateDeletedException(revision)
+    } else {
+      changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), { changes =>
+        if (changes.isEmpty) {
+          sender() ! AggregateStatus.Success(AggregateResponse(tag, changes.response))
+        } else {
+          commit(changes)
+        }
+      })
+    }
   }
 
   /**
