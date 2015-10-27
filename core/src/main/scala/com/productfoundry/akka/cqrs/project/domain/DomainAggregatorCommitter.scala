@@ -30,7 +30,6 @@ trait DomainAggregatorCommitter extends CommitHandler {
     implicit val timeout = commitHandlerTimeout
 
     commit.records.foldLeft(response) { case (updated, eventRecord) =>
-      // TODO [AK] Having a synchronous call here is not great, but this is the only way to get a globally predictable identifier for now
       val projectionRevision = Await.result((domainAggregatorRef ? eventRecord).mapTo[ProjectionRevision], commitHandlerTimeout.duration)
       response.withHeaders(ProjectionRevisionKey -> String.valueOf(projectionRevision.value))
     }
