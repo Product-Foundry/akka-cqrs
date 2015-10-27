@@ -13,11 +13,6 @@ trait Projector extends EventSubscriber with ProjectionUpdateHandler {
   def projectionId: String
 
   /**
-   * Default receive behavior.
-   */
-  override def receive: Receive = receivePublishedEvent
-
-  /**
    * Partial function to handle published aggregate event records.
    */
   override def eventReceived: ReceiveEventRecord = project

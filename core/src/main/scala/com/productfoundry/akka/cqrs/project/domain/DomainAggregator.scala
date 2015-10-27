@@ -53,18 +53,14 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
   override def project: ReceiveEventRecord = {
     case eventRecord: AggregateEventRecord =>
       persist(DomainCommit(revision.next, eventRecord)) { commit =>
-        updateState(commit)
+        revision = commit.revision
 
         handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
 
         if (revision.value % snapshotInterval == 0) {
-          saveSnapshot(revision.value)
+          saveSnapshot(DomainRevisionSnapshot(revision))
         }
       }
-  }
-
-  private def updateState(commit: DomainCommit): Unit = {
-    revision = commit.revision
   }
 
   /**
@@ -77,11 +73,11 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
 
     case commit: DomainCommit =>
       log.debug("Recovered: {}", commit)
-      updateState(commit)
+      revision = commit.revision
 
-    case SnapshotOffer(_, revisionValue: Long) =>
-      log.debug("Recovered revision from snapshot: {}", revisionValue)
-      revision = ProjectionRevision(revisionValue)
+    case SnapshotOffer(_, snapshot: DomainRevisionSnapshot) =>
+      log.debug("Recovered revision from snapshot: {}", snapshot)
+      revision = snapshot.revision
   }
 
   /**
