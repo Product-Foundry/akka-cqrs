@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{ActorLogging, ActorRef, PoisonPill, ReceiveTimeout}
+import akka.actor.{ActorLogging, ActorRef, ReceiveTimeout}
 import akka.persistence.PersistentView
 
 import scala.concurrent.duration._
@@ -44,18 +44,18 @@ class AggregateConflictView(override val persistenceId: String, val commander: A
 
         if (revision == conflict.actual) {
           commander ! AggregateStatus.Failure(conflict.withRecords(records.toSeq))
-          self ! PoisonPill
+          context.stop(self)
         }
       }
 
     case ReceiveTimeout =>
       commander ! AggregateStatus.Failure(conflict)
-      self ! PoisonPill
+      context.stop(self)
   }
 
   override protected def onReplayError(cause: Throwable): Unit = {
     super.onReplayError(cause)
     commander ! AggregateStatus.Failure(conflict)
-    self ! PoisonPill
+    context.stop(self)
   }
 }

@@ -82,7 +82,7 @@ object FanoutPublisher {
     private def confirmIfCompleted(): Unit = {
       if (destinationsByDeliveryId.isEmpty) {
         confirmable.confirmIfRequested()
-        self ! PoisonPill
+        context.stop(self)
       }
     }
   }

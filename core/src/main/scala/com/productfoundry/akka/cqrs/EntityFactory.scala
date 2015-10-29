@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor.Props
-import com.productfoundry.akka.PassivationConfig
+import com.productfoundry.akka.GracefulPassivation.PassivationConfig
 
 /**
  * Creates entities.

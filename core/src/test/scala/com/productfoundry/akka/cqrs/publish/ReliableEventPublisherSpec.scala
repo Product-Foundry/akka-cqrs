@@ -1,8 +1,8 @@
 package com.productfoundry.akka.cqrs.publish
 
-import akka.actor.{Status, ActorPath, ActorRef, Props}
+import akka.actor.{ActorPath, ActorRef, Props, Status}
 import akka.testkit.TestProbe
-import com.productfoundry.akka.PassivationConfig
+import com.productfoundry.akka.GracefulPassivation.PassivationConfig
 import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.support.AggregateTestSupport
