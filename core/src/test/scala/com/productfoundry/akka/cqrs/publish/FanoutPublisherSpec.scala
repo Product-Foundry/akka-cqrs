@@ -4,8 +4,7 @@ import akka.actor.Props
 import akka.testkit.TestProbe
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher.Subscribe
 import com.productfoundry.akka.cqrs.{DummyConfirmable, Fixtures}
-import com.productfoundry.akka.messaging.Confirmable
-import com.productfoundry.akka.messaging.Confirmable._
+import com.productfoundry.akka.messaging.{ConfirmDelivery, Confirmable}
 import com.productfoundry.support.PersistenceTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
@@ -71,7 +70,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
             subscriber.expectMsgType[Confirmable].confirmIfRequested()
           }
 
-          expectMsgType[Confirm].deliveryId should be(deliveryId)
+          expectMsgType[ConfirmDelivery].deliveryId should be(deliveryId)
         }
       }
     }
@@ -82,7 +81,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
 
         val deliveryId = Random.nextLong()
         subject ! confirmable.requestConfirmation(deliveryId)
-        expectMsgType[Confirm].deliveryId should be(deliveryId)
+        expectMsgType[ConfirmDelivery].deliveryId should be(deliveryId)
       }
     }
   }
@@ -125,7 +124,7 @@ class FanoutPublisherSpec extends PersistenceTestSupport with GeneratorDrivenPro
           unconfirmed = confirmSome(unconfirmed)
         }
 
-        expectMsgType[Confirm].deliveryId should be(deliveryId)
+        expectMsgType[ConfirmDelivery].deliveryId should be(deliveryId)
       }
     }
   }

@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.process
 import akka.actor.ActorRef
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.publish.EventPublication
-import com.productfoundry.akka.messaging.Confirmable.Confirm
+import com.productfoundry.akka.messaging.ConfirmDelivery
 import com.productfoundry.support.EntityTestSupport
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
@@ -50,7 +50,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
           val events = results.filter(p => classOf[AggregateEvent].isAssignableFrom(p.getClass))
           publications.map(_.eventRecord.event) should contain theSameElementsAs events
 
-          val confirmations = results.filter(p => classOf[Confirm].isAssignableFrom(p.getClass))
+          val confirmations = results.filter(p => classOf[ConfirmDelivery].isAssignableFrom(p.getClass))
           confirmations.size should be(events.size)
         }
       }

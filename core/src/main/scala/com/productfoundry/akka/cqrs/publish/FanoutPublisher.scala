@@ -3,8 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor._
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher.PublicationHandler._
 import com.productfoundry.akka.cqrs.publish.FanoutPublisher._
-import com.productfoundry.akka.messaging.Confirmable
-import com.productfoundry.akka.messaging.Confirmable.Confirm
+import com.productfoundry.akka.messaging.{ConfirmDelivery, Confirmable}
 
 import scala.concurrent.duration._
 import scala.language.existentials
@@ -60,7 +59,7 @@ object FanoutPublisher {
 
     override def receive: Receive = {
 
-      case Confirm(deliveryId) =>
+      case ConfirmDelivery(deliveryId) =>
         destinationsByDeliveryId = destinationsByDeliveryId - deliveryId
         confirmIfCompleted()
 

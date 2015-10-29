@@ -6,7 +6,7 @@ import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.project.ProjectionRevision
 import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainRevisionSnapshot}
-import com.productfoundry.akka.messaging.{Confirmable, Deduplication}
+import com.productfoundry.akka.messaging.{ConfirmedDelivery, Deduplication}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
 import scala.language.existentials
@@ -22,7 +22,7 @@ trait Persistable extends Serializable
 class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest with BaseSerializer {
 
   val CommitManifest = "Commit"
-  val ConfirmedManifest = "Confirmed"
+  val ConfirmedDeliveryManifest = "ConfirmedDelivery"
   val DomainCommitManifest = "DomainCommit"
   val DomainSnapshotManifest = "DomainSnapshot"
   val ReceivedManifest = "Received"
@@ -31,33 +31,26 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
   override def manifest(o: AnyRef): String = o match {
     case _: Commit => CommitManifest
-    case _: Confirmable.Confirmed => ConfirmedManifest
+    case _: ConfirmedDelivery => ConfirmedDeliveryManifest
     case _: DomainCommit => DomainCommitManifest
     case _: DomainRevisionSnapshot => DomainSnapshotManifest
     case _: Deduplication.Received => ReceivedManifest
   }
 
-  override def toBinary(o: AnyRef): Array[Byte] = {
-
-    o match {
-      case c: Commit => persistentCommit(c).build().toByteArray
-      case c: Confirmable.Confirmed => persistentConfirmed(c).build().toByteArray
-      case d: DomainCommit => persistentDomainCommit(d).build().toByteArray
-      case d: DomainRevisionSnapshot => persistentDomainRevisionSnapshot(d).build().toByteArray
-      case r: Deduplication.Received => persistentReceived(r).build().toByteArray
-    }
+  override def toBinary(o: AnyRef): Array[Byte] = o match {
+    case c: Commit => persistentCommit(c).build().toByteArray
+    case c: ConfirmedDelivery => persistentConfirmedDelivery(c).build().toByteArray
+    case d: DomainCommit => persistentDomainCommit(d).build().toByteArray
+    case d: DomainRevisionSnapshot => persistentDomainRevisionSnapshot(d).build().toByteArray
+    case r: Deduplication.Received => persistentReceived(r).build().toByteArray
   }
 
-  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = {
-    val result = manifest match {
-      case CommitManifest => commit(proto.PersistentCommit.parseFrom(bytes))
-      case ConfirmedManifest => confirmed(proto.PersistentConfirmed.parseFrom(bytes))
-      case DomainCommitManifest => domainCommit(proto.PersistentDomainCommit.parseFrom(bytes))
-      case DomainSnapshotManifest => domainRevisionSnapshot(proto.PersistentDomainRevisionSnapshot.parseFrom(bytes))
-      case ReceivedManifest => received(proto.PersistentReceived.parseFrom(bytes))
-    }
-
-    result
+  override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
+    case CommitManifest => commit(proto.PersistentCommit.parseFrom(bytes))
+    case ConfirmedDeliveryManifest => confirmedDelivery(proto.PersistentConfirmed.parseFrom(bytes))
+    case DomainCommitManifest => domainCommit(proto.PersistentDomainCommit.parseFrom(bytes))
+    case DomainSnapshotManifest => domainRevisionSnapshot(proto.PersistentDomainRevisionSnapshot.parseFrom(bytes))
+    case ReceivedManifest => received(proto.PersistentReceived.parseFrom(bytes))
   }
 
   private def commit(persistentCommit: proto.PersistentCommit): Commit = {
@@ -77,9 +70,9 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def confirmed(persistentConfirmed: proto.PersistentConfirmed): Confirmable.Confirmed = {
-    Confirmable.Confirmed(
-      persistentConfirmed.getDeliveryId
+  private def confirmedDelivery(persistentConfirmedDelivery: proto.PersistentConfirmed): ConfirmedDelivery = {
+    ConfirmedDelivery(
+      persistentConfirmedDelivery.getDeliveryId
     )
   }
 
@@ -160,9 +153,9 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentConfirmed(confirmed: Confirmable.Confirmed): proto.PersistentConfirmed.Builder = {
+  private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.PersistentConfirmed.Builder = {
     val builder = proto.PersistentConfirmed.newBuilder()
-    builder.setDeliveryId(confirmed.deliveryId)
+    builder.setDeliveryId(confirmedDelivery.deliveryId)
     builder
   }
 

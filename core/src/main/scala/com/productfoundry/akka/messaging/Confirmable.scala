@@ -1,7 +1,6 @@
 package com.productfoundry.akka.messaging
 
 import akka.actor.ActorRef
-import com.productfoundry.akka.messaging.Confirmable._
 import com.productfoundry.akka.serialization.Persistable
 
 /**
@@ -14,7 +13,7 @@ trait Confirmable {
   /**
    * Contains confirmation details in case we requested confirmation.
    */
-  def confirmationOption: Option[ConfirmationRequest]
+  def confirmationOption: Option[ConfirmDeliveryRequest]
 
   /**
    * Creates a new confirmable with a confirmation request.
@@ -26,33 +25,30 @@ trait Confirmable {
    */
   def confirmIfRequested(): Unit = {
     confirmationOption.foreach { confirmation =>
-      confirmation.target ! Confirm(confirmation.deliveryId)
+      confirmation.target ! ConfirmDelivery(confirmation.deliveryId)
     }
   }
 }
 
-object Confirmable {
+/**
+ * Use to store information required in the confirm message.
+ * @param target to receive the confirmation.
+ * @param deliveryId to confirm.
+ */
+case class ConfirmDeliveryRequest(target: ActorRef, deliveryId: Long)
 
-  /**
-   * Use to store information required in the confirm message.
-   * @param target to receive the confirmation.
-   * @param deliveryId to confirm.
-   */
-  case class ConfirmationRequest(target: ActorRef, deliveryId: Long)
+/**
+ * Confirms a delivery.
+ *
+ * @param deliveryId of the delivered event.
+ */
+case class ConfirmDelivery(deliveryId: Long)
 
-  /**
-   * Confirms a delivery.
-   *
-   * @param deliveryId of the delivered event.
-   */
-  case class Confirm(deliveryId: Long)
-
-  /**
-   * Confirmed delivery.
-   *
-   * Should be persisted as an event.
-   *
-   * @param deliveryId of the delivered event.
-   */
-  case class Confirmed(deliveryId: Long) extends Persistable
-}
+/**
+ * Confirmed delivery.
+ *
+ * Should be persisted as an event.
+ *
+ * @param deliveryId of the delivered event.
+ */
+case class ConfirmedDelivery(deliveryId: Long) extends Persistable

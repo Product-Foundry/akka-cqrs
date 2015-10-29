@@ -3,7 +3,7 @@ package com.productfoundry.akka.cqrs.publish
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
 import akka.persistence.{PersistentActor, AtLeastOnceDelivery}
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.messaging.Confirmable._
+import com.productfoundry.akka.messaging.{ConfirmDelivery, ConfirmedDelivery}
 
 import scala.concurrent.duration._
 
@@ -59,7 +59,7 @@ trait ReliableEventPublisher
       super.receiveRecover(commit)
       publishCommit(commit)
 
-    case Confirmed(deliveryId) =>
+    case ConfirmedDelivery(deliveryId) =>
       handleConfirmation(deliveryId)
 
     case event if super.receiveRecover.isDefinedAt(event) =>
@@ -71,8 +71,8 @@ trait ReliableEventPublisher
    */
   abstract override def receiveCommand: Receive = {
 
-    case Confirm(deliveryId) =>
-      persist(Confirmed(deliveryId)) { _ =>
+    case ConfirmDelivery(deliveryId) =>
+      persist(ConfirmedDelivery(deliveryId)) { _ =>
         handleConfirmation(deliveryId)
       }
 

@@ -2,8 +2,7 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{Actor, ActorRef}
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityMessage}
-import com.productfoundry.akka.messaging.Confirmable._
-import com.productfoundry.akka.messaging.{Confirmable, Deduplicatable}
+import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, Confirmable, Deduplicatable}
 
 trait EventPublication extends Confirmable with Deduplicatable with EntityMessage {
 
@@ -51,11 +50,11 @@ object EventPublication {
 }
 
 private[this] case class EventPublicationImpl(eventRecord: AggregateEventRecord,
-                                              confirmationOption: Option[ConfirmationRequest] = None,
+                                              confirmationOption: Option[ConfirmDeliveryRequest] = None,
                                               commanderOption: Option[ActorRef] = None) extends EventPublication {
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): EventPublication = {
-    copy(confirmationOption = Some(ConfirmationRequest(requester, deliveryId)))
+    copy(confirmationOption = Some(ConfirmDeliveryRequest(requester, deliveryId)))
   }
 
   override def includeCommander(commander: ActorRef): EventPublication = {
