@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor.{ActorRef, Props, Status}
-import com.productfoundry.akka.GracefulPassivation.PassivationConfig
+import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.CommandRequest._
 import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.support.AggregateTestSupport

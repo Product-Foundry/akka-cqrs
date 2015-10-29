@@ -2,8 +2,9 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import com.productfoundry.akka.GracefulPassivation
+import com.productfoundry.akka.Passivate
 import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
+import com.productfoundry.akka.cqrs.CommandRequest._
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
@@ -12,8 +13,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
-
-import CommandRequest._
 
 /**
  * Base spec for testing aggregates.
@@ -113,7 +112,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   def terminateConfirmed(actors: ActorRef*): Unit = {
     actors.foreach { actor =>
       watch(actor)
-      actor ! GracefulPassivation.Shutdown
+      actor ! Passivate
       // wait until supervisor is terminated
       fishForMessage(1.seconds) {
         case Terminated(_) =>

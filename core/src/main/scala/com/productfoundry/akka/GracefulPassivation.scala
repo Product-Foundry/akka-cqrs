@@ -1,29 +1,26 @@
 package com.productfoundry.akka
 
 import akka.actor.{Actor, ReceiveTimeout}
-import com.productfoundry.akka.GracefulPassivation.{Passivate, PassivationConfig}
 
 import scala.concurrent.duration._
 
-object GracefulPassivation {
-  /**
-   * The default stop message
-   */
-  case object Shutdown
+/**
+ * The default passivation message
+ */
+case object Passivate
 
-  /**
-   * Sent to the parent upon receive timeout.
-   * @param stopMessage to receive back from parent.
-   */
-  case class Passivate(stopMessage: Any)
+/**
+ * Sent to the parent upon receive timeout.
+ * @param stopMessage to receive back from parent.
+ */
+case class PassivationRequest(stopMessage: Any)
 
-  /**
-   * Configures passivation behavior.
-   * @param passivationMessage to send after inactivity timeout.
-   * @param inactivityTimeout after which to send the passivation message.
-   */
-  case class PassivationConfig(passivationMessage: Any = Shutdown, inactivityTimeout: Duration = 30.minutes)
-}
+/**
+ * Configures passivation behavior.
+ * @param passivationMessage to send after inactivity timeout.
+ * @param inactivityTimeout after which to send the passivation message.
+ */
+case class PassivationConfig(passivationMessage: Any = Passivate, inactivityTimeout: Duration = 30.minutes)
 
 /**
  * Allows graceful passivation of actors.
@@ -49,7 +46,7 @@ trait GracefulPassivation extends Actor {
    */
   override def unhandled(message: Any): Unit = {
     message match {
-      case ReceiveTimeout => context.parent ! Passivate(passivationConfig.passivationMessage)
+      case ReceiveTimeout => context.parent ! PassivationRequest(passivationConfig.passivationMessage)
       case msg if msg == passivationConfig.passivationMessage => context.stop(self)
       case _ => super.unhandled(message)
     }

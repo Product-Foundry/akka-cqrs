@@ -2,8 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.testkit.TestProbe
-import com.productfoundry.akka.GracefulPassivation
-import com.productfoundry.akka.GracefulPassivation.PassivationConfig
+import com.productfoundry.akka.{Passivate, PassivationConfig}
 import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.support.AggregateTestSupport
 
@@ -28,7 +27,7 @@ class LocalDomainContextSpec extends AggregateTestSupport {
       expectMsgType[AggregateStatus.Success]
 
       probe.watch(lastSender)
-      lastSender ! GracefulPassivation.Shutdown
+      lastSender ! Passivate
       probe.expectMsgType[Terminated]
 
       Thread.sleep(1000)

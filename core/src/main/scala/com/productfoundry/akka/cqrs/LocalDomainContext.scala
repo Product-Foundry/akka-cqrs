@@ -2,8 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.util.Timeout
-import com.productfoundry.akka.GracefulPassivation.{PassivationConfig, Passivate}
-import com.productfoundry.akka.ActorContextCreationSupport
+import com.productfoundry.akka.{PassivationConfig, PassivationRequest, ActorContextCreationSupport}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -32,7 +31,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
   private var bufferedMessagesByPath: Map[ActorPath, Vector[BufferedMessage]] = Map.empty
 
   override def receive: Actor.Receive = {
-    case Passivate(stopMessage) =>
+    case PassivationRequest(stopMessage) =>
       val childPath = sender().path
       log.debug("Passivating: {}", childPath)
 

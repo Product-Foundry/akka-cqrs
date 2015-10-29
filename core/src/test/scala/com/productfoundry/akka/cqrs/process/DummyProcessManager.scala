@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs.process
 
 import akka.actor.Props
-import com.productfoundry.akka.GracefulPassivation.PassivationConfig
+import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.{AggregateEvent, AggregateEventHeaders, AggregateTag, EntityIdResolution}
 
 object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] {
