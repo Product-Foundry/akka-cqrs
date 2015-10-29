@@ -2,13 +2,11 @@ package com.productfoundry.akka.cqrs
 
 import java.util.UUID
 
-import play.api.libs.json.{Reads, Writes, Format}
-
 import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
- * EntityId  backed by uuid.
+ * EntityId backed by uuid.
  */
 trait Identifier extends EntityId {
   def uuid: Uuid
@@ -40,8 +38,6 @@ abstract class IdentifierCompanion[I <: Identifier: ClassTag] {
     case IdentifierRegex(uuid) => Try(apply(UUID.fromString(uuid))).toOption
     case _ => None
   }
-
-  implicit val IdentifierFormat: Format[I] = Format(Reads.of[Uuid].map(apply), Writes(a => Writes.of[Uuid].writes(a.uuid)))
 
   implicit val IdentifierCompanionObject: IdentifierCompanion[I] = this
 

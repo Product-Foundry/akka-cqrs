@@ -1,5 +1,7 @@
 package com.productfoundry.support
 
+import java.util.UUID
+
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
@@ -16,7 +18,7 @@ abstract class PersistenceTestSupport
   with BeforeAndAfterAll
   with Eventually {
 
-  def randomPersistenceId = PersistenceId.generate().toString
+  def randomPersistenceId = UUID.randomUUID.toString
 
   implicit override val patienceConfig = PatienceConfig(
     timeout = scaled(Span(500, Millis)),

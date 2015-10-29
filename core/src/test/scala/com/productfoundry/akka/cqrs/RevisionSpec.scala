@@ -1,24 +1,10 @@
 package com.productfoundry.akka.cqrs
 
 import com.productfoundry.support.Spec
-import com.productfoundry.support.TestSupport._
-import play.api.libs.json.Json
 
 class RevisionSpec extends Spec with Fixtures {
 
   "Revisions" must {
-
-    "serialize to/from json" in {
-      forAll { revision: TestRevision =>
-        Json.toJson(revision).as[TestRevision] should be(revision)
-      }
-    }
-
-    "be serializable" in {
-      forAll { revision: TestRevision =>
-        deserializeBytes(serializeBytes(revision)) should be(revision)
-      }
-    }
 
     "parse from string" in {
       forAll { revision: TestRevision =>

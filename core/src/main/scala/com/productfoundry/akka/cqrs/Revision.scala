@@ -1,7 +1,5 @@
 package com.productfoundry.akka.cqrs
 
-import play.api.libs.json.{Format, Reads, Writes}
-
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -19,12 +17,13 @@ trait Revision[R <: Revision[R]] extends Proxy with Ordered[R] with Serializable
   override def compare(that: R): Int = value compare that.value
 
   /**
-   * Returns the next evision
-   * @param companion
-   * @return
+   * @return The next revision
    */
   def next(implicit companion: RevisionCompanion[R]): R = companion.apply(value + 1L)
 
+  /**
+   * @return Infinite stream of upcoming revisions, starting with the next revision
+   */
   def upcoming(implicit companion: RevisionCompanion[R]): Stream[R] = Stream.iterate(next)(_.next)
 }
 
@@ -35,8 +34,6 @@ abstract class RevisionCompanion[R <: Revision[R] : ClassTag] {
   def fromString(s: String): Option[R] = Try(apply(s.toLong)).toOption
 
   implicit val RevisionCompanionObject: RevisionCompanion[R] = this
-
-  implicit val RevisionFormat: Format[R] = Format(Reads.of[Long].map(apply), Writes(a => Writes.of[Long].writes(a.value)))
 
   lazy val Initial = apply(0L)
 }
