@@ -1,7 +1,6 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
-import akka.persistence.RecoveryFailure
 
 /**
  * Aggregate.
@@ -196,7 +195,6 @@ trait Aggregate
    */
   override def receiveRecover: Receive = {
     case commit: Commit => updateState(commit)
-    case RecoveryFailure(cause) => log.error(cause, "Unable to recover: {}", persistenceId)
   }
 
   /**

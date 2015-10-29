@@ -3,14 +3,15 @@ package com.productfoundry.akka.journal
 import java.util.concurrent.Callable
 
 import akka.dispatch.Futures
-import akka.persistence.journal.SyncWriteJournal
-import akka.persistence.{PersistentConfirmation, PersistentId, PersistentRepr}
+import akka.persistence.journal.AsyncWriteJournal
+import akka.persistence.{AtomicWrite, PersistentRepr}
 import akka.serialization.SerializationExtension
 
 import scala.collection.immutable.{Seq, TreeMap}
 import scala.concurrent.Future
+import scala.util.Try
 
-class InMemoryJournal extends SyncWriteJournal {
+class InMemoryJournal extends AsyncWriteJournal {
 
   type Stream = Map[Long, Array[Byte]]
 
@@ -21,12 +22,15 @@ class InMemoryJournal extends SyncWriteJournal {
   private def persistentStream(persistenceId: String): Stream = {
     journal.getOrElse(persistenceId, {
       val stream = TreeMap.empty[Long, Array[Byte]]
-      updateJournal(persistenceId, stream)
+      journal = journal.updated(persistenceId, stream)
       stream
     })
   }
 
   override def asyncReplayMessages(persistenceId: String, fromSequenceNr: Long, toSequenceNr: Long, max: Long)(replayCallback: (PersistentRepr) => Unit): Future[Unit] = {
+
+    def deserialize(bytes: Array[Byte]): PersistentRepr = serialization.deserialize(bytes, classOf[PersistentRepr]).get
+
     Futures.future(
       new Callable[Unit] {
         override def call(): Unit = {
@@ -57,66 +61,33 @@ class InMemoryJournal extends SyncWriteJournal {
     )
   }
 
-  override def writeMessages(messages: Seq[PersistentRepr]): Unit = {
-    messages.foreach { message =>
-      updateStream(message.persistenceId, message.sequenceNr, message)
+  override def asyncWriteMessages(messages: Seq[AtomicWrite]): Future[Seq[Try[Unit]]] = {
+    val results = messages.map { atomicWrite =>
+      val persistenceId = atomicWrite.persistenceId
+      val stream = journal.getOrElse(persistenceId, TreeMap.empty[Long, Array[Byte]])
+
+      val maybeUpdatedStream = atomicWrite.payload.foldLeft(Try(stream)) {
+        case (acc, persistent) =>
+          serialization.serialize(persistent).flatMap { bytes =>
+            acc.map(_.updated(persistent.sequenceNr, bytes))
+          }
+      }
+
+      maybeUpdatedStream.map[Unit](updatedStream => journal = journal.updated(persistenceId, updatedStream))
     }
+
+    Future.successful(results)
   }
 
-  override def writeConfirmations(confirmations: Seq[PersistentConfirmation]): Unit = {
-    confirmations.foreach { confirmation =>
-      val stream = persistentStream(confirmation.persistenceId)
-      val bytesOption = stream.get(confirmation.sequenceNr)
-      bytesOption.foreach { bytes =>
-        val message = deserialize(bytes)
-        val confirms = confirmation.channelId +: message.confirms
-        val update = message.update(confirms = confirms)
-        updateStream(confirmation.persistenceId, update.sequenceNr, update)
+  override def asyncDeleteMessagesTo(persistenceId: String, toSequenceNr: Long): Future[Unit] = {
+    Future.fromTry[Unit] {
+      Try {
+        journal = journal.updated(persistenceId, persistentStream(persistenceId).filterKeys(_ > toSequenceNr))
       }
     }
-  }
-
-  override def deleteMessages(messageIds: Seq[PersistentId], permanent: Boolean): Unit = {
-    if (permanent) {
-      messageIds.foreach(messageId => updateJournal(messageId.processorId, persistentStream(messageId.processorId) - messageId.sequenceNr))
-    } else {
-      messageIds.foreach { messageId =>
-        val stream = persistentStream(messageId.processorId)
-        val bytesOption = stream.get(messageId.sequenceNr)
-        bytesOption.foreach { bytes =>
-          val message = deserialize(bytes)
-          val update = message.update(deleted = true)
-          updateStream(messageId.processorId, update.sequenceNr, update)
-        }
-      }
-    }
-  }
-
-  override def deleteMessagesTo(persistenceId: String, toSequenceNr: Long, permanent: Boolean): Unit = {
-    if (permanent) {
-      updateJournal(persistenceId, persistentStream(persistenceId).filterKeys(_ > toSequenceNr))
-    } else {
-      persistentStream(persistenceId).filterKeys(_ <= toSequenceNr).values.foreach { bytes =>
-        val message = deserialize(bytes)
-        val update = message.update(deleted = true)
-        updateStream(persistenceId, update.sequenceNr, update)
-      }
-    }
-  }
-
-  private def updateStream(processorId: String, sequenceNr: Long, message: PersistentRepr): Unit = {
-    updateJournal(processorId, persistentStream(processorId).updated(sequenceNr, serialize(message)))
-  }
-
-  private def updateJournal(processorId: String, stream: Stream): Unit = {
-    journal = journal.updated(processorId, stream)
   }
 
   override def postStop(): Unit = {
     journal = Map.empty
   }
-
-  private def serialize(repr: PersistentRepr): Array[Byte] = serialization.serialize(repr).get
-
-  private def deserialize(bytes: Array[Byte]): PersistentRepr = serialization.deserialize(bytes, classOf[PersistentRepr]).get
 }

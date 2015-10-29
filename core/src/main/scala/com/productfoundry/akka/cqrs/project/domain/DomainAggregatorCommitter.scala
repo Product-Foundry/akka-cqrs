@@ -12,6 +12,7 @@ import scala.concurrent.Await
 /**
  * Naive commit handler that sends all commits to the domain aggregator.
  */
+@deprecated("use Persistence Query instead", "0.1.28")
 trait DomainAggregatorCommitter extends CommitHandler {
   this: Aggregate =>
 
@@ -36,6 +37,7 @@ trait DomainAggregatorCommitter extends CommitHandler {
   }
 }
 
+@deprecated("use Persistence Query instead", "0.1.28")
 object DomainAggregatorCommitter {
 
   private val ProjectionRevisionKey = "ProjectionRevision"

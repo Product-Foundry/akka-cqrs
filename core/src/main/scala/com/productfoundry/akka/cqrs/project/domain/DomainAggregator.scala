@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.ActorLogging
-import akka.persistence.{PersistentActor, RecoveryFailure, SnapshotOffer}
+import akka.persistence.{PersistentActor, SnapshotOffer}
 import com.productfoundry.akka.cqrs.AggregateEventRecord
 import com.productfoundry.akka.cqrs.project.{ProjectionRevision, ProjectionUpdate, Projector}
 
@@ -22,6 +22,7 @@ import com.productfoundry.akka.cqrs.project.{ProjectionRevision, ProjectionUpdat
  * @param persistenceId used for persisting all received events.
  * @param snapshotInterval defines how often a snapshot is created, defaults to snapshot after every 100 aggregated event records.
  */
+@deprecated("use Persistence Query instead", "0.1.28")
 class DomainAggregator(override val persistenceId: String, val snapshotInterval: Int = 100)
   extends PersistentActor
   with Projector
@@ -67,9 +68,6 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
    * Recover domain revision
    */
   override def receiveRecover: Receive = {
-
-    case RecoveryFailure(cause) =>
-      log.error(cause, "Unable to recover: {}", persistenceId)
 
     case commit: DomainCommit =>
       log.debug("Recovered: {}", commit)

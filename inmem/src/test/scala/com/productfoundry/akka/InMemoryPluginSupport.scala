@@ -2,7 +2,7 @@ package com.productfoundry.akka
 
 import com.typesafe.config.ConfigFactory
 
-trait InMemoryPluginSupport {
+object InMemoryPluginSupport {
 
   lazy val config = ConfigFactory.parseString(
     """

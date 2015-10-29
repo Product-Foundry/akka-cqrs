@@ -10,4 +10,5 @@ import com.productfoundry.akka.serialization.Persistable
  * @param revision of the domain aggregator.
  * @param eventRecord that was aggregated.
  */
+@deprecated("use Persistence Query instead", "0.1.28")
 case class DomainCommit(revision: ProjectionRevision, eventRecord: AggregateEventRecord) extends Persistable

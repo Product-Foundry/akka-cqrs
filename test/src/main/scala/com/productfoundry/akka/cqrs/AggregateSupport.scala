@@ -7,6 +7,7 @@ import org.scalatest._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
@@ -128,7 +129,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    */
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
-    system.awaitTermination()
+    Await.result(system.whenTerminated, 10.seconds)
   }
 
   /**

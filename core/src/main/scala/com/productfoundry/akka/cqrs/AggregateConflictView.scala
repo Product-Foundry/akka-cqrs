@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor.{ActorLogging, ActorRef, PoisonPill, ReceiveTimeout}
-import akka.persistence.{RecoveryFailure, PersistentView, Recover}
+import akka.persistence.PersistentView
 
 import scala.concurrent.duration._
 
@@ -51,10 +51,11 @@ class AggregateConflictView(override val persistenceId: String, val commander: A
     case ReceiveTimeout =>
       commander ! AggregateStatus.Failure(conflict)
       self ! PoisonPill
+  }
 
-    case RecoveryFailure(cause) =>
-      log.error(cause, "Unable to get conflict info for {}", viewId)
-      commander ! AggregateStatus.Failure(conflict)
-      self ! PoisonPill
+  override protected def onReplayError(cause: Throwable): Unit = {
+    super.onReplayError(cause)
+    commander ! AggregateStatus.Failure(conflict)
+    self ! PoisonPill
   }
 }

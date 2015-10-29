@@ -123,7 +123,7 @@ trait ReliableEventPublisher
    * @param eventPublication to publish.
    */
   private def publishDirectly(eventPublication: EventPublication): Unit = {
-    deliver(publishTarget, deliveryId => {
+    deliver(publishTarget)(deliveryId => {
       assert(currentPublicationOption.isEmpty, "Unconfirmed publication pending")
       val publication = eventPublication.requestConfirmation(deliveryId)
       currentPublicationOption = Some(publication)

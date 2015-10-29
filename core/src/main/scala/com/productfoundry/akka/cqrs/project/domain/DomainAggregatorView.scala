@@ -8,7 +8,7 @@ import com.productfoundry.akka.cqrs.project.{ProjectionProvider, ProjectionRevis
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
-
+@deprecated("use Persistence Query instead", "0.1.28")
 object DomainAggregatorView {
   def apply[P <: DomainProjection[P]](actorRefFactory: ActorRefFactory, persistenceId: String)(initialState: P)(recoveryThreshold: FiniteDuration = 5.seconds) = {
     new DomainAggregatorView(actorRefFactory, persistenceId)(initialState)(recoveryThreshold)
@@ -18,6 +18,7 @@ object DomainAggregatorView {
 /**
  * Projects domain commits.
  */
+@deprecated("use Persistence Query instead", "0.1.28")
 class DomainAggregatorView[P <: DomainProjection[P]] private(actorRefFactory: ActorRefFactory, persistenceId: String)(initial: P)(recoveryThreshold: FiniteDuration) extends ProjectionProvider[P] {
 
   private val ref = actorRefFactory.actorOf(Props(new DomainView(persistenceId)))
