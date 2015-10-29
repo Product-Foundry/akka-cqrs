@@ -3,7 +3,6 @@ package com.productfoundry.akka.messaging
 import akka.actor.ActorRef
 import com.productfoundry.akka.messaging.Confirmable._
 import com.productfoundry.akka.serialization.Persistable
-import play.api.libs.json.{Format, Reads, Writes}
 
 /**
  * Indicates a message can be confirmed.
@@ -56,8 +55,4 @@ object Confirmable {
    * @param deliveryId of the delivered event.
    */
   case class Confirmed(deliveryId: Long) extends Persistable
-
-  object Confirmed {
-    implicit val ConfirmedFormat: Format[Confirmed] = Format(Reads.of[Long].map(apply), Writes(a => Writes.of[Long].writes(a.deliveryId)))
-  }
 }
