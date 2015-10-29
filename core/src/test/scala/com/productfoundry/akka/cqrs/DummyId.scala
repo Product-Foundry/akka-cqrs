@@ -1,5 +1,10 @@
 package com.productfoundry.akka.cqrs
 
-case class DummyId(uuid: Uuid) extends AggregateId
+import java.util.UUID
 
-object DummyId extends AggregateIdCompanion[DummyId]
+case class DummyId(entityId: String) extends EntityId
+
+object DummyId {
+
+  def generate(): DummyId = DummyId(UUID.randomUUID().toString)
+}

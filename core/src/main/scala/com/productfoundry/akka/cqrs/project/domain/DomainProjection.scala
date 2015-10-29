@@ -8,7 +8,6 @@ import com.productfoundry.akka.cqrs.project.{Projection, ProjectionRevision}
  *
  * @tparam R projection result type
  */
-@deprecated("use Persistence Query instead", "0.1.28")
 trait DomainProjection[R] extends Projection {
 
   /**

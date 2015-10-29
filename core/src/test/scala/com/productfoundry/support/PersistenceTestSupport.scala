@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Millis, Second, Span}
+import org.scalatest.time.{Millis, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Await

@@ -5,8 +5,8 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait Fixtures {
 
-  implicit def ArbitraryIdentifier[I <: Identifier](implicit companion: IdentifierCompanion[I]): Arbitrary[I] = Arbitrary {
-    Gen.wrap(companion.generate())
+  implicit def ArbitraryDummyId: Arbitrary[DummyId] = Arbitrary {
+    Gen.wrap(DummyId.generate())
   }
 
   implicit def ArbitraryRevision[R <: Revision[R]](implicit companion: RevisionCompanion[R]): Arbitrary[R] = Arbitrary {
