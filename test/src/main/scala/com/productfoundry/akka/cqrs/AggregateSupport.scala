@@ -2,7 +2,6 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import com.productfoundry.akka.Passivate
 import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
 import com.productfoundry.akka.cqrs.CommandRequest._
 import org.scalatest._
@@ -112,7 +111,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   def terminateConfirmed(actors: ActorRef*): Unit = {
     actors.foreach { actor =>
       watch(actor)
-      actor ! Passivate
+      actor ! PoisonPill
       // wait until supervisor is terminated
       fishForMessage(1.seconds) {
         case Terminated(_) =>
