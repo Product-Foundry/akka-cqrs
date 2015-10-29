@@ -1,0 +1,64 @@
+option java_package = "com.productfoundry.akka.serialization";
+
+option java_outer_classname = "PersistableProtos";
+
+option optimize_for = SPEED;
+
+message PersistentAggregateTag {
+    optional string name = 1;
+    optional string id = 2;
+    optional int64 revision = 3;
+}
+
+message PersistentAggregateEventHeaders {
+
+    message PersistentAggregateEventHeader {
+        optional string key = 1;
+        optional string value = 2;
+    }
+
+    optional int64 timestamp = 1;
+    repeated PersistentAggregateEventHeader headers = 2;
+}
+
+message PersistentAggregateEvent {
+    optional int32 serializerId = 1;
+    optional bytes event = 2;
+    optional bytes eventManifest = 3;
+}
+
+message PersistentCommit {
+
+    message PersistentCommitEntry {
+        optional int64 revision = 1;
+        optional PersistentAggregateEvent event = 2;
+    }
+
+    optional PersistentAggregateTag tag = 1;
+    optional PersistentAggregateEventHeaders headers = 2;
+    repeated PersistentCommitEntry entries = 3;
+}
+
+message PersistentDomainCommit {
+
+    message PersistentAggregateEventRecord {
+        optional PersistentAggregateTag tag = 1;
+        optional PersistentAggregateEventHeaders headers = 2;
+        optional PersistentAggregateEvent event = 3;
+    }
+
+    optional int64 revision = 1;
+    optional PersistentAggregateEventRecord eventRecord = 2;
+}
+
+message PersistentDomainRevisionSnapshot {
+    optional int64 revision = 1;
+}
+
+message PersistentConfirmed {
+    optional int64 deliveryId = 1;
+}
+
+message PersistentReceived {
+    optional string deduplicationId = 1;
+}
