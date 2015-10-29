@@ -41,7 +41,4 @@ trait Deduplication {
   }
 }
 
-object Deduplication {
-
-  case class Received(deduplicationId: String) extends Persistable
-}
+case class DeduplicationEntry(deduplicationId: String) extends Persistable

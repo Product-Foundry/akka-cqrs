@@ -39,6 +39,15 @@ message PersistentCommit {
     repeated PersistentCommitEntry entries = 3;
 }
 
+message PersistentConfirmedDelivery {
+    optional int64 deliveryId = 1;
+}
+
+message PersistentDeduplicationEntry {
+    optional string deduplicationId = 1;
+}
+
+
 message PersistentDomainCommit {
 
     message PersistentAggregateEventRecord {
@@ -51,14 +60,6 @@ message PersistentDomainCommit {
     optional PersistentAggregateEventRecord eventRecord = 2;
 }
 
-message PersistentDomainRevisionSnapshot {
+message PersistentDomainAggregatorSnapshot {
     optional int64 revision = 1;
-}
-
-message PersistentConfirmed {
-    optional int64 deliveryId = 1;
-}
-
-message PersistentReceived {
-    optional string deduplicationId = 1;
 }

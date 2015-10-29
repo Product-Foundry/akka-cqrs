@@ -1,9 +1,9 @@
 package com.productfoundry.akka.cqrs.process
 
 import akka.actor.ActorLogging
-import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.messaging.Deduplication
+import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
+import com.productfoundry.akka.messaging.{Deduplication, DeduplicationEntry}
 
 /**
  * Process manager receives events and generates commands.
@@ -54,14 +54,14 @@ trait ProcessManager[S, D]
    * @param publication to process.
    */
   private def unique(publication: EventPublication): Unit = {
-    persist(Deduplication.Received(publication.deduplicationId)) { _ =>
+    persist(DeduplicationEntry(publication.deduplicationId)) { _ =>
       markAsProcessed(publication.deduplicationId)
       eventReceived.applyOrElse(publication.eventRecord, unhandled)
     }
   }
 
   override def receiveRecover: Receive = {
-    case Deduplication.Received(deduplicationId) =>
+    case DeduplicationEntry(deduplicationId) =>
       markAsProcessed(deduplicationId)
   }
 

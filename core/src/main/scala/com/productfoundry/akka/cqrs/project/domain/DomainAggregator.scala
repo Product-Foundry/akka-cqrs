@@ -59,7 +59,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
         handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
 
         if (revision.value % snapshotInterval == 0) {
-          saveSnapshot(DomainRevisionSnapshot(revision))
+          saveSnapshot(DomainAggregatorSnapshot(revision))
         }
       }
   }
@@ -73,7 +73,7 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
       log.debug("Recovered: {}", commit)
       revision = commit.revision
 
-    case SnapshotOffer(_, snapshot: DomainRevisionSnapshot) =>
+    case SnapshotOffer(_, snapshot: DomainAggregatorSnapshot) =>
       log.debug("Recovered revision from snapshot: {}", snapshot)
       revision = snapshot.revision
   }

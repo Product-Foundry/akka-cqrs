@@ -4314,6 +4314,873 @@ public final class PersistableProtos {
     // @@protoc_insertion_point(class_scope:PersistentCommit)
   }
 
+  public interface PersistentConfirmedDeliveryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional int64 deliveryId = 1;
+    /**
+     * <code>optional int64 deliveryId = 1;</code>
+     */
+    boolean hasDeliveryId();
+    /**
+     * <code>optional int64 deliveryId = 1;</code>
+     */
+    long getDeliveryId();
+  }
+  /**
+   * Protobuf type {@code PersistentConfirmedDelivery}
+   */
+  public static final class PersistentConfirmedDelivery extends
+      com.google.protobuf.GeneratedMessage
+      implements PersistentConfirmedDeliveryOrBuilder {
+    // Use PersistentConfirmedDelivery.newBuilder() to construct.
+    private PersistentConfirmedDelivery(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private PersistentConfirmedDelivery(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final PersistentConfirmedDelivery defaultInstance;
+    public static PersistentConfirmedDelivery getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public PersistentConfirmedDelivery getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private PersistentConfirmedDelivery(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              deliveryId_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmedDelivery_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmedDelivery_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<PersistentConfirmedDelivery> PARSER =
+        new com.google.protobuf.AbstractParser<PersistentConfirmedDelivery>() {
+      public PersistentConfirmedDelivery parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new PersistentConfirmedDelivery(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PersistentConfirmedDelivery> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional int64 deliveryId = 1;
+    public static final int DELIVERYID_FIELD_NUMBER = 1;
+    private long deliveryId_;
+    /**
+     * <code>optional int64 deliveryId = 1;</code>
+     */
+    public boolean hasDeliveryId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int64 deliveryId = 1;</code>
+     */
+    public long getDeliveryId() {
+      return deliveryId_;
+    }
+
+    private void initFields() {
+      deliveryId_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt64(1, deliveryId_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, deliveryId_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code PersistentConfirmedDelivery}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDeliveryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmedDelivery_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmedDelivery_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.Builder.class);
+      }
+
+      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        deliveryId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmedDelivery_descriptor;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery getDefaultInstanceForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.getDefaultInstance();
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery build() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery buildPartial() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.deliveryId_ = deliveryId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery) {
+          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery other) {
+        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery.getDefaultInstance()) return this;
+        if (other.hasDeliveryId()) {
+          setDeliveryId(other.getDeliveryId());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedDelivery) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional int64 deliveryId = 1;
+      private long deliveryId_ ;
+      /**
+       * <code>optional int64 deliveryId = 1;</code>
+       */
+      public boolean hasDeliveryId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int64 deliveryId = 1;</code>
+       */
+      public long getDeliveryId() {
+        return deliveryId_;
+      }
+      /**
+       * <code>optional int64 deliveryId = 1;</code>
+       */
+      public Builder setDeliveryId(long value) {
+        bitField0_ |= 0x00000001;
+        deliveryId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 deliveryId = 1;</code>
+       */
+      public Builder clearDeliveryId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        deliveryId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:PersistentConfirmedDelivery)
+    }
+
+    static {
+      defaultInstance = new PersistentConfirmedDelivery(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:PersistentConfirmedDelivery)
+  }
+
+  public interface PersistentDeduplicationEntryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional string deduplicationId = 1;
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    boolean hasDeduplicationId();
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    java.lang.String getDeduplicationId();
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getDeduplicationIdBytes();
+  }
+  /**
+   * Protobuf type {@code PersistentDeduplicationEntry}
+   */
+  public static final class PersistentDeduplicationEntry extends
+      com.google.protobuf.GeneratedMessage
+      implements PersistentDeduplicationEntryOrBuilder {
+    // Use PersistentDeduplicationEntry.newBuilder() to construct.
+    private PersistentDeduplicationEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private PersistentDeduplicationEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final PersistentDeduplicationEntry defaultInstance;
+    public static PersistentDeduplicationEntry getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public PersistentDeduplicationEntry getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private PersistentDeduplicationEntry(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              deduplicationId_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDeduplicationEntry_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDeduplicationEntry_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<PersistentDeduplicationEntry> PARSER =
+        new com.google.protobuf.AbstractParser<PersistentDeduplicationEntry>() {
+      public PersistentDeduplicationEntry parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new PersistentDeduplicationEntry(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PersistentDeduplicationEntry> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional string deduplicationId = 1;
+    public static final int DEDUPLICATIONID_FIELD_NUMBER = 1;
+    private java.lang.Object deduplicationId_;
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    public boolean hasDeduplicationId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    public java.lang.String getDeduplicationId() {
+      java.lang.Object ref = deduplicationId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          deduplicationId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string deduplicationId = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDeduplicationIdBytes() {
+      java.lang.Object ref = deduplicationId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        deduplicationId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      deduplicationId_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getDeduplicationIdBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getDeduplicationIdBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code PersistentDeduplicationEntry}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDeduplicationEntry_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDeduplicationEntry_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.Builder.class);
+      }
+
+      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        deduplicationId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDeduplicationEntry_descriptor;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry getDefaultInstanceForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.getDefaultInstance();
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry build() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry buildPartial() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.deduplicationId_ = deduplicationId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry) {
+          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry other) {
+        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry.getDefaultInstance()) return this;
+        if (other.hasDeduplicationId()) {
+          bitField0_ |= 0x00000001;
+          deduplicationId_ = other.deduplicationId_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentDeduplicationEntry) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional string deduplicationId = 1;
+      private java.lang.Object deduplicationId_ = "";
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public boolean hasDeduplicationId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public java.lang.String getDeduplicationId() {
+        java.lang.Object ref = deduplicationId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          deduplicationId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDeduplicationIdBytes() {
+        java.lang.Object ref = deduplicationId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          deduplicationId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public Builder setDeduplicationId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        deduplicationId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public Builder clearDeduplicationId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        deduplicationId_ = getDefaultInstance().getDeduplicationId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string deduplicationId = 1;</code>
+       */
+      public Builder setDeduplicationIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        deduplicationId_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:PersistentDeduplicationEntry)
+    }
+
+    static {
+      defaultInstance = new PersistentDeduplicationEntry(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:PersistentDeduplicationEntry)
+  }
+
   public interface PersistentDomainCommitOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
@@ -5793,7 +6660,7 @@ public final class PersistableProtos {
     // @@protoc_insertion_point(class_scope:PersistentDomainCommit)
   }
 
-  public interface PersistentDomainRevisionSnapshotOrBuilder
+  public interface PersistentDomainAggregatorSnapshotOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
     // optional int64 revision = 1;
@@ -5807,24 +6674,24 @@ public final class PersistableProtos {
     long getRevision();
   }
   /**
-   * Protobuf type {@code PersistentDomainRevisionSnapshot}
+   * Protobuf type {@code PersistentDomainAggregatorSnapshot}
    */
-  public static final class PersistentDomainRevisionSnapshot extends
+  public static final class PersistentDomainAggregatorSnapshot extends
       com.google.protobuf.GeneratedMessage
-      implements PersistentDomainRevisionSnapshotOrBuilder {
-    // Use PersistentDomainRevisionSnapshot.newBuilder() to construct.
-    private PersistentDomainRevisionSnapshot(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      implements PersistentDomainAggregatorSnapshotOrBuilder {
+    // Use PersistentDomainAggregatorSnapshot.newBuilder() to construct.
+    private PersistentDomainAggregatorSnapshot(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private PersistentDomainRevisionSnapshot(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+    private PersistentDomainAggregatorSnapshot(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    private static final PersistentDomainRevisionSnapshot defaultInstance;
-    public static PersistentDomainRevisionSnapshot getDefaultInstance() {
+    private static final PersistentDomainAggregatorSnapshot defaultInstance;
+    public static PersistentDomainAggregatorSnapshot getDefaultInstance() {
       return defaultInstance;
     }
 
-    public PersistentDomainRevisionSnapshot getDefaultInstanceForType() {
+    public PersistentDomainAggregatorSnapshot getDefaultInstanceForType() {
       return defaultInstance;
     }
 
@@ -5834,7 +6701,7 @@ public final class PersistableProtos {
         getUnknownFields() {
       return this.unknownFields;
     }
-    private PersistentDomainRevisionSnapshot(
+    private PersistentDomainAggregatorSnapshot(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -5876,28 +6743,28 @@ public final class PersistableProtos {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainRevisionSnapshot_descriptor;
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainAggregatorSnapshot_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainRevisionSnapshot_fieldAccessorTable
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainAggregatorSnapshot_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.Builder.class);
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<PersistentDomainRevisionSnapshot> PARSER =
-        new com.google.protobuf.AbstractParser<PersistentDomainRevisionSnapshot>() {
-      public PersistentDomainRevisionSnapshot parsePartialFrom(
+    public static com.google.protobuf.Parser<PersistentDomainAggregatorSnapshot> PARSER =
+        new com.google.protobuf.AbstractParser<PersistentDomainAggregatorSnapshot>() {
+      public PersistentDomainAggregatorSnapshot parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new PersistentDomainRevisionSnapshot(input, extensionRegistry);
+        return new PersistentDomainAggregatorSnapshot(input, extensionRegistry);
       }
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<PersistentDomainRevisionSnapshot> getParserForType() {
+    public com.google.protobuf.Parser<PersistentDomainAggregatorSnapshot> getParserForType() {
       return PARSER;
     }
 
@@ -5961,53 +6828,53 @@ public final class PersistableProtos {
       return super.writeReplace();
     }
 
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(byte[] data)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(java.io.InputStream input)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseDelimitedFrom(java.io.InputStream input)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseDelimitedFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -6016,7 +6883,7 @@ public final class PersistableProtos {
 
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot prototype) {
+    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -6028,24 +6895,24 @@ public final class PersistableProtos {
       return builder;
     }
     /**
-     * Protobuf type {@code PersistentDomainRevisionSnapshot}
+     * Protobuf type {@code PersistentDomainAggregatorSnapshot}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshotOrBuilder {
+       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshotOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainRevisionSnapshot_descriptor;
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainAggregatorSnapshot_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainRevisionSnapshot_fieldAccessorTable
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainAggregatorSnapshot_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.Builder.class);
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.Builder.class);
       }
 
-      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.newBuilder()
+      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -6076,23 +6943,23 @@ public final class PersistableProtos {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainRevisionSnapshot_descriptor;
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentDomainAggregatorSnapshot_descriptor;
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot getDefaultInstanceForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.getDefaultInstance();
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot getDefaultInstanceForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.getDefaultInstance();
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot build() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot result = buildPartial();
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot build() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot buildPartial() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot(this);
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot buildPartial() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -6105,16 +6972,16 @@ public final class PersistableProtos {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot) {
-          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot)other);
+        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot) {
+          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot other) {
-        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot other) {
+        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot.getDefaultInstance()) return this;
         if (other.hasRevision()) {
           setRevision(other.getRevision());
         }
@@ -6130,11 +6997,11 @@ public final class PersistableProtos {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot parsedMessage = null;
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainRevisionSnapshot) e.getUnfinishedMessage();
+          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentDomainAggregatorSnapshot) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -6178,882 +7045,15 @@ public final class PersistableProtos {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:PersistentDomainRevisionSnapshot)
+      // @@protoc_insertion_point(builder_scope:PersistentDomainAggregatorSnapshot)
     }
 
     static {
-      defaultInstance = new PersistentDomainRevisionSnapshot(true);
+      defaultInstance = new PersistentDomainAggregatorSnapshot(true);
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:PersistentDomainRevisionSnapshot)
-  }
-
-  public interface PersistentConfirmedOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-
-    // optional int64 deliveryId = 1;
-    /**
-     * <code>optional int64 deliveryId = 1;</code>
-     */
-    boolean hasDeliveryId();
-    /**
-     * <code>optional int64 deliveryId = 1;</code>
-     */
-    long getDeliveryId();
-  }
-  /**
-   * Protobuf type {@code PersistentConfirmed}
-   */
-  public static final class PersistentConfirmed extends
-      com.google.protobuf.GeneratedMessage
-      implements PersistentConfirmedOrBuilder {
-    // Use PersistentConfirmed.newBuilder() to construct.
-    private PersistentConfirmed(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-      this.unknownFields = builder.getUnknownFields();
-    }
-    private PersistentConfirmed(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final PersistentConfirmed defaultInstance;
-    public static PersistentConfirmed getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public PersistentConfirmed getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
-    }
-    private PersistentConfirmed(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              deliveryId_ = input.readInt64();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmed_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmed_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<PersistentConfirmed> PARSER =
-        new com.google.protobuf.AbstractParser<PersistentConfirmed>() {
-      public PersistentConfirmed parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new PersistentConfirmed(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<PersistentConfirmed> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // optional int64 deliveryId = 1;
-    public static final int DELIVERYID_FIELD_NUMBER = 1;
-    private long deliveryId_;
-    /**
-     * <code>optional int64 deliveryId = 1;</code>
-     */
-    public boolean hasDeliveryId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional int64 deliveryId = 1;</code>
-     */
-    public long getDeliveryId() {
-      return deliveryId_;
-    }
-
-    private void initFields() {
-      deliveryId_ = 0L;
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1, deliveryId_);
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1, deliveryId_);
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code PersistentConfirmed}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmedOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmed_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmed_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.Builder.class);
-      }
-
-      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-
-      public Builder clear() {
-        super.clear();
-        deliveryId_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentConfirmed_descriptor;
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed getDefaultInstanceForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.getDefaultInstance();
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed build() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed buildPartial() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.deliveryId_ = deliveryId_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed) {
-          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed other) {
-        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed.getDefaultInstance()) return this;
-        if (other.hasDeliveryId()) {
-          setDeliveryId(other.getDeliveryId());
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentConfirmed) e.getUnfinishedMessage();
-          throw e;
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      // optional int64 deliveryId = 1;
-      private long deliveryId_ ;
-      /**
-       * <code>optional int64 deliveryId = 1;</code>
-       */
-      public boolean hasDeliveryId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional int64 deliveryId = 1;</code>
-       */
-      public long getDeliveryId() {
-        return deliveryId_;
-      }
-      /**
-       * <code>optional int64 deliveryId = 1;</code>
-       */
-      public Builder setDeliveryId(long value) {
-        bitField0_ |= 0x00000001;
-        deliveryId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 deliveryId = 1;</code>
-       */
-      public Builder clearDeliveryId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        deliveryId_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:PersistentConfirmed)
-    }
-
-    static {
-      defaultInstance = new PersistentConfirmed(true);
-      defaultInstance.initFields();
-    }
-
-    // @@protoc_insertion_point(class_scope:PersistentConfirmed)
-  }
-
-  public interface PersistentReceivedOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-
-    // optional string deduplicationId = 1;
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    boolean hasDeduplicationId();
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    java.lang.String getDeduplicationId();
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getDeduplicationIdBytes();
-  }
-  /**
-   * Protobuf type {@code PersistentReceived}
-   */
-  public static final class PersistentReceived extends
-      com.google.protobuf.GeneratedMessage
-      implements PersistentReceivedOrBuilder {
-    // Use PersistentReceived.newBuilder() to construct.
-    private PersistentReceived(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-      this.unknownFields = builder.getUnknownFields();
-    }
-    private PersistentReceived(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final PersistentReceived defaultInstance;
-    public static PersistentReceived getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public PersistentReceived getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-      return this.unknownFields;
-    }
-    private PersistentReceived(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-              bitField0_ |= 0x00000001;
-              deduplicationId_ = input.readBytes();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentReceived_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentReceived_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<PersistentReceived> PARSER =
-        new com.google.protobuf.AbstractParser<PersistentReceived>() {
-      public PersistentReceived parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new PersistentReceived(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<PersistentReceived> getParserForType() {
-      return PARSER;
-    }
-
-    private int bitField0_;
-    // optional string deduplicationId = 1;
-    public static final int DEDUPLICATIONID_FIELD_NUMBER = 1;
-    private java.lang.Object deduplicationId_;
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    public boolean hasDeduplicationId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    public java.lang.String getDeduplicationId() {
-      java.lang.Object ref = deduplicationId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          deduplicationId_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string deduplicationId = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getDeduplicationIdBytes() {
-      java.lang.Object ref = deduplicationId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        deduplicationId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private void initFields() {
-      deduplicationId_ = "";
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getDeduplicationIdBytes());
-      }
-      getUnknownFields().writeTo(output);
-    }
-
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getDeduplicationIdBytes());
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code PersistentReceived}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentReceivedOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentReceived_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentReceived_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.Builder.class);
-      }
-
-      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-
-      public Builder clear() {
-        super.clear();
-        deduplicationId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentReceived_descriptor;
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived getDefaultInstanceForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.getDefaultInstance();
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived build() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived buildPartial() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.deduplicationId_ = deduplicationId_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived) {
-          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived other) {
-        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived.getDefaultInstance()) return this;
-        if (other.hasDeduplicationId()) {
-          bitField0_ |= 0x00000001;
-          deduplicationId_ = other.deduplicationId_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentReceived) e.getUnfinishedMessage();
-          throw e;
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      // optional string deduplicationId = 1;
-      private java.lang.Object deduplicationId_ = "";
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public boolean hasDeduplicationId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public java.lang.String getDeduplicationId() {
-        java.lang.Object ref = deduplicationId_;
-        if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          deduplicationId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getDeduplicationIdBytes() {
-        java.lang.Object ref = deduplicationId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          deduplicationId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public Builder setDeduplicationId(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        deduplicationId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public Builder clearDeduplicationId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        deduplicationId_ = getDefaultInstance().getDeduplicationId();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string deduplicationId = 1;</code>
-       */
-      public Builder setDeduplicationIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        deduplicationId_ = value;
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:PersistentReceived)
-    }
-
-    static {
-      defaultInstance = new PersistentReceived(true);
-      defaultInstance.initFields();
-    }
-
-    // @@protoc_insertion_point(class_scope:PersistentReceived)
+    // @@protoc_insertion_point(class_scope:PersistentDomainAggregatorSnapshot)
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -7087,6 +7087,16 @@ public final class PersistableProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_PersistentCommit_PersistentCommitEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_PersistentConfirmedDelivery_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_PersistentConfirmedDelivery_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_PersistentDeduplicationEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_PersistentDeduplicationEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_PersistentDomainCommit_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -7097,20 +7107,10 @@ public final class PersistableProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_PersistentDomainCommit_PersistentAggregateEventRecord_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_PersistentDomainRevisionSnapshot_descriptor;
+    internal_static_PersistentDomainAggregatorSnapshot_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_PersistentDomainRevisionSnapshot_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_PersistentConfirmed_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_PersistentConfirmed_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_PersistentReceived_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_PersistentReceived_fieldAccessorTable;
+      internal_static_PersistentDomainAggregatorSnapshot_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -7135,20 +7135,20 @@ public final class PersistableProtos {
       "EventHeaders\0228\n\007entries\030\003 \003(\0132\'.Persiste" +
       "ntCommit.PersistentCommitEntry\032S\n\025Persis" +
       "tentCommitEntry\022\020\n\010revision\030\001 \001(\003\022(\n\005eve" +
-      "nt\030\002 \001(\0132\031.PersistentAggregateEvent\"\235\002\n\026" +
-      "PersistentDomainCommit\022\020\n\010revision\030\001 \001(\003" +
-      "\022K\n\013eventRecord\030\002 \001(\01326.PersistentDomain" +
-      "Commit.PersistentAggregateEventRecord\032\243\001" +
-      "\n\036PersistentAggregateEventRecord\022$\n\003tag\030",
-      "\001 \001(\0132\027.PersistentAggregateTag\0221\n\007header" +
-      "s\030\002 \001(\0132 .PersistentAggregateEventHeader" +
-      "s\022(\n\005event\030\003 \001(\0132\031.PersistentAggregateEv" +
-      "ent\"4\n PersistentDomainRevisionSnapshot\022" +
-      "\020\n\010revision\030\001 \001(\003\")\n\023PersistentConfirmed" +
-      "\022\022\n\ndeliveryId\030\001 \001(\003\"-\n\022PersistentReceiv" +
-      "ed\022\027\n\017deduplicationId\030\001 \001(\tB<\n%com.produ" +
-      "ctfoundry.akka.serializationB\021Persistabl" +
-      "eProtosH\001"
+      "nt\030\002 \001(\0132\031.PersistentAggregateEvent\"1\n\033P" +
+      "ersistentConfirmedDelivery\022\022\n\ndeliveryId" +
+      "\030\001 \001(\003\"7\n\034PersistentDeduplicationEntry\022\027" +
+      "\n\017deduplicationId\030\001 \001(\t\"\235\002\n\026PersistentDo" +
+      "mainCommit\022\020\n\010revision\030\001 \001(\003\022K\n\013eventRec",
+      "ord\030\002 \001(\01326.PersistentDomainCommit.Persi" +
+      "stentAggregateEventRecord\032\243\001\n\036Persistent" +
+      "AggregateEventRecord\022$\n\003tag\030\001 \001(\0132\027.Pers" +
+      "istentAggregateTag\0221\n\007headers\030\002 \001(\0132 .Pe" +
+      "rsistentAggregateEventHeaders\022(\n\005event\030\003" +
+      " \001(\0132\031.PersistentAggregateEvent\"6\n\"Persi" +
+      "stentDomainAggregatorSnapshot\022\020\n\010revisio" +
+      "n\030\001 \001(\003B<\n%com.productfoundry.akka.seria" +
+      "lizationB\021PersistableProtosH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -7191,8 +7191,20 @@ public final class PersistableProtos {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PersistentCommit_PersistentCommitEntry_descriptor,
               new java.lang.String[] { "Revision", "Event", });
-          internal_static_PersistentDomainCommit_descriptor =
+          internal_static_PersistentConfirmedDelivery_descriptor =
             getDescriptor().getMessageTypes().get(4);
+          internal_static_PersistentConfirmedDelivery_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_PersistentConfirmedDelivery_descriptor,
+              new java.lang.String[] { "DeliveryId", });
+          internal_static_PersistentDeduplicationEntry_descriptor =
+            getDescriptor().getMessageTypes().get(5);
+          internal_static_PersistentDeduplicationEntry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_PersistentDeduplicationEntry_descriptor,
+              new java.lang.String[] { "DeduplicationId", });
+          internal_static_PersistentDomainCommit_descriptor =
+            getDescriptor().getMessageTypes().get(6);
           internal_static_PersistentDomainCommit_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PersistentDomainCommit_descriptor,
@@ -7203,24 +7215,12 @@ public final class PersistableProtos {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PersistentDomainCommit_PersistentAggregateEventRecord_descriptor,
               new java.lang.String[] { "Tag", "Headers", "Event", });
-          internal_static_PersistentDomainRevisionSnapshot_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_PersistentDomainRevisionSnapshot_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_PersistentDomainRevisionSnapshot_descriptor,
-              new java.lang.String[] { "Revision", });
-          internal_static_PersistentConfirmed_descriptor =
-            getDescriptor().getMessageTypes().get(6);
-          internal_static_PersistentConfirmed_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_PersistentConfirmed_descriptor,
-              new java.lang.String[] { "DeliveryId", });
-          internal_static_PersistentReceived_descriptor =
+          internal_static_PersistentDomainAggregatorSnapshot_descriptor =
             getDescriptor().getMessageTypes().get(7);
-          internal_static_PersistentReceived_fieldAccessorTable = new
+          internal_static_PersistentDomainAggregatorSnapshot_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_PersistentReceived_descriptor,
-              new java.lang.String[] { "DeduplicationId", });
+              internal_static_PersistentDomainAggregatorSnapshot_descriptor,
+              new java.lang.String[] { "Revision", });
           return null;
         }
       };

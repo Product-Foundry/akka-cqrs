@@ -5,11 +5,9 @@ import akka.serialization._
 import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.project.ProjectionRevision
-import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainRevisionSnapshot}
-import com.productfoundry.akka.messaging.{ConfirmedDelivery, Deduplication}
+import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainAggregatorSnapshot}
+import com.productfoundry.akka.messaging.{ConfirmedDelivery, DeduplicationEntry}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
-
-import scala.language.existentials
 
 /**
  * Marker trait for persistables.
@@ -23,34 +21,34 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
   val CommitManifest = "Commit"
   val ConfirmedDeliveryManifest = "ConfirmedDelivery"
+  val DeduplicationEntryManifest = "DeduplicationEntry"
   val DomainCommitManifest = "DomainCommit"
-  val DomainSnapshotManifest = "DomainSnapshot"
-  val ReceivedManifest = "Received"
+  val DomainAggregatorSnapshotManifest = "DomainAggregatorSnapshot"
 
   private lazy val serialization = SerializationExtension(system)
 
   override def manifest(o: AnyRef): String = o match {
     case _: Commit => CommitManifest
     case _: ConfirmedDelivery => ConfirmedDeliveryManifest
+    case _: DeduplicationEntry => DeduplicationEntryManifest
     case _: DomainCommit => DomainCommitManifest
-    case _: DomainRevisionSnapshot => DomainSnapshotManifest
-    case _: Deduplication.Received => ReceivedManifest
+    case _: DomainAggregatorSnapshot => DomainAggregatorSnapshotManifest
   }
 
   override def toBinary(o: AnyRef): Array[Byte] = o match {
     case c: Commit => persistentCommit(c).build().toByteArray
     case c: ConfirmedDelivery => persistentConfirmedDelivery(c).build().toByteArray
+    case r: DeduplicationEntry => persistentDeduplicationEntry(r).build().toByteArray
     case d: DomainCommit => persistentDomainCommit(d).build().toByteArray
-    case d: DomainRevisionSnapshot => persistentDomainRevisionSnapshot(d).build().toByteArray
-    case r: Deduplication.Received => persistentReceived(r).build().toByteArray
+    case d: DomainAggregatorSnapshot => persistentDomainAggregatorSnapshot(d).build().toByteArray
   }
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
     case CommitManifest => commit(proto.PersistentCommit.parseFrom(bytes))
-    case ConfirmedDeliveryManifest => confirmedDelivery(proto.PersistentConfirmed.parseFrom(bytes))
+    case ConfirmedDeliveryManifest => confirmedDelivery(proto.PersistentConfirmedDelivery.parseFrom(bytes))
+    case DeduplicationEntryManifest => deduplicationEntry(proto.PersistentDeduplicationEntry.parseFrom(bytes))
     case DomainCommitManifest => domainCommit(proto.PersistentDomainCommit.parseFrom(bytes))
-    case DomainSnapshotManifest => domainRevisionSnapshot(proto.PersistentDomainRevisionSnapshot.parseFrom(bytes))
-    case ReceivedManifest => received(proto.PersistentReceived.parseFrom(bytes))
+    case DomainAggregatorSnapshotManifest => domainAggregatorSnapshot(proto.PersistentDomainAggregatorSnapshot.parseFrom(bytes))
   }
 
   private def commit(persistentCommit: proto.PersistentCommit): Commit = {
@@ -70,7 +68,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def confirmedDelivery(persistentConfirmedDelivery: proto.PersistentConfirmed): ConfirmedDelivery = {
+  private def confirmedDelivery(persistentConfirmedDelivery: proto.PersistentConfirmedDelivery): ConfirmedDelivery = {
     ConfirmedDelivery(
       persistentConfirmedDelivery.getDeliveryId
     )
@@ -90,14 +88,14 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def domainRevisionSnapshot(persistentDomainSnapshot: proto.PersistentDomainRevisionSnapshot): DomainRevisionSnapshot = {
-    DomainRevisionSnapshot(
-      ProjectionRevision(persistentDomainSnapshot.getRevision)
+  private def domainAggregatorSnapshot(persistentDomainAggregatorSnapshot: proto.PersistentDomainAggregatorSnapshot): DomainAggregatorSnapshot = {
+    DomainAggregatorSnapshot(
+      ProjectionRevision(persistentDomainAggregatorSnapshot.getRevision)
     )
   }
 
-  private def received(persistentReceived: proto.PersistentReceived): Deduplication.Received = {
-    Deduplication.Received(persistentReceived.getDeduplicationId)
+  private def deduplicationEntry(persistentDeduplicationEntry: proto.PersistentDeduplicationEntry): DeduplicationEntry = {
+    DeduplicationEntry(persistentDeduplicationEntry.getDeduplicationId)
   }
 
   private def aggregateTag(persistentAggregateTag: proto.PersistentAggregateTag): AggregateTag = {
@@ -153,8 +151,8 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.PersistentConfirmed.Builder = {
-    val builder = proto.PersistentConfirmed.newBuilder()
+  private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.PersistentConfirmedDelivery.Builder = {
+    val builder = proto.PersistentConfirmedDelivery.newBuilder()
     builder.setDeliveryId(confirmedDelivery.deliveryId)
     builder
   }
@@ -173,15 +171,15 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentDomainRevisionSnapshot(domainRevisionSnapshot: DomainRevisionSnapshot): proto.PersistentDomainRevisionSnapshot.Builder = {
-    val builder = proto.PersistentDomainRevisionSnapshot.newBuilder()
-    builder.setRevision(domainRevisionSnapshot.revision.value)
+  private def persistentDomainAggregatorSnapshot(domainAggregatorSnapshot: DomainAggregatorSnapshot): proto.PersistentDomainAggregatorSnapshot.Builder = {
+    val builder = proto.PersistentDomainAggregatorSnapshot.newBuilder()
+    builder.setRevision(domainAggregatorSnapshot.revision.value)
     builder
   }
 
-  private def persistentReceived(received: Deduplication.Received): proto.PersistentReceived.Builder = {
-    val builder = proto.PersistentReceived.newBuilder()
-    builder.setDeduplicationId(received.deduplicationId)
+  private def persistentDeduplicationEntry(deduplicationEntry: DeduplicationEntry): proto.PersistentDeduplicationEntry.Builder = {
+    val builder = proto.PersistentDeduplicationEntry.newBuilder()
+    builder.setDeduplicationId(deduplicationEntry.deduplicationId)
     builder
   }
 
