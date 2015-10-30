@@ -67,7 +67,6 @@ lazy val core = project
       "com.typesafe.akka"      %% "akka-cluster"                      % akkaVersion,
       "com.google.protobuf"    %  "protobuf-java"                     % "2.5.0",
       "org.scala-stm"          %% "scala-stm"                         % "0.7",
-      "org.scalaz"             %% "scalaz-core"                       % "7.0.6"     % "optional",
       "org.scalatest"          %% "scalatest"                         % "2.2.4"     % "test",
       "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion % "test",
       "org.scalacheck"         %% "scalacheck"                        % "1.12.2"    % "test"
