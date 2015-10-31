@@ -112,7 +112,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
      * @tparam I aggregate id type.
      * @tparam E event type.
      */
-    def mockUpdateSuccess[I <: EntityId, E <: AggregateEvent](events: (I) => Seq[E], response: Any = Unit): I = {
+    def mockUpdateSuccess[I <: EntityId, E <: AggregateEvent](events: (I) => Seq[E], response: Option[Any] = None): I = {
       val message = aggregateFactoryProbe.expectMsgType[AggregateMessage]
       val aggregateId = message.id.asInstanceOf[I]
       val updateEvents = events(aggregateId)

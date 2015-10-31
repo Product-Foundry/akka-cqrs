@@ -23,7 +23,7 @@ sealed trait Changes {
   /**
    * @return payload for additional response.
    */
-  def response: Any
+  def response: Option[Any]
 
   /**
    * Sets aggregate response payload.
@@ -62,7 +62,7 @@ object Changes {
   def apply(events: AggregateEvent*): Changes = AggregateChanges(events)
 }
 
-private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Any = Unit, metadata: Map[String, String] = Map.empty) extends Changes {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Option[Any]= None, metadata: Map[String, String] = Map.empty) extends Changes {
 
   /**
    * @return True if there are no changes.
@@ -75,7 +75,7 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @param response to set.
    * @return updated payload.
    */
-  override def withResponse(response: Any) = copy(response = response)
+  override def withResponse(response: Any) = copy(response = Some(response))
 
   /**
    * Adds additional metadata.

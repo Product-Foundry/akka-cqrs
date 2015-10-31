@@ -7,7 +7,7 @@ package com.productfoundry.akka.cqrs
  * @param headers any additional headers that can be populated by commit handlers.
  */
 case class AggregateResponse(tag: AggregateTag,
-                             payload: Any = Unit,
+                             payload: Option[Any] = None,
                              headers: Map[String, String] = Map.empty) {
 
   /**
@@ -17,7 +17,7 @@ case class AggregateResponse(tag: AggregateTag,
    * @return updated response.
    */
   def withPayload(newPayload: Any): AggregateResponse = {
-    copy(payload = newPayload)
+    copy(payload = Some(newPayload))
   }
 
   /**

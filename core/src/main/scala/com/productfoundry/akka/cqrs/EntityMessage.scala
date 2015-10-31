@@ -3,4 +3,4 @@ package com.productfoundry.akka.cqrs
 /**
  * Message that can be sent to a root entity.
  */
-trait EntityMessage
+trait EntityMessage extends Serializable
