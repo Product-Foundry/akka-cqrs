@@ -53,8 +53,8 @@ class AggregateSpec extends AggregateTestSupport {
       expectMsgType[AggregateStatus.Success]
 
       supervisor ! Create(id)
-      val failure = expectMsgType[Status.Failure]
-      failure.cause shouldBe an[AggregateDeletedException]
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause shouldBe an[AggregateDeleted]
     }
 
     "ignore noop" in {
@@ -130,8 +130,8 @@ class AggregateSpec extends AggregateTestSupport {
       expectMsgType[AggregateStatus.Success]
 
       supervisor ! Delete(testId)
-      val failure = expectMsgType[Status.Failure]
-      failure.cause shouldBe an[AggregateDeletedException]
+      val failure = expectMsgType[AggregateStatus.Failure]
+      failure.cause shouldBe an[AggregateDeleted]
     }
 
     "fail for unknown" in new AggregateFixture {

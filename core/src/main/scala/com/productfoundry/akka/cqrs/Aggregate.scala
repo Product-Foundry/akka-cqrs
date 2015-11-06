@@ -211,7 +211,7 @@ trait Aggregate
    */
   def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
     if (isDeleted) {
-      throw AggregateDeletedException(revision)
+      sender() ! AggregateStatus.Failure(AggregateDeleted(revision))
     } else {
       changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), { changes =>
         if (changes.isEmpty) {
