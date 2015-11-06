@@ -86,7 +86,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  */
 class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
 
-  private val entitySystemRef = actorRefFactory.actorOf(Props(new LocalDomainContextActor), "Domain")
+  val actor = actorRefFactory.actorOf(Props(new LocalDomainContextActor), "Domain")
 
   class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
     override def receive: Actor.Receive = {
@@ -106,7 +106,7 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
 
         implicit val timeout = Timeout(30.seconds)
 
-        val supervisorRefFuture = (entitySystemRef ? GetOrCreateSupervisor(Props(new LocalEntitySupervisor[E]), supervisorName)).mapTo[ActorRef]
+        val supervisorRefFuture = (actor ? GetOrCreateSupervisor(Props(new LocalEntitySupervisor[E]), supervisorName)).mapTo[ActorRef]
         Await.result(supervisorRefFuture, timeout.duration)
       }
     }

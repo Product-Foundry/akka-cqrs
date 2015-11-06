@@ -1,15 +1,10 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
-import akka.testkit.{ImplicitSender, TestKit}
 import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
 import com.productfoundry.akka.cqrs.CommandRequest._
 import org.scalatest._
-import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Millis, Second, Span}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
 
@@ -22,21 +17,7 @@ import scala.reflect.ClassTag
  */
 abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit aggregateClass: ClassTag[A],
                                                                       aggregateFactory: AggregateFactory[A])
-  extends TestKit(_system)
-  with ImplicitSender
-  with WordSpecLike
-  with Matchers
-  with BeforeAndAfterAll
-  with BeforeAndAfter
-  with Eventually {
-
-  /**
-   * System should be fast, so for fast test runs check assertions frequently.
-   */
-  implicit override val patienceConfig = PatienceConfig(
-    timeout = scaled(Span(1, Second)),
-    interval = scaled(Span(10, Millis))
-  )
+  extends EntitySupport(_system) {
 
   implicit def entityIdResolution: EntityIdResolution[A] = new AggregateIdResolution[A]()
 
@@ -102,33 +83,6 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
     }
 
     outcome
-  }
-
-  /**
-   * Terminates specified actors and wait until termination is confirmed.
-   * @param actors to terminate.
-   */
-  def terminateConfirmed(actors: ActorRef*): Unit = {
-    actors.foreach { actor =>
-      watch(actor)
-      actor ! PoisonPill
-      // wait until supervisor is terminated
-      fishForMessage(1.seconds) {
-        case Terminated(_) =>
-          unwatch(actor)
-          true
-        case _ =>
-          false
-      }
-    }
-  }
-
-  /**
-   * Shut down the actor system after every suite.
-   */
-  override def afterAll(): Unit = {
-    TestKit.shutdownActorSystem(system)
-    Await.result(system.whenTerminated, 10.seconds)
   }
 
   /**
