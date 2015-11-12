@@ -23,7 +23,7 @@ object ProcessManagerRegistry {
  */
 class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, domainContext: DomainContext) {
 
-  val actor = actorRefFactory.actorOf(Props(new ProcessManagerRegistryActor))
+  val actor = actorRefFactory.actorOf(Props[ProcessManagerRegistryActor], "ProcessManagerRegistry")
 
   def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
     val supervisorFactory = domainContext.entitySupervisorFactory[P]

@@ -39,8 +39,7 @@ abstract class EntitySupport(_system: ActorSystem)
     actors.foreach { actor =>
       watch(actor)
       actor ! PoisonPill
-      // wait until supervisor is terminated
-      fishForMessage(1.seconds) {
+      fishForMessage(5.seconds) {
         case Terminated(_) =>
           unwatch(actor)
           true

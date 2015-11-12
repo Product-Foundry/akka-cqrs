@@ -2,7 +2,8 @@ package com.productfoundry.akka.cqrs
 
 import akka.actor._
 import akka.util.Timeout
-import com.productfoundry.akka.{PassivationConfig, PassivationRequest, ActorContextCreationSupport}
+import com.productfoundry.akka.cqrs.LocalDomainContextActor.GetOrCreateSupervisor
+import com.productfoundry.akka.{ActorContextCreationSupport, PassivationConfig, PassivationRequest}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -86,16 +87,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  */
 class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
 
-  val actor = actorRefFactory.actorOf(Props(new LocalDomainContextActor), "Domain")
-
-  class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
-    override def receive: Actor.Receive = {
-      case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
-      case Terminated(child) => log.warning("Terminated: {}", child.path)
-    }
-  }
-
-  case class GetOrCreateSupervisor(props: Props, name: String)
+  val actor = actorRefFactory.actorOf(Props[LocalDomainContextActor], "Domain")
 
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
@@ -111,4 +103,15 @@ class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext
       }
     }
   }
+}
+
+class LocalDomainContextActor extends Actor with ActorContextCreationSupport with ActorLogging {
+  override def receive: Actor.Receive = {
+    case GetOrCreateSupervisor(props, name) => sender() ! getOrCreateChild(props, name)
+    case Terminated(child) => log.warning("Terminated: {}", child.path)
+  }
+}
+
+object LocalDomainContextActor {
+  case class GetOrCreateSupervisor(props: Props, name: String)
 }

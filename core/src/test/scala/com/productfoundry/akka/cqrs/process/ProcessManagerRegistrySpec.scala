@@ -6,12 +6,13 @@ import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.publish.EventPublication
 import com.productfoundry.support.EntityTestSupport
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class ProcessManagerRegistrySpec
   extends EntityTestSupport
   with Fixtures {
+
+  val registry = ProcessManagerRegistry(system, domainContext)
 
   trait DummyEvent extends AggregateEvent {
     override type Id = DummyId
@@ -57,9 +58,7 @@ class ProcessManagerRegistrySpec
   }
 
   trait fixture {
-    val registry = ProcessManagerRegistry(system, domainContext)
-
-    Await.result(registry.register[DummyProcessManager], duration)
+    registry.register[DummyProcessManager]
 
     system.eventStream.subscribe(self, classOf[Any])
 
