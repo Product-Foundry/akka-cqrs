@@ -8,32 +8,30 @@ import com.productfoundry.akka.messaging.{Deduplication, DeduplicationEntry}
 /**
  * Process manager receives events and generates commands.
  *
- * Messages are deduplicated to ensure they are handled only once.
+ * Messages are de-duplicated to ensure they are handled only once. If a process flow is more complex and needs to
+ * be resumed for example, consider mixing ProcessManager with [[akka.persistence.fsm.PersistentFSM]].
  */
-trait ProcessManager[S, D]
+trait ProcessManager
   extends Entity
   with EventSubscriber
   with Deduplication
   with ActorLogging {
 
   /**
-   * Receive function for aggregate events
-   */
-  /**
    * The current event record.
    */
   private var _eventRecordOption: Option[AggregateEventRecord] = None
 
   /**
-    * @return Indication if there is an event record available.
-    */
+   * @return Indication if there is an event record available.
+   */
   def hasEventRecord: Boolean = _eventRecordOption.isDefined
 
   /**
-    * Provides access to the current event record if it is available.
-    *
-    * @return current event record option.
-    */
+   * Provides access to the current event record if it is available.
+   *
+   * @return current event record option.
+   */
   def eventRecordOption: Option[AggregateEventRecord] = _eventRecordOption
 
   /**

@@ -25,7 +25,7 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, domainContext: Do
 
   val actor = actorRefFactory.actorOf(Props(new ProcessManagerRegistryActor))
 
-  def register[P <: ProcessManager[_, _] : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
+  def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
     val supervisorFactory = domainContext.entitySupervisorFactory[P]
     val supervisorName = supervisorFactory.supervisorName
     val supervisorRef = supervisorFactory.getOrCreate
@@ -66,14 +66,14 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, domainContext: Do
    * @tparam P Process manager type.
    * @return Future that completes when the process manager is registered.
    */
-  def register[P <: ProcessManager[_, _] : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P])(implicit timeout: Timeout): Future[Any] = {
+  def register[P <: ProcessManager : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P])(implicit timeout: Timeout): Future[Any] = {
     register[P](factory, implicitly[ProcessManagerCompanion[P]].idResolution, implicitly[ClassTag[P]], timeout)
   }
 }
 
 object ProcessManagerRegistryActor {
 
-  case class Register(supervisorName: String, supervisorRef: ActorRef, idResolution: EntityIdResolution[_<: ProcessManager[_, _]])
+  case class Register(supervisorName: String, supervisorRef: ActorRef, idResolution: EntityIdResolution[_<: ProcessManager])
 }
 
 class ProcessManagerRegistryActor
@@ -83,7 +83,7 @@ class ProcessManagerRegistryActor
 
   import ProcessManagerRegistryActor._
 
-  case class Registration(supervisorRef: ActorRef, idResolution: EntityIdResolution[_<: ProcessManager[_, _]])
+  case class Registration(supervisorRef: ActorRef, idResolution: EntityIdResolution[_<: ProcessManager])
 
   private var registrations = Map.empty[String, Registration]
 
@@ -101,7 +101,7 @@ class ProcessManagerRegistryActor
           val publication = EventPublication(eventRecord)
           if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
             log.info("{} receives {}", supervisorName, eventRecord.tag)
-            registration.supervisorRef ! publication
+            registration.supervisorRef.forward(publication)
           } else {
             log.debug("{} ignores {}", supervisorName, eventRecord.tag)
           }

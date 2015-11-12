@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 /**
  * Simplifies registration of process managers
  */
-abstract class ProcessManagerCompanion[P <: ProcessManager[_, _]: ClassTag] {
+abstract class ProcessManagerCompanion[P <: ProcessManager: ClassTag] {
 
   /**
    * Name of the process manager, based on class name

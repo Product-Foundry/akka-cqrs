@@ -64,7 +64,7 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
       )
     }
 
-    def register[P <: ProcessManager[_, _] : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P]): Unit = {
+    def register[P <: ProcessManager : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P]): Unit = {
       Await.result(processManagerRegistry.register(factory), executionTimeout.duration)
     }
 

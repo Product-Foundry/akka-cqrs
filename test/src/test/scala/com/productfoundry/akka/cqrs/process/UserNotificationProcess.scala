@@ -31,7 +31,7 @@ object UserNotificationProcess extends ProcessManagerCompanion[UserNotificationP
 
 class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregateFactory: AggregateFactoryProvider)
                              (implicit ec: ExecutionContext, timeout: Timeout)
-  extends ProcessManager[Any, Any] {
+  extends ProcessManager {
 
   override def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent = {
 
