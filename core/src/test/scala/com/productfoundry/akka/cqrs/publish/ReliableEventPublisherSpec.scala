@@ -39,11 +39,6 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
       eventRecord.tag.revision should be(AggregateRevision(1L))
     }
 
-    "include commander" in new fixture {
-      eventPublication.notifyCommanderIfDefined("test")
-      expectMsg("test")
-    }
-
     "have confirmation" in new fixture {
       eventPublication.confirmationOption should be('nonEmpty)
     }

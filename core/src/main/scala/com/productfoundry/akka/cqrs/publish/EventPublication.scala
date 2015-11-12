@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.publish
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.ActorRef
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityMessage}
 import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, Confirmable, Deduplicatable}
 
@@ -12,23 +12,6 @@ trait EventPublication extends Confirmable with Deduplicatable with EntityMessag
    * @return The event record to publish.
    */
   def eventRecord: AggregateEventRecord
-
-  /**
-   * Includes the commander, which can be used to send additional info when handling the published event record.
-   *
-   * The commander is probably never available during recovery.
-   *
-   * @param commander that send the command to the aggregate.
-   * @return Updated commit publication that includes the commander.
-   */
-  def includeCommander(commander: ActorRef): EventPublication
-
-  /**
-   * Notifies the commander if it is defined.
-   *
-   * @param message with the notification.
-   */
-  def notifyCommanderIfDefined(message: Any)(implicit sender: ActorRef = Actor.noSender): Unit
 
   /**
    * Used for deduplication.
@@ -55,13 +38,5 @@ private[this] case class EventPublicationImpl(eventRecord: AggregateEventRecord,
 
   override def requestConfirmation(deliveryId: Long)(implicit requester: ActorRef): EventPublication = {
     copy(confirmationOption = Some(ConfirmDeliveryRequest(requester, deliveryId)))
-  }
-
-  override def includeCommander(commander: ActorRef): EventPublication = {
-    copy(commanderOption = Some(commander))
-  }
-
-  override def notifyCommanderIfDefined(message: Any)(implicit sender: ActorRef = Actor.noSender): Unit = {
-    commanderOption.foreach(_ ! message)
   }
 }

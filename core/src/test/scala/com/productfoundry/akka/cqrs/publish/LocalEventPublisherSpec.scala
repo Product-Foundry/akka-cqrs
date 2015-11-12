@@ -26,11 +26,6 @@ class LocalEventPublisherSpec extends AggregateTestSupport {
       eventRecord.tag.revision should be(AggregateRevision(1L))
     }
 
-    "include commander" in new fixture {
-      eventPublication.notifyCommanderIfDefined("test")
-      expectMsg("test")
-    }
-    
     "not have confirmation" in new fixture {
       eventPublication.confirmationOption should be('empty)
     }

@@ -28,7 +28,7 @@ trait EventPublisher extends CommitHandler with MessagePublisher[EventPublicatio
    */
   def publishCommit(commit: Commit): Unit = {
     commit.records.foreach { record =>
-      publishMessage(EventPublication(record).includeCommander(sender()))
+      publishMessage(EventPublication(record))
     }
   }
 }
