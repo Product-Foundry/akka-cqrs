@@ -22,7 +22,19 @@ trait ProcessManager[S, D]
   /**
    * The current event record.
    */
-  private var eventRecordOption: Option[AggregateEventRecord] = None
+  private var _eventRecordOption: Option[AggregateEventRecord] = None
+
+  /**
+    * @return Indication if there is an event record available.
+    */
+  def hasEventRecord: Boolean = _eventRecordOption.isDefined
+
+  /**
+    * Provides access to the current event record if it is available.
+    *
+    * @return current event record option.
+    */
+  def eventRecordOption: Option[AggregateEventRecord] = _eventRecordOption
 
   /**
    * Provides access to the current event record.
@@ -30,7 +42,7 @@ trait ProcessManager[S, D]
    * @return current event record.
    * @throws ProcessManagerInternalException if no current event record is available.
    */
-  def eventRecord: AggregateEventRecord = eventRecordOption.getOrElse(throw ProcessManagerInternalException("Current event record not defined"))
+  def eventRecord: AggregateEventRecord = _eventRecordOption.getOrElse(throw ProcessManagerInternalException("Current event record not defined"))
 
   /**
    * Handles an event message.
@@ -71,10 +83,10 @@ trait ProcessManager[S, D]
   override def eventReceived: ReceiveEventRecord = {
     case eventRecord: AggregateEventRecord =>
       try {
-        eventRecordOption = Some(eventRecord)
+        _eventRecordOption = Some(eventRecord)
         receiveEvent(eventRecord.tag, eventRecord.headers).applyOrElse(eventRecord.event, unhandled)
       } finally {
-        eventRecordOption = None
+        _eventRecordOption = None
       }
   }
 
