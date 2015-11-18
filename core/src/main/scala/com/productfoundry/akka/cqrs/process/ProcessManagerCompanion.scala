@@ -17,8 +17,8 @@ abstract class ProcessManagerCompanion[P <: ProcessManager: ClassTag] {
   /**
    * Defines how to resolve ids for this process manager.
    *
-   * Allows correlation of events for a process. The process manager will receive any event that resolves to an id.
-   * @return id to correlate events.
+   * Events resolving to the same id are sent to the same process manager instance.
+   * @return id if the process.
    */
   def idResolution: EntityIdResolution[P]
 

@@ -91,6 +91,4 @@ trait ProcessManager
   type ReceiveEvent = PartialFunction[AggregateEvent, Unit]
 
   def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent
-
-  // TODO [AK] Correlation
 }
