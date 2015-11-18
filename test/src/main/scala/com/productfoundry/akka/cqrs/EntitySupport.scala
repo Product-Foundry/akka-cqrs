@@ -39,8 +39,8 @@ abstract class EntitySupport(_system: ActorSystem)
     actors.foreach { actor =>
       watch(actor)
       actor ! PoisonPill
-      fishForMessage(5.seconds) {
-        case Terminated(_) =>
+      fishForMessage(30.seconds) {
+        case Terminated(ref) if ref == actor =>
           unwatch(actor)
           true
         case _ =>
