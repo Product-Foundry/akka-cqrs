@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs
 
+import java.util.UUID
+
 import akka.actor._
 import com.productfoundry.akka.cqrs.AggregateStatus.AggregateStatus
 import com.productfoundry.akka.cqrs.CommandRequest._
@@ -7,6 +9,7 @@ import org.scalatest._
 
 import scala.concurrent.stm._
 import scala.reflect.ClassTag
+import scala.util.Random
 
 /**
  * Base spec for testing aggregates.
@@ -53,7 +56,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    */
   before {
     supervisor = EntitySupervisor.forType[A]
-    commitCollectorOption = Some(LocalCommitCollector())
+    commitCollectorOption = Some(LocalCommitCollector(UUID.randomUUID().toString))
   }
 
   /**

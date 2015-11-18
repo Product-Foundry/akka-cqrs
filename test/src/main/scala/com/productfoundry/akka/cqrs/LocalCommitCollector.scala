@@ -1,21 +1,21 @@
 package com.productfoundry.akka.cqrs
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Props, Actor, ActorLogging, ActorSystem}
 import akka.event.Logging
 
 import scala.concurrent.stm._
 
 /**
- * Collects all commits published on the system event stream.
- *
- * Can be used to check which commits are persisted by aggregates under test.
- * @param system test actor system.
- */
-case class LocalCommitCollector(implicit system: ActorSystem) {
+  * Collects all commits published on the system event stream.
+  *
+  * Can be used to check which commits are persisted by aggregates under test.
+  * @param system test actor system.
+  */
+case class LocalCommitCollector(actorName: String = "CommitCollector")(implicit system: ActorSystem) {
 
   /**
-   * Actor to handle messages from the system event stream and collect commits.
-   */
+    * Actor to handle messages from the system event stream and collect commits.
+    */
   class CollectorActor extends Actor with ActorLogging {
     override def receive: Receive = {
       case commit: Commit =>
@@ -31,16 +31,16 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
     }
 
     /**
-     * Subscribe to the system event stream.
-     */
+      * Subscribe to the system event stream.
+      */
     override def preStart(): Unit = {
       system.eventStream.subscribe(self, classOf[Commit])
       super.preStart()
     }
 
     /**
-     * Unsubscribe from the event stream and dump all commits on Debug level.
-     */
+      * Unsubscribe from the event stream and dump all commits on Debug level.
+      */
     override def postStop(): Unit = {
       system.eventStream.unsubscribe(self)
       dumpCommits(Logging.DebugLevel)
@@ -48,13 +48,13 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
     }
 
     /**
-     * Log all collected commits.
-     * @param level the logging level.
-     */
+      * Log all collected commits.
+      * @param level the logging level.
+      */
     def dumpCommits(level: Logging.LogLevel): Unit = {
       if (log.isEnabled(level)) {
         val commitsWithIndex = commits.single.get.zipWithIndex
-        val commitLines = commitsWithIndex.map { case (commit, i) => s"  ${i + 1}. $commit\n"}
+        val commitLines = commitsWithIndex.map { case (commit, i) => s"  ${i + 1}. $commit\n" }
         log.log(level, s"${commitLines.size} Commits collected\n\n${commitLines.mkString}\n")
       }
     }
@@ -63,25 +63,25 @@ case class LocalCommitCollector(implicit system: ActorSystem) {
   case object DumpCommits
 
   /**
-   * Reference to the commit collector.
-   */
-  val ref = system.actorOf(Props(new CollectorActor), "CommitCollector")
+    * Reference to the commit collector.
+    */
+  val ref = system.actorOf(Props(new CollectorActor), actorName)
 
   /**
-   * All collected commits.
-   */
+    * All collected commits.
+    */
   val commits: Ref[Vector[Commit]] = Ref(Vector.empty)
 
   /**
-   * Tells the commit collector to dump all commits.
-   */
+    * Tells the commit collector to dump all commits.
+    */
   def dumpCommits(): Unit = {
     ref ! DumpCommits
   }
 
   /**
-   * @return a view of all the committed events extracted from the commits.
-   */
+    * @return a view of all the committed events extracted from the commits.
+    */
   def events: Vector[AggregateEvent] = {
     commits.single.get.flatMap(_.records.map(_.event))
   }

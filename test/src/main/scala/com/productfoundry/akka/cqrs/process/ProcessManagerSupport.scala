@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs.process
 
+import java.util.UUID
+
 import akka.actor._
 import akka.testkit.TestProbe
 import com.productfoundry.akka.cqrs._
@@ -19,7 +21,7 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
   var processManagerRegistry: ProcessManagerRegistry = null
 
   before {
-    domainContext = new LocalDomainContext(system)
+    domainContext = new LocalDomainContext(system, UUID.randomUUID().toString)
     processManagerRegistry = ProcessManagerRegistry(system, domainContext)
   }
 

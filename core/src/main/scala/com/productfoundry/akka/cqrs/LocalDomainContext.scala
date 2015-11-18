@@ -85,9 +85,9 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  *
  * @param actorRefFactory used to create entities supervisor factories.
  */
-class LocalDomainContext(actorRefFactory: ActorRefFactory) extends DomainContext {
+class LocalDomainContext(actorRefFactory: ActorRefFactory, actorName: String = "Domain") extends DomainContext {
 
-  val actor = actorRefFactory.actorOf(Props[LocalDomainContextActor], "Domain")
+  val actor = actorRefFactory.actorOf(Props[LocalDomainContextActor], actorName)
 
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
