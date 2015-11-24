@@ -49,9 +49,11 @@ lazy val inmem = project
     name := "akka-cqrs-inmem",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-persistence"     % akkaVersion,
-      "com.typesafe.akka"      %% "akka-persistence-tck" % akkaVersion % "test",
-      "org.scalatest"          %% "scalatest"            % "2.2.4"     % "test"
+      "com.typesafe.akka"      %% "akka-persistence"                    % akkaVersion,
+      "com.typesafe.akka"      %% "akka-persistence-query-experimental" % akkaVersion,
+      "org.scala-stm"          %% "scala-stm"                           % "0.7",
+      "com.typesafe.akka"      %% "akka-persistence-tck"                % akkaVersion  % "test",
+      "org.scalatest"          %% "scalatest"                           % "2.2.4"      % "test"
     )
   )
   .settings(bintrayPublishSettings: _*)
@@ -63,13 +65,14 @@ lazy val core = project
     name := "akka-cqrs",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-persistence"                  % akkaVersion,
-      "com.typesafe.akka"      %% "akka-cluster"                      % akkaVersion,
-      "com.google.protobuf"    %  "protobuf-java"                     % "2.5.0",
-      "org.scala-stm"          %% "scala-stm"                         % "0.7",
-      "org.scalatest"          %% "scalatest"                         % "2.2.4"     % "test",
-      "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion % "test",
-      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"    % "test"
+      "com.typesafe.akka"      %% "akka-persistence"                    % akkaVersion,
+      "com.typesafe.akka"      %% "akka-persistence-query-experimental" % akkaVersion,
+      "com.typesafe.akka"      %% "akka-cluster"                        % akkaVersion,
+      "com.google.protobuf"    %  "protobuf-java"                       % "2.5.0",
+      "org.scala-stm"          %% "scala-stm"                           % "0.7",
+      "org.scalatest"          %% "scalatest"                           % "2.2.4"     % "test",
+      "com.typesafe.akka"      %% "akka-testkit"                        % akkaVersion % "test",
+      "org.scalacheck"         %% "scalacheck"                          % "1.12.2"    % "test"
     )
   )
   .settings(bintrayPublishSettings: _*)

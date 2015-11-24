@@ -225,7 +225,6 @@ class AggregateSpec extends AggregateTestSupport {
         case AggregateStatus.Failure(conflict: RevisionConflict) =>
           conflict.expected should be(expected)
           conflict.actual should be(actual)
-          conflict.recordsOption should be('empty)
       }
     }
 
@@ -243,7 +242,6 @@ class AggregateSpec extends AggregateTestSupport {
         case AggregateStatus.Failure(conflict: RevisionConflict) =>
           conflict.expected should be(expected)
           conflict.actual should be(actual)
-          conflict.recordsOption.get.size should be(actual.value - expected.value)
       }
     }
   }
@@ -289,8 +287,6 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Count(testId).withExpectedRevision(AggregateRevision(1L))
       expectMsgPF() {
         case AggregateStatus.Failure(conflict: RevisionConflict) =>
-          conflict.recordsOption.get.size should be(1)
-          conflict.recordsOption.get.head.headers.metadata should be(metadata)
       }
     }
   }
