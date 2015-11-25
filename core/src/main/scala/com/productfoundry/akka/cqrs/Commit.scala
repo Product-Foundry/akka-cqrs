@@ -9,7 +9,7 @@ import com.productfoundry.akka.serialization.Persistable
  * @param headersOption optionally specify additional event info.
  * @param entries in the commit.
  */
-case class Commit(tag: AggregateTag, headersOption: Option[AggregateEventHeaders], entries: Seq[CommitEntry]) extends Persistable {
+case class Commit(tag: AggregateTag, headersOption: Option[CommitHeaders], entries: Seq[CommitEntry]) extends Persistable {
 
   /**
    * @return All event records from this commit.

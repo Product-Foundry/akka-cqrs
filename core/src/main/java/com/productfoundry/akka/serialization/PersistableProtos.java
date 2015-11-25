@@ -716,7 +716,7 @@ public final class PersistableProtos {
     // @@protoc_insertion_point(class_scope:PersistentAggregateTag)
   }
 
-  public interface PersistentAggregateEventHeadersOrBuilder
+  public interface PersistentCommitHeadersOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
     // optional int32 serializerId = 1;
@@ -750,24 +750,24 @@ public final class PersistableProtos {
     com.google.protobuf.ByteString getHeadersManifest();
   }
   /**
-   * Protobuf type {@code PersistentAggregateEventHeaders}
+   * Protobuf type {@code PersistentCommitHeaders}
    */
-  public static final class PersistentAggregateEventHeaders extends
+  public static final class PersistentCommitHeaders extends
       com.google.protobuf.GeneratedMessage
-      implements PersistentAggregateEventHeadersOrBuilder {
-    // Use PersistentAggregateEventHeaders.newBuilder() to construct.
-    private PersistentAggregateEventHeaders(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      implements PersistentCommitHeadersOrBuilder {
+    // Use PersistentCommitHeaders.newBuilder() to construct.
+    private PersistentCommitHeaders(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private PersistentAggregateEventHeaders(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+    private PersistentCommitHeaders(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    private static final PersistentAggregateEventHeaders defaultInstance;
-    public static PersistentAggregateEventHeaders getDefaultInstance() {
+    private static final PersistentCommitHeaders defaultInstance;
+    public static PersistentCommitHeaders getDefaultInstance() {
       return defaultInstance;
     }
 
-    public PersistentAggregateEventHeaders getDefaultInstanceForType() {
+    public PersistentCommitHeaders getDefaultInstanceForType() {
       return defaultInstance;
     }
 
@@ -777,7 +777,7 @@ public final class PersistableProtos {
         getUnknownFields() {
       return this.unknownFields;
     }
-    private PersistentAggregateEventHeaders(
+    private PersistentCommitHeaders(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -829,28 +829,28 @@ public final class PersistableProtos {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_descriptor;
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentCommitHeaders_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_fieldAccessorTable
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentCommitHeaders_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder.class);
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<PersistentAggregateEventHeaders> PARSER =
-        new com.google.protobuf.AbstractParser<PersistentAggregateEventHeaders>() {
-      public PersistentAggregateEventHeaders parsePartialFrom(
+    public static com.google.protobuf.Parser<PersistentCommitHeaders> PARSER =
+        new com.google.protobuf.AbstractParser<PersistentCommitHeaders>() {
+      public PersistentCommitHeaders parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new PersistentAggregateEventHeaders(input, extensionRegistry);
+        return new PersistentCommitHeaders(input, extensionRegistry);
       }
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<PersistentAggregateEventHeaders> getParserForType() {
+    public com.google.protobuf.Parser<PersistentCommitHeaders> getParserForType() {
       return PARSER;
     }
 
@@ -962,53 +962,53 @@ public final class PersistableProtos {
       return super.writeReplace();
     }
 
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(byte[] data)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(java.io.InputStream input)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseDelimitedFrom(java.io.InputStream input)
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseDelimitedFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parseFrom(
+    public static com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1017,7 +1017,7 @@ public final class PersistableProtos {
 
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders prototype) {
+    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -1029,24 +1029,24 @@ public final class PersistableProtos {
       return builder;
     }
     /**
-     * Protobuf type {@code PersistentAggregateEventHeaders}
+     * Protobuf type {@code PersistentCommitHeaders}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder {
+       implements com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_descriptor;
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentCommitHeaders_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_fieldAccessorTable
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentCommitHeaders_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder.class);
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder.class);
       }
 
-      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.newBuilder()
+      // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1081,23 +1081,23 @@ public final class PersistableProtos {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_descriptor;
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentCommitHeaders_descriptor;
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getDefaultInstanceForType() {
-        return com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getDefaultInstanceForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders build() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders result = buildPartial();
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders build() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders buildPartial() {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders(this);
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders buildPartial() {
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1118,16 +1118,16 @@ public final class PersistableProtos {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders) {
-          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders)other);
+        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders) {
+          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders other) {
-        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders other) {
+        if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance()) return this;
         if (other.hasSerializerId()) {
           setSerializerId(other.getSerializerId());
         }
@@ -1149,11 +1149,11 @@ public final class PersistableProtos {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders parsedMessage = null;
+        com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders) e.getUnfinishedMessage();
+          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -1269,15 +1269,15 @@ public final class PersistableProtos {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:PersistentAggregateEventHeaders)
+      // @@protoc_insertion_point(builder_scope:PersistentCommitHeaders)
     }
 
     static {
-      defaultInstance = new PersistentAggregateEventHeaders(true);
+      defaultInstance = new PersistentCommitHeaders(true);
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:PersistentAggregateEventHeaders)
+    // @@protoc_insertion_point(class_scope:PersistentCommitHeaders)
   }
 
   public interface PersistentAggregateEventOrBuilder
@@ -1861,19 +1861,19 @@ public final class PersistableProtos {
      */
     com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateTagOrBuilder getTagOrBuilder();
 
-    // optional .PersistentAggregateEventHeaders headers = 2;
+    // optional .PersistentCommitHeaders headers = 2;
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
     boolean hasHeaders();
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
-    com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders();
+    com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders();
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
-    com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder();
+    com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder();
 
     // repeated .PersistentCommit.PersistentCommitEntry entries = 3;
     /**
@@ -1965,11 +1965,11 @@ public final class PersistableProtos {
               break;
             }
             case 18: {
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder subBuilder = null;
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = headers_.toBuilder();
               }
-              headers_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PARSER, extensionRegistry);
+              headers_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(headers_);
                 headers_ = subBuilder.buildPartial();
@@ -2638,25 +2638,25 @@ public final class PersistableProtos {
       return tag_;
     }
 
-    // optional .PersistentAggregateEventHeaders headers = 2;
+    // optional .PersistentCommitHeaders headers = 2;
     public static final int HEADERS_FIELD_NUMBER = 2;
-    private com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders headers_;
+    private com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders headers_;
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
     public boolean hasHeaders() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
-    public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders() {
+    public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders() {
       return headers_;
     }
     /**
-     * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+     * <code>optional .PersistentCommitHeaders headers = 2;</code>
      */
-    public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder() {
+    public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder() {
       return headers_;
     }
 
@@ -2698,7 +2698,7 @@ public final class PersistableProtos {
 
     private void initFields() {
       tag_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateTag.getDefaultInstance();
-      headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+      headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
       entries_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -2869,7 +2869,7 @@ public final class PersistableProtos {
         }
         bitField0_ = (bitField0_ & ~0x00000001);
         if (headersBuilder_ == null) {
-          headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+          headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
         } else {
           headersBuilder_.clear();
         }
@@ -3125,20 +3125,20 @@ public final class PersistableProtos {
         return tagBuilder_;
       }
 
-      // optional .PersistentAggregateEventHeaders headers = 2;
-      private com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+      // optional .PersistentCommitHeaders headers = 2;
+      private com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder> headersBuilder_;
+          com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder> headersBuilder_;
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       public boolean hasHeaders() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders() {
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders() {
         if (headersBuilder_ == null) {
           return headers_;
         } else {
@@ -3146,9 +3146,9 @@ public final class PersistableProtos {
         }
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public Builder setHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders value) {
+      public Builder setHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders value) {
         if (headersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -3162,10 +3162,10 @@ public final class PersistableProtos {
         return this;
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       public Builder setHeaders(
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder builderForValue) {
+          com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder builderForValue) {
         if (headersBuilder_ == null) {
           headers_ = builderForValue.build();
           onChanged();
@@ -3176,14 +3176,14 @@ public final class PersistableProtos {
         return this;
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public Builder mergeHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders value) {
+      public Builder mergeHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders value) {
         if (headersBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              headers_ != com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance()) {
+              headers_ != com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance()) {
             headers_ =
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.newBuilder(headers_).mergeFrom(value).buildPartial();
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.newBuilder(headers_).mergeFrom(value).buildPartial();
           } else {
             headers_ = value;
           }
@@ -3195,11 +3195,11 @@ public final class PersistableProtos {
         return this;
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       public Builder clearHeaders() {
         if (headersBuilder_ == null) {
-          headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+          headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
           onChanged();
         } else {
           headersBuilder_.clear();
@@ -3208,17 +3208,17 @@ public final class PersistableProtos {
         return this;
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder getHeadersBuilder() {
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder getHeadersBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getHeadersFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder() {
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder() {
         if (headersBuilder_ != null) {
           return headersBuilder_.getMessageOrBuilder();
         } else {
@@ -3226,14 +3226,14 @@ public final class PersistableProtos {
         }
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder> 
+          com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder> 
           getHeadersFieldBuilder() {
         if (headersBuilder_ == null) {
           headersBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder>(
+              com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder>(
                   headers_,
                   getParentForChildren(),
                   isClean());
@@ -4512,19 +4512,19 @@ public final class PersistableProtos {
        */
       com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateTagOrBuilder getTagOrBuilder();
 
-      // optional .PersistentAggregateEventHeaders headers = 2;
+      // optional .PersistentCommitHeaders headers = 2;
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       boolean hasHeaders();
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders();
+      com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders();
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder();
+      com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder();
 
       // optional .PersistentAggregateEvent event = 3;
       /**
@@ -4605,11 +4605,11 @@ public final class PersistableProtos {
                 break;
               }
               case 18: {
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder subBuilder = null;
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000002) == 0x00000002)) {
                   subBuilder = headers_.toBuilder();
                 }
-                headers_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PARSER, extensionRegistry);
+                headers_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.PARSER, extensionRegistry);
                 if (subBuilder != null) {
                   subBuilder.mergeFrom(headers_);
                   headers_ = subBuilder.buildPartial();
@@ -4692,25 +4692,25 @@ public final class PersistableProtos {
         return tag_;
       }
 
-      // optional .PersistentAggregateEventHeaders headers = 2;
+      // optional .PersistentCommitHeaders headers = 2;
       public static final int HEADERS_FIELD_NUMBER = 2;
-      private com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders headers_;
+      private com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders headers_;
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
       public boolean hasHeaders() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders() {
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders() {
         return headers_;
       }
       /**
-       * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+       * <code>optional .PersistentCommitHeaders headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder() {
+      public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder() {
         return headers_;
       }
 
@@ -4738,7 +4738,7 @@ public final class PersistableProtos {
 
       private void initFields() {
         tag_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateTag.getDefaultInstance();
-        headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+        headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
         event_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEvent.getDefaultInstance();
       }
       private byte memoizedIsInitialized = -1;
@@ -4909,7 +4909,7 @@ public final class PersistableProtos {
           }
           bitField0_ = (bitField0_ & ~0x00000001);
           if (headersBuilder_ == null) {
-            headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+            headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
           } else {
             headersBuilder_.clear();
           }
@@ -5141,20 +5141,20 @@ public final class PersistableProtos {
           return tagBuilder_;
         }
 
-        // optional .PersistentAggregateEventHeaders headers = 2;
-        private com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+        // optional .PersistentCommitHeaders headers = 2;
+        private com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder> headersBuilder_;
+            com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder> headersBuilder_;
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
         public boolean hasHeaders() {
           return ((bitField0_ & 0x00000002) == 0x00000002);
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders getHeaders() {
+        public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders getHeaders() {
           if (headersBuilder_ == null) {
             return headers_;
           } else {
@@ -5162,9 +5162,9 @@ public final class PersistableProtos {
           }
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
-        public Builder setHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders value) {
+        public Builder setHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders value) {
           if (headersBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
@@ -5178,10 +5178,10 @@ public final class PersistableProtos {
           return this;
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
         public Builder setHeaders(
-            com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder builderForValue) {
+            com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder builderForValue) {
           if (headersBuilder_ == null) {
             headers_ = builderForValue.build();
             onChanged();
@@ -5192,14 +5192,14 @@ public final class PersistableProtos {
           return this;
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
-        public Builder mergeHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders value) {
+        public Builder mergeHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders value) {
           if (headersBuilder_ == null) {
             if (((bitField0_ & 0x00000002) == 0x00000002) &&
-                headers_ != com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance()) {
+                headers_ != com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance()) {
               headers_ =
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.newBuilder(headers_).mergeFrom(value).buildPartial();
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.newBuilder(headers_).mergeFrom(value).buildPartial();
             } else {
               headers_ = value;
             }
@@ -5211,11 +5211,11 @@ public final class PersistableProtos {
           return this;
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
         public Builder clearHeaders() {
           if (headersBuilder_ == null) {
-            headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance();
+            headers_ = com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.getDefaultInstance();
             onChanged();
           } else {
             headersBuilder_.clear();
@@ -5224,17 +5224,17 @@ public final class PersistableProtos {
           return this;
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder getHeadersBuilder() {
+        public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder getHeadersBuilder() {
           bitField0_ |= 0x00000002;
           onChanged();
           return getHeadersFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder getHeadersOrBuilder() {
+        public com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder getHeadersOrBuilder() {
           if (headersBuilder_ != null) {
             return headersBuilder_.getMessageOrBuilder();
           } else {
@@ -5242,14 +5242,14 @@ public final class PersistableProtos {
           }
         }
         /**
-         * <code>optional .PersistentAggregateEventHeaders headers = 2;</code>
+         * <code>optional .PersistentCommitHeaders headers = 2;</code>
          */
         private com.google.protobuf.SingleFieldBuilder<
-            com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder> 
+            com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder> 
             getHeadersFieldBuilder() {
           if (headersBuilder_ == null) {
             headersBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeadersOrBuilder>(
+                com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeaders.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentCommitHeadersOrBuilder>(
                     headers_,
                     getParentForChildren(),
                     isClean());
@@ -6241,10 +6241,10 @@ public final class PersistableProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_PersistentAggregateTag_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_PersistentAggregateEventHeaders_descriptor;
+    internal_static_PersistentCommitHeaders_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_PersistentAggregateEventHeaders_fieldAccessorTable;
+      internal_static_PersistentCommitHeaders_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_PersistentAggregateEvent_descriptor;
   private static
@@ -6296,31 +6296,30 @@ public final class PersistableProtos {
     java.lang.String[] descriptorData = {
       "\n\027PersistableProtos.proto\"D\n\026PersistentA" +
       "ggregateTag\022\014\n\004name\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022\020\n" +
-      "\010revision\030\003 \001(\003\"a\n\037PersistentAggregateEv" +
-      "entHeaders\022\024\n\014serializerId\030\001 \001(\005\022\017\n\007head" +
-      "ers\030\002 \001(\014\022\027\n\017headersManifest\030\003 \001(\014\"V\n\030Pe" +
-      "rsistentAggregateEvent\022\024\n\014serializerId\030\001" +
-      " \001(\005\022\r\n\005event\030\002 \001(\014\022\025\n\reventManifest\030\003 \001" +
-      "(\014\"\372\001\n\020PersistentCommit\022$\n\003tag\030\001 \001(\0132\027.P" +
-      "ersistentAggregateTag\0221\n\007headers\030\002 \001(\0132 " +
-      ".PersistentAggregateEventHeaders\0228\n\007entr",
-      "ies\030\003 \003(\0132\'.PersistentCommit.PersistentC" +
-      "ommitEntry\032S\n\025PersistentCommitEntry\022\020\n\010r" +
-      "evision\030\001 \001(\003\022(\n\005event\030\002 \001(\0132\031.Persisten" +
-      "tAggregateEvent\"1\n\033PersistentConfirmedDe" +
-      "livery\022\022\n\ndeliveryId\030\001 \001(\003\"7\n\034Persistent" +
-      "DeduplicationEntry\022\027\n\017deduplicationId\030\001 " +
-      "\001(\t\"\235\002\n\026PersistentDomainCommit\022\020\n\010revisi" +
-      "on\030\001 \001(\003\022K\n\013eventRecord\030\002 \001(\01326.Persiste" +
-      "ntDomainCommit.PersistentAggregateEventR" +
-      "ecord\032\243\001\n\036PersistentAggregateEventRecord",
-      "\022$\n\003tag\030\001 \001(\0132\027.PersistentAggregateTag\0221" +
-      "\n\007headers\030\002 \001(\0132 .PersistentAggregateEve" +
-      "ntHeaders\022(\n\005event\030\003 \001(\0132\031.PersistentAgg" +
-      "regateEvent\"6\n\"PersistentDomainAggregato" +
-      "rSnapshot\022\020\n\010revision\030\001 \001(\003B<\n%com.produ" +
-      "ctfoundry.akka.serializationB\021Persistabl" +
-      "eProtosH\001"
+      "\010revision\030\003 \001(\003\"Y\n\027PersistentCommitHeade" +
+      "rs\022\024\n\014serializerId\030\001 \001(\005\022\017\n\007headers\030\002 \001(" +
+      "\014\022\027\n\017headersManifest\030\003 \001(\014\"V\n\030Persistent" +
+      "AggregateEvent\022\024\n\014serializerId\030\001 \001(\005\022\r\n\005" +
+      "event\030\002 \001(\014\022\025\n\reventManifest\030\003 \001(\014\"\362\001\n\020P" +
+      "ersistentCommit\022$\n\003tag\030\001 \001(\0132\027.Persisten" +
+      "tAggregateTag\022)\n\007headers\030\002 \001(\0132\030.Persist" +
+      "entCommitHeaders\0228\n\007entries\030\003 \003(\0132\'.Pers",
+      "istentCommit.PersistentCommitEntry\032S\n\025Pe" +
+      "rsistentCommitEntry\022\020\n\010revision\030\001 \001(\003\022(\n" +
+      "\005event\030\002 \001(\0132\031.PersistentAggregateEvent\"" +
+      "1\n\033PersistentConfirmedDelivery\022\022\n\ndelive" +
+      "ryId\030\001 \001(\003\"7\n\034PersistentDeduplicationEnt" +
+      "ry\022\027\n\017deduplicationId\030\001 \001(\t\"\225\002\n\026Persiste" +
+      "ntDomainCommit\022\020\n\010revision\030\001 \001(\003\022K\n\013even" +
+      "tRecord\030\002 \001(\01326.PersistentDomainCommit.P" +
+      "ersistentAggregateEventRecord\032\233\001\n\036Persis" +
+      "tentAggregateEventRecord\022$\n\003tag\030\001 \001(\0132\027.",
+      "PersistentAggregateTag\022)\n\007headers\030\002 \001(\0132" +
+      "\030.PersistentCommitHeaders\022(\n\005event\030\003 \001(\013" +
+      "2\031.PersistentAggregateEvent\"6\n\"Persisten" +
+      "tDomainAggregatorSnapshot\022\020\n\010revision\030\001 " +
+      "\001(\003B<\n%com.productfoundry.akka.serializa" +
+      "tionB\021PersistableProtosH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -6333,11 +6332,11 @@ public final class PersistableProtos {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PersistentAggregateTag_descriptor,
               new java.lang.String[] { "Name", "Id", "Revision", });
-          internal_static_PersistentAggregateEventHeaders_descriptor =
+          internal_static_PersistentCommitHeaders_descriptor =
             getDescriptor().getMessageTypes().get(1);
-          internal_static_PersistentAggregateEventHeaders_fieldAccessorTable = new
+          internal_static_PersistentCommitHeaders_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_PersistentAggregateEventHeaders_descriptor,
+              internal_static_PersistentCommitHeaders_descriptor,
               new java.lang.String[] { "SerializerId", "Headers", "HeadersManifest", });
           internal_static_PersistentAggregateEvent_descriptor =
             getDescriptor().getMessageTypes().get(2);

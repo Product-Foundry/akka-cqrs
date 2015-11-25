@@ -90,5 +90,5 @@ trait ProcessManager
 
   type ReceiveEvent = PartialFunction[AggregateEvent, Unit]
 
-  def receiveEvent(tag: AggregateTag, headersOption: Option[AggregateEventHeaders]): ReceiveEvent
+  def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent
 }

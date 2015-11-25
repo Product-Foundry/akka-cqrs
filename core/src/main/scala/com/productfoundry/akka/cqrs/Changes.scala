@@ -18,7 +18,7 @@ sealed trait Changes {
   /**
    * @return optional headers to store with the commit
    */
-  def headersOption: Option[AggregateEventHeaders]
+  def headersOption: Option[CommitHeaders]
 
   /**
    * @return payload for additional response.
@@ -39,7 +39,7 @@ sealed trait Changes {
     * @param headers to store.
     * @return changes with updated headers.
     */
-  def withHeaders(headers: AggregateEventHeaders): Changes
+  def withHeaders(headers: CommitHeaders): Changes
 
   /**
    * Creates a commit from the specified changes.
@@ -62,7 +62,7 @@ object Changes {
   def apply(events: AggregateEvent*): Changes = AggregateChanges(events)
 }
 
-private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Option[Any]= None, headersOption: Option[AggregateEventHeaders] = None) extends Changes {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Option[Any]= None, headersOption: Option[CommitHeaders] = None) extends Changes {
 
   /**
    * @return True if there are no changes.
@@ -83,7 +83,7 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @param headers to store.
    * @return changes with updated headers.
    */
-  override def withHeaders(headers: AggregateEventHeaders) = copy(headersOption = Some(headers))
+  override def withHeaders(headers: CommitHeaders) = copy(headersOption = Some(headers))
 
   /**
    * Creates a commit from the specified changes.

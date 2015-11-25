@@ -233,7 +233,7 @@ trait Aggregate
     *
     * @return the commit headers to store with the commit.
     */
-  def getDefaultHeaders: Option[AggregateEventHeaders] = commandRequestOption.flatMap(_.headersOption)
+  def getDefaultHeaders: Option[CommitHeaders] = commandRequestOption.flatMap(_.headersOption)
 
   /**
     * Commit changes.

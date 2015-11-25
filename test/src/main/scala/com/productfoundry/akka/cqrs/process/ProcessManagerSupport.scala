@@ -55,7 +55,7 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
 
     def createEventRecord(event: AggregateEvent,
                           nameOption: Option[String] = None,
-                          headersOption: Option[AggregateEventHeaders] = None): AggregateEventRecord = {
+                          headersOption: Option[CommitHeaders] = None): AggregateEventRecord = {
 
       val aggregateName = nameOption.getOrElse(event.getClass.getSimpleName)
 

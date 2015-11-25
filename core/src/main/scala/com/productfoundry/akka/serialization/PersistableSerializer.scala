@@ -63,7 +63,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
     Commit(
       aggregateTag(persistentCommit.getTag),
-      if (persistentCommit.hasHeaders) Some(aggregateEventHeaders(persistentCommit.getHeaders)) else None,
+      if (persistentCommit.hasHeaders) Some(commitHeaders(persistentCommit.getHeaders)) else None,
       entries.toSeq
     )
   }
@@ -82,7 +82,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
       ProjectionRevision(persistentDomainCommit.getRevision),
       AggregateEventRecord(
         aggregateTag(persistentEventRecord.getTag),
-        if (persistentEventRecord.hasHeaders) Some(aggregateEventHeaders(persistentEventRecord.getHeaders)) else None,
+        if (persistentEventRecord.hasHeaders) Some(commitHeaders(persistentEventRecord.getHeaders)) else None,
         aggregateEvent(persistentEventRecord.getEvent)
       )
     )
@@ -106,7 +106,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def aggregateEventHeaders(persistentHeaders: proto.PersistentAggregateEventHeaders): AggregateEventHeaders = {
+  private def commitHeaders(persistentHeaders: proto.PersistentCommitHeaders): CommitHeaders = {
 
     val manifest = if (persistentHeaders.hasHeadersManifest) {
       persistentHeaders.getHeadersManifest.toStringUtf8
@@ -118,7 +118,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
       persistentHeaders.getHeaders.toByteArray,
       persistentHeaders.getSerializerId,
       manifest
-    ).get.asInstanceOf[AggregateEventHeaders]
+    ).get.asInstanceOf[CommitHeaders]
   }
 
   private def aggregateEvent(persistentAggregateEvent: proto.PersistentAggregateEvent): AggregateEvent = {
@@ -142,7 +142,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder.setTag(persistentAggregateTag(commit.tag))
 
     commit.headersOption.foreach { headers =>
-      builder.setHeaders(persistentAggregateEventHeaders(headers))
+      builder.setHeaders(persistentCommitHeaders(headers))
     }
 
     commit.entries.foreach { entry =>
@@ -169,7 +169,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     eventRecordBuilder.setTag(persistentAggregateTag(eventRecord.tag))
 
     eventRecord.headersOption.foreach { headers =>
-      eventRecordBuilder.setHeaders(persistentAggregateEventHeaders(headers))
+      eventRecordBuilder.setHeaders(persistentCommitHeaders(headers))
     }
 
     eventRecordBuilder.setEvent(persistentAggregateEvent(eventRecord.event))
@@ -200,9 +200,9 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentAggregateEventHeaders(headers: AggregateEventHeaders): proto.PersistentAggregateEventHeaders.Builder = {
+  private def persistentCommitHeaders(headers: CommitHeaders): proto.PersistentCommitHeaders.Builder = {
     val serializer = serialization.findSerializerFor(headers)
-    val builder = proto.PersistentAggregateEventHeaders.newBuilder()
+    val builder = proto.PersistentCommitHeaders.newBuilder()
 
     builder.setSerializerId(serializer.identifier)
     createManifestOption(serializer, headers).foreach(builder.setHeadersManifest)

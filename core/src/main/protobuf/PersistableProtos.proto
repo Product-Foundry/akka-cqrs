@@ -10,7 +10,7 @@ message PersistentAggregateTag {
     optional int64 revision = 3;
 }
 
-message PersistentAggregateEventHeaders {
+message PersistentCommitHeaders {
     optional int32 serializerId = 1;
     optional bytes headers = 2;
     optional bytes headersManifest = 3;
@@ -30,7 +30,7 @@ message PersistentCommit {
     }
 
     optional PersistentAggregateTag tag = 1;
-    optional PersistentAggregateEventHeaders headers = 2;
+    optional PersistentCommitHeaders headers = 2;
     repeated PersistentCommitEntry entries = 3;
 }
 
@@ -47,7 +47,7 @@ message PersistentDomainCommit {
 
     message PersistentAggregateEventRecord {
         optional PersistentAggregateTag tag = 1;
-        optional PersistentAggregateEventHeaders headers = 2;
+        optional PersistentCommitHeaders headers = 2;
         optional PersistentAggregateEvent event = 3;
     }
 

@@ -55,12 +55,12 @@ trait CommandRequest extends AggregateMessage {
    * @param headers to store.
    * @return command request with updated headers.
    */
-  def withHeaders(headers: AggregateEventHeaders): CommandRequest
+  def withHeaders(headers: CommitHeaders): CommandRequest
 
   /**
    * @return Optional headers specified with the command.
    */
-  def headersOption: Option[AggregateEventHeaders]
+  def headersOption: Option[CommitHeaders]
 }
 
 object CommandRequest {
@@ -90,7 +90,7 @@ object CommandRequest {
  */
 private[this] case class AggregateCommandRequest(command: AggregateCommand,
                                                  expectedOption: Option[AggregateRevision] = None,
-                                                 headersOption: Option[AggregateEventHeaders] = None) extends CommandRequest {
+                                                 headersOption: Option[CommitHeaders] = None) extends CommandRequest {
   type Id = command.Id
 
   /**
@@ -129,7 +129,7 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand,
     * @param headers to store.
     * @return command request with updated headers.
     */
-  override def withHeaders(headers: AggregateEventHeaders): CommandRequest = {
+  override def withHeaders(headers: CommitHeaders): CommandRequest = {
     copy(headersOption = Some(headers))
   }
 }
