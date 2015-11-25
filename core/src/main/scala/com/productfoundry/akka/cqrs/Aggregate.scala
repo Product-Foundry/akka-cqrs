@@ -209,7 +209,7 @@ trait Aggregate
     *
     * @param changesAttempt containing changes or a validation failure.
     */
-  def tryCommit(changesAttempt: Either[DomainError, Changes]): Unit = {
+  def tryCommit(changesAttempt: Either[AggregateUpdateFailure, Changes]): Unit = {
     if (isDeleted) {
       sender() ! AggregateStatus.Failure(AggregateDeleted(revision))
     } else {

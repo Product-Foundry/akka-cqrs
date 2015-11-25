@@ -7,4 +7,4 @@ package com.productfoundry.akka.cqrs
   * @param actual revision.
   */
 case class RevisionConflict(expected: AggregateRevision,
-                            actual: AggregateRevision) extends DomainError
+                            actual: AggregateRevision) extends AggregateUpdateFailure

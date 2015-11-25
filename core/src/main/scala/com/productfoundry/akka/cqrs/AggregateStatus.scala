@@ -17,6 +17,6 @@ object AggregateStatus {
    * Indicates an update failure that can be corrected by the user.
    * @param cause of the failure
    */
-  case class Failure(cause: DomainError) extends AggregateStatus
+  case class Failure(cause: AggregateUpdateFailure) extends AggregateStatus
 
 }
