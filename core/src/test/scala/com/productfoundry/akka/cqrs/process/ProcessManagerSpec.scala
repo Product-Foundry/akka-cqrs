@@ -80,7 +80,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
     system.eventStream.subscribe(self, classOf[Any])
 
     def createUniquePublications(commit: Commit): Seq[EventPublication] = {
-      commit.records.map(EventPublication.apply).groupBy(_.deduplicationId).map(_._2.head).toSeq
+      commit.records.map(EventPublication.apply).groupBy(_.eventRecord.tag).map(_._2.head).toSeq
     }
   }
 

@@ -2,9 +2,9 @@ package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.ActorRef
 import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityMessage}
-import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, Confirmable, Deduplicatable}
+import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, Confirmable}
 
-trait EventPublication extends Confirmable with Deduplicatable with EntityMessage {
+trait EventPublication extends Confirmable with EntityMessage {
 
   override type self = EventPublication
 
@@ -12,11 +12,6 @@ trait EventPublication extends Confirmable with Deduplicatable with EntityMessag
    * @return The event record to publish.
    */
   def eventRecord: AggregateEventRecord
-
-  /**
-   * Used for deduplication.
-   */
-  override def deduplicationId: String = eventRecord.tag.value
 }
 
 /**

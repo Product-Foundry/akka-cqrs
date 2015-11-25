@@ -4,9 +4,10 @@ import akka.actor.ExtendedActorSystem
 import akka.serialization._
 import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
+import com.productfoundry.akka.cqrs.process.DeduplicationEntry
 import com.productfoundry.akka.cqrs.project.ProjectionRevision
 import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainAggregatorSnapshot}
-import com.productfoundry.akka.messaging.{ConfirmedDelivery, DeduplicationEntry}
+import com.productfoundry.akka.messaging.ConfirmedDelivery
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
 /**

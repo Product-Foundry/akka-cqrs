@@ -2,8 +2,10 @@ package com.productfoundry.akka.cqrs.project.domain
 
 import akka.actor.ActorLogging
 import akka.persistence.{PersistentActor, SnapshotOffer}
+import akka.productfoundry.contrib.pattern.ReceivePipeline
 import com.productfoundry.akka.cqrs.AggregateEventRecord
-import com.productfoundry.akka.cqrs.project.{ProjectionRevision, ProjectionUpdate, Projector}
+import com.productfoundry.akka.cqrs.project.ProjectionRevision
+import com.productfoundry.akka.cqrs.publish.EventPublicationInterceptor
 
 /**
  * Persistent actor that aggregates all received event records.
@@ -25,13 +27,9 @@ import com.productfoundry.akka.cqrs.project.{ProjectionRevision, ProjectionUpdat
 @deprecated("use Persistence Query instead", "0.1.28")
 class DomainAggregator(override val persistenceId: String, val snapshotInterval: Int = 100)
   extends PersistentActor
-  with Projector
-  with ActorLogging {
-
-  /**
-   * Uniquely identifies a projection created by the projector.
-   */
-  override def projectionId: String = persistenceId
+  with ActorLogging
+  with ReceivePipeline
+  with EventPublicationInterceptor{
 
   /**
    * Keeps track of the current revision.
@@ -46,17 +44,13 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
   /**
    * Receive published events.
    */
-  override def receiveCommand: Receive = receivePublishedEvent
+  override def receiveCommand: Receive = {
 
-  /**
-   * Handle received event
-   */
-  override def project: ReceiveEventRecord = {
     case eventRecord: AggregateEventRecord =>
       persist(DomainCommit(revision.next, eventRecord)) { commit =>
         revision = commit.revision
 
-        handleProjectedUpdate(ProjectionUpdate(projectionId, commit.revision, eventRecord.tag))
+        sender() ! revision
 
         if (revision.value % snapshotInterval == 0) {
           saveSnapshot(DomainAggregatorSnapshot(revision))
@@ -76,14 +70,5 @@ class DomainAggregator(override val persistenceId: String, val snapshotInterval:
     case SnapshotOffer(_, snapshot: DomainAggregatorSnapshot) =>
       log.debug("Recovered revision from snapshot: {}", snapshot)
       revision = snapshot.revision
-  }
-
-  /**
-   * Handle a projected update.
-   * @param update to handle.
-   */
-  override def handleProjectedUpdate(update: ProjectionUpdate): Unit = {
-    sender() ! update.revision
-    super.handleProjectedUpdate(update)
   }
 }
