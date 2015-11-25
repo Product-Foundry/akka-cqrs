@@ -149,11 +149,9 @@ trait Aggregate
     * Handles incoming messages.
     */
   override def receiveCommand: Receive = {
-    case commandRequest: CommandRequest =>
-      handleCommandRequest(commandRequest)
 
-    case command: AggregateCommand =>
-      handleCommandRequest(CommandRequest(command))
+    case message: AggregateCommandMessage =>
+      handleCommandRequest(message.commandRequest)
 
     case message =>
       handleCommand.applyOrElse(message, unhandled)

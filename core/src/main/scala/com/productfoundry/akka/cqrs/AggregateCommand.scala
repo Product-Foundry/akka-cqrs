@@ -1,15 +1,41 @@
 package com.productfoundry.akka.cqrs
 
 /**
+  * This trait makes it easier to obtain a command from different messages.
+  */
+trait AggregateCommandMessage extends AggregateMessage {
+
+  /**
+    * @return the command.
+    */
+  def command: AggregateCommand
+
+  /**
+    * @return the command request with a nested command.
+    */
+  def commandRequest: CommandRequest
+}
+
+/**
  * Base command marker trait.
  */
-trait AggregateCommand extends AggregateMessage {
+trait AggregateCommand extends AggregateCommandMessage {
 
   /**
    * Commands do not require a revision check by default.
    * @return indication if a revision check is required in order to process the command.
    */
   def isRevisionCheckRequired: Boolean = false
+
+  /**
+    * @return the command.
+    */
+  override def command: AggregateCommand = this
+
+  /**
+    * @return the command request with a nested command.
+    */
+  override def commandRequest: CommandRequest = AggregateCommandRequest(this)
 }
 
 /**
@@ -27,12 +53,7 @@ trait RequiredRevisionCheck {
 /**
  * Requests a command with additional info for the aggregate.
  */
-trait CommandRequest extends AggregateMessage {
-
-  /**
-   * @return the command to execute.
-   */
-  def command: AggregateCommand
+trait CommandRequest extends AggregateCommandMessage {
 
   /**
    * Creates a new command request with the expected revision.
@@ -61,6 +82,16 @@ trait CommandRequest extends AggregateMessage {
    * @return Optional headers specified with the command.
    */
   def headersOption: Option[CommitHeaders]
+
+  /**
+    * @return the command to execute.
+    */
+  override def command: AggregateCommand
+
+  /**
+    * @return the command request with a nested command.
+    */
+  override def commandRequest: CommandRequest = this
 }
 
 object CommandRequest {
@@ -106,7 +137,6 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand,
   override def withExpectedRevision(expected: AggregateRevision): CommandRequest = {
     copy(expectedOption = Some(expected))
   }
-
 
   /**
    * Check if the command is valid for the actual revision.
