@@ -19,7 +19,7 @@ object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] 
   }
 }
 
-class DummyProcessManager(val passivationConfig: PassivationConfig) extends ProcessManager {
+class DummyProcessManager(val passivationConfig: PassivationConfig) extends SimpleProcessManager {
 
   override def receiveEvent(eventRecord: AggregateEventRecord): Unit = {
     context.system.eventStream.publish(eventRecord.event)
