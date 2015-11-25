@@ -59,7 +59,7 @@ trait ProcessManager
 
           try {
             _eventRecordOption = Some(eventRecord)
-            receiveEvent(eventRecord.tag, eventRecord.headersOption).applyOrElse(eventRecord.event, unhandled)
+            receiveEvent(eventRecord)
           } finally {
             _eventRecordOption = None
           }
@@ -72,8 +72,9 @@ trait ProcessManager
       deduplicationIds = deduplicationIds + deduplicationId
   }
 
-  // TODO [AK] Change API
-  type ReceiveEvent = PartialFunction[AggregateEvent, Unit]
-
-  def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent
+  /**
+    * Handles the received event.
+    * @param eventRecord to handle.
+    */
+  def receiveEvent(eventRecord: AggregateEventRecord): Unit
 }

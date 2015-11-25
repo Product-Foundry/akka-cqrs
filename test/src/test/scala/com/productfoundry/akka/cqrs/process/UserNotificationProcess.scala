@@ -33,9 +33,12 @@ class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregat
                              (implicit ec: ExecutionContext, timeout: Timeout)
   extends ProcessManager {
 
-  override def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent = {
+  override def receiveEvent(eventRecord: AggregateEventRecord): Unit = {
+    eventRecord.event match {
 
-    case TaskAssigned(taskId, assigneeId) =>
-      aggregateRegistry[UserAggregate] ! NotifyUser(assigneeId, "New task assigned")
+      case TaskAssigned(taskId, assigneeId) =>
+        aggregateRegistry[UserAggregate] ! NotifyUser(assigneeId, "New task assigned")
+
+    }
   }
 }
