@@ -16,9 +16,9 @@ sealed trait Changes {
   def events: Seq[AggregateEvent]
 
   /**
-   * @return additional commit info
+   * @return optional headers to store with the commit
    */
-  def metadata: Map[String, String]
+  def headersOption: Option[CommitHeaders]
 
   /**
    * @return payload for additional response.
@@ -34,12 +34,12 @@ sealed trait Changes {
   def withResponse(response: Any): Changes
 
   /**
-   * Adds additional metadata.
-   *
-   * @param metadata to add.
-   * @return updated metadata.
-   */
-  def withMetadata(metadata: (String, String)*): Changes
+    * Specifies headers to store.
+    *
+    * @param headers to store.
+    * @return changes with updated headers.
+    */
+  def withHeaders(headers: CommitHeaders): Changes
 
   /**
    * Creates a commit from the specified changes.
@@ -62,7 +62,7 @@ object Changes {
   def apply(events: AggregateEvent*): Changes = AggregateChanges(events)
 }
 
-private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Option[Any]= None, metadata: Map[String, String] = Map.empty) extends Changes {
+private[this] case class AggregateChanges(events: Seq[AggregateEvent], response: Option[Any]= None, headersOption: Option[CommitHeaders] = None) extends Changes {
 
   /**
    * @return True if there are no changes.
@@ -73,29 +73,28 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * Sets aggregate response payload.
    *
    * @param response to set.
-   * @return updated payload.
+   * @return changes with updated payload.
    */
   override def withResponse(response: Any) = copy(response = Some(response))
 
   /**
-   * Adds additional metadata.
+   * Specifies headers to store.
    *
-   * @param metadata to add.
-   * @return updated metadata.
+   * @param headers to store.
+   * @return changes with updated headers.
    */
-  override def withMetadata(metadata: (String, String)*) = copy(metadata = this.metadata ++ metadata)
+  override def withHeaders(headers: CommitHeaders) = copy(headersOption = Some(headers))
 
   /**
    * Creates a commit from the specified changes.
    * @param tag to base the commit on.
-   * @return created commit.
+   * @return commit to store.
    */
   override def createCommit(tag: AggregateTag): Commit = {
-    val headers = AggregateEventHeaders(metadata, System.currentTimeMillis())
     val entries = events.zip(tag.revision.upcoming).map { case (event, expectedRevision) =>
       CommitEntry(expectedRevision, event)
     }
 
-    Commit(tag, headers, entries)
+    Commit(tag, headersOption, entries)
   }
 }

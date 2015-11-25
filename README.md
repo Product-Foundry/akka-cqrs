@@ -44,6 +44,14 @@ process using a finite state machine implementation. A process can subscribe to 
 
 ## Query side
 
+## Serialization
+
+Our data structures are serialized using `protobuf`
+
+```bash 
+protoc -I ./core/src/main/protobuf/ --java_out=./core/src/main/java/ ./core/src/main/protobuf/*
+```
+
 
 Inspiration
 -----------

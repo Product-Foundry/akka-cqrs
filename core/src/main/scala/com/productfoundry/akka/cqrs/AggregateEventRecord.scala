@@ -7,7 +7,12 @@ package com.productfoundry.akka.cqrs
  * all commit related data.
  *
  * @param tag of the aggregate after the event was applied.
- * @param headers with info about the aggregate related to the event.
+ * @param headersOption with optional info about the aggregate related to the event.
  * @param event with the actual change.
  */
-case class AggregateEventRecord(tag: AggregateTag, headers: AggregateEventHeaders, event: AggregateEvent) extends EntityMessage
+case class AggregateEventRecord(tag: AggregateTag, headersOption: Option[CommitHeaders], event: AggregateEvent) extends EntityMessage {
+
+  def hasHeaders: Boolean = headersOption.isDefined
+
+  def headers: CommitHeaders = headersOption.getOrElse(throw new IllegalArgumentException("Event record " + tag.value + " has no headers"))
+}

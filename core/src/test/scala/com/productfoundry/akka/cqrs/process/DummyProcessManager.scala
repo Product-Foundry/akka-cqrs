@@ -2,7 +2,7 @@ package com.productfoundry.akka.cqrs.process
 
 import akka.actor.Props
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.{AggregateEvent, AggregateEventHeaders, AggregateTag, EntityIdResolution}
+import com.productfoundry.akka.cqrs.{AggregateEvent, CommitHeaders, AggregateTag, EntityIdResolution}
 
 object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] {
 
@@ -21,7 +21,7 @@ object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] 
 
 class DummyProcessManager(val passivationConfig: PassivationConfig) extends ProcessManager {
 
-  override def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent = {
+  override def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent = {
     case event => context.system.eventStream.publish(event)
   }
 }

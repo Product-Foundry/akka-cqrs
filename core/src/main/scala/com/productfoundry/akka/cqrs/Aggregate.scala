@@ -226,6 +226,16 @@ trait Aggregate
   }
 
   /**
+    * Gets the default headers to store with the commit.
+    *
+    * Default implementation simply copies all headers specified by the command. Only invoked when the changes
+    * do not already specify headers.
+    *
+    * @return the commit headers to store with the commit.
+    */
+  def getDefaultHeaders: Option[CommitHeaders] = commandRequestOption.flatMap(_.headersOption)
+
+  /**
     * Commit changes.
     * @param changes to commit.
     */
@@ -233,8 +243,12 @@ trait Aggregate
 
     // Performs a commit for the specified changes
     def performCommit(): Unit = {
-      // Construct commit to persist
-      val commit = changes.withMetadata(commandRequest.metadata.toSeq: _*).createCommit(tag)
+
+      // Add default headers when no headers are present
+      val changesToCommit = changes.headersOption.fold(getDefaultHeaders.fold(changes)(changes.withHeaders))(_ => changes)
+
+      // Create commit to freeze changes
+      val commit = changesToCommit.createCommit(tag)
 
       // Dry run commit to make sure this aggregate does not persist invalid state
       val updatedState = revisedState.applyCommit(commit)
@@ -245,7 +259,7 @@ trait Aggregate
         revisedState = updatedState
 
         // Perform additional mixed in commit handling logic
-        val response = handleCommit(commit, AggregateResponse(tag, changes.response))
+        val response = handleCommit(commit, AggregateResponse(tag, changesToCommit.response))
 
         // Notify the sender of the commit
         sender() ! AggregateStatus.Success(response)

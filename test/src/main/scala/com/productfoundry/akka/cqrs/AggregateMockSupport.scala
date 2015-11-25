@@ -97,8 +97,7 @@ abstract class AggregateMockSupport(_system: ActorSystem)
         events.foreach { event =>
           aggregateRevisionRef.transform(_.next)
           val tag = AggregateTag("", "", aggregateRevisionRef())
-          val headers = AggregateEventHeaders()
-          val eventRecord = AggregateEventRecord(tag, headers, event)
+          val eventRecord = AggregateEventRecord(tag, None, event)
           projectionRef.transform(_.project(domainRevisionRef(), eventRecord))
         }
       }

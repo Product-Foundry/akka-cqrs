@@ -66,7 +66,7 @@ class ProcessManagerRegistrySpec
       EventPublication(
         AggregateEventRecord(
           AggregateTag("", event.id.toString, AggregateRevision.Initial),
-          AggregateEventHeaders(),
+          None,
           event
         )
       )

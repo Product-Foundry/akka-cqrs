@@ -82,7 +82,7 @@ trait ProcessManager
     case eventRecord: AggregateEventRecord =>
       try {
         _eventRecordOption = Some(eventRecord)
-        receiveEvent(eventRecord.tag, eventRecord.headers).applyOrElse(eventRecord.event, unhandled)
+        receiveEvent(eventRecord.tag, eventRecord.headersOption).applyOrElse(eventRecord.event, unhandled)
       } finally {
         _eventRecordOption = None
       }
@@ -90,5 +90,5 @@ trait ProcessManager
 
   type ReceiveEvent = PartialFunction[AggregateEvent, Unit]
 
-  def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent
+  def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent
 }
