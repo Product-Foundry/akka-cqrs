@@ -80,11 +80,10 @@ trait ReliableEventPublisher
       super.receiveCommand(command)
   }
 
-
   /**
    * Publishes a message.
    */
-  override def publishMessage(eventPublication: EventPublication): Unit = {
+  override def publishEvent(eventPublication: EventPublication): Unit = {
     if (currentPublicationOption.isEmpty) {
       publishDirectly(eventPublication)
     } else {

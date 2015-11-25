@@ -9,9 +9,10 @@ trait LocalEventPublisher extends EventPublisher {
   this: Aggregate =>
 
   /**
-   * Publishes a message.
-   */
-  override def publishMessage(eventPublication: EventPublication): Unit = {
+    * Handles publication.
+    * @param eventPublication to publish.
+    */
+  override def publishEvent(eventPublication: EventPublication): Unit = {
     context.system.eventStream.publish(eventPublication)
   }
 }

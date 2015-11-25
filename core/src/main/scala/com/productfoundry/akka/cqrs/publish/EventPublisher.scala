@@ -1,12 +1,11 @@
 package com.productfoundry.akka.cqrs.publish
 
 import com.productfoundry.akka.cqrs._
-import com.productfoundry.akka.messaging.MessagePublisher
 
 /**
  * Commit handler that publishes all events in the commit
  */
-trait EventPublisher extends CommitHandler with MessagePublisher[EventPublication] {
+trait EventPublisher extends CommitHandler  {
   this: Aggregate =>
 
   /**
@@ -28,7 +27,13 @@ trait EventPublisher extends CommitHandler with MessagePublisher[EventPublicatio
    */
   def publishCommit(commit: Commit): Unit = {
     commit.records.foreach { record =>
-      publishMessage(EventPublication(record))
+      publishEvent(EventPublication(record))
     }
   }
+
+  /**
+    * Handles publication.
+    * @param eventPublication to publish.
+    */
+  def publishEvent(eventPublication: EventPublication): Unit
 }
