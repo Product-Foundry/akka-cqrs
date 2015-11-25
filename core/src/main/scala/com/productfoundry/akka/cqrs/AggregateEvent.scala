@@ -5,7 +5,7 @@ package com.productfoundry.akka.cqrs
   *
   * Users needs to and ensure there is a proper Akka serializer configured for their events.
   */
-trait AggregateEvent extends AggregateMessage with DomainEvent {
+trait AggregateEvent extends AggregateMessage {
 
   /**
     * @return Indication if this event should mark the aggregate as deleted.
