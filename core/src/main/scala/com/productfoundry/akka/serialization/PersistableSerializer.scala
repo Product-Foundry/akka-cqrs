@@ -10,13 +10,13 @@ import com.productfoundry.akka.messaging.{ConfirmedDelivery, DeduplicationEntry}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
 /**
- * Marker trait for persistables.
- */
+  * Marker trait for persistables.
+  */
 trait Persistable extends Serializable
 
 /**
- * Protobuf serializer for [[com.productfoundry.akka.serialization.Persistable]] messages.
- */
+  * Protobuf serializer for [[com.productfoundry.akka.serialization.Persistable]] messages.
+  */
 class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest with BaseSerializer {
 
   val CommitManifest = "Commit"
@@ -63,7 +63,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
     Commit(
       aggregateTag(persistentCommit.getTag),
-      aggregateEventHeaders(persistentCommit.getHeaders),
+      if (persistentCommit.hasHeaders) Some(aggregateEventHeaders(persistentCommit.getHeaders)) else None,
       entries.toSeq
     )
   }
@@ -82,7 +82,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
       ProjectionRevision(persistentDomainCommit.getRevision),
       AggregateEventRecord(
         aggregateTag(persistentEventRecord.getTag),
-        aggregateEventHeaders(persistentEventRecord.getHeaders),
+        if (persistentEventRecord.hasHeaders) Some(aggregateEventHeaders(persistentEventRecord.getHeaders)) else None,
         aggregateEvent(persistentEventRecord.getEvent)
       )
     )
@@ -106,18 +106,19 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def aggregateEventHeaders(persistentAggregateEventHeaders: proto.PersistentAggregateEventHeaders): AggregateEventHeaders = {
-    import scala.collection.JavaConverters._
+  private def aggregateEventHeaders(persistentHeaders: proto.PersistentAggregateEventHeaders): AggregateEventHeaders = {
 
-    val metadata = persistentAggregateEventHeaders.getHeadersList.asScala.foldLeft(Map.empty[String, String]) {
-      case (acc, persistentAggregateEventHeader) =>
-        acc.updated(persistentAggregateEventHeader.getKey, persistentAggregateEventHeader.getValue)
+    val manifest = if (persistentHeaders.hasHeadersManifest) {
+      persistentHeaders.getHeadersManifest.toStringUtf8
+    } else {
+      ""
     }
 
-    AggregateEventHeaders(
-      metadata,
-      persistentAggregateEventHeaders.getTimestamp
-    )
+    serialization.deserialize(
+      persistentHeaders.getHeaders.toByteArray,
+      persistentHeaders.getSerializerId,
+      manifest
+    ).get.asInstanceOf[AggregateEventHeaders]
   }
 
   private def aggregateEvent(persistentAggregateEvent: proto.PersistentAggregateEvent): AggregateEvent = {
@@ -139,7 +140,10 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     val builder = proto.PersistentCommit.newBuilder()
 
     builder.setTag(persistentAggregateTag(commit.tag))
-    builder.setHeaders(persistentAggregateEventHeaders(commit.headers))
+
+    commit.headersOption.foreach { headers =>
+      builder.setHeaders(persistentAggregateEventHeaders(headers))
+    }
 
     commit.entries.foreach { entry =>
       val entryBuilder = proto.PersistentCommit.PersistentCommitEntry.newBuilder()
@@ -163,7 +167,11 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     val eventRecord = domainCommit.eventRecord
     val eventRecordBuilder = proto.PersistentDomainCommit.PersistentAggregateEventRecord.newBuilder()
     eventRecordBuilder.setTag(persistentAggregateTag(eventRecord.tag))
-    eventRecordBuilder.setHeaders(persistentAggregateEventHeaders(eventRecord.headers))
+
+    eventRecord.headersOption.foreach { headers =>
+      eventRecordBuilder.setHeaders(persistentAggregateEventHeaders(headers))
+    }
+
     eventRecordBuilder.setEvent(persistentAggregateEvent(eventRecord.event))
 
     builder.setRevision(domainCommit.revision.value)
@@ -192,18 +200,14 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentAggregateEventHeaders(aggregateEventHeaders: AggregateEventHeaders): proto.PersistentAggregateEventHeaders.Builder = {
+  private def persistentAggregateEventHeaders(headers: AggregateEventHeaders): proto.PersistentAggregateEventHeaders.Builder = {
+    val serializer = serialization.findSerializerFor(headers)
     val builder = proto.PersistentAggregateEventHeaders.newBuilder()
 
-    aggregateEventHeaders.metadata.foreach {
-      case (key, value) =>
-        val headerBuilder = proto.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.newBuilder()
-        headerBuilder.setKey(key)
-        headerBuilder.setValue(value)
-        builder.addHeaders(headerBuilder)
-    }
+    builder.setSerializerId(serializer.identifier)
+    createManifestOption(serializer, headers).foreach(builder.setHeadersManifest)
+    builder.setHeaders(ByteString.copyFrom(serializer.toBinary(headers)))
 
-    builder.setTimestamp(aggregateEventHeaders.timestamp)
     builder
   }
 
@@ -212,17 +216,27 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     val serializer = serialization.findSerializerFor(payload)
     val builder = proto.PersistentAggregateEvent.newBuilder()
 
+    builder.setSerializerId(serializer.identifier)
+    createManifestOption(serializer, payload).foreach(builder.setEventManifest)
+    builder.setEvent(ByteString.copyFrom(serializer.toBinary(payload)))
+  }
+
+  private def createManifestOption(serializer: Serializer, o: AnyRef): Option[ByteString] = {
     serializer match {
       case ser: SerializerWithStringManifest =>
-        val manifest = ser.manifest(payload)
-        if (manifest != "")
-          builder.setEventManifest(ByteString.copyFromUtf8(manifest))
-      case _ =>
-        if (serializer.includeManifest)
-          builder.setEventManifest(ByteString.copyFromUtf8(payload.getClass.getName))
-    }
+        val manifest = ser.manifest(o)
+        if (manifest == "") {
+          None
+        } else {
+          Some(ByteString.copyFromUtf8(manifest))
+        }
 
-    builder.setSerializerId(serializer.identifier)
-    builder.setEvent(ByteString.copyFrom(serializer.toBinary(payload)))
+      case _ =>
+        if (serializer.includeManifest) {
+          Some(ByteString.copyFromUtf8(o.getClass.getName))
+        } else {
+          None
+        }
+    }
   }
 }

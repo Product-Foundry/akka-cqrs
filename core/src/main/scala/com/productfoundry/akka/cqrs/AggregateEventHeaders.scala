@@ -1,10 +1,8 @@
 package com.productfoundry.akka.cqrs
 
 /**
- * Contains additional info stored for an aggregate.
- *
- * @param metadata additional info.
- * @param timestamp of creation.
- */
-case class AggregateEventHeaders(metadata: Map[String, String] = Map.empty,
-                                 timestamp: Long = System.currentTimeMillis())
+  * Contains headers for the event, which can be used for storing common event data like timestamps, users, etc.
+  *
+  * Users needs to define their own headers structure and ensure there is a proper Akka serializer configured.
+  */
+trait AggregateEventHeaders extends Serializable

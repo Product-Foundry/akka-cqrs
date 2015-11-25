@@ -11,14 +11,9 @@ message PersistentAggregateTag {
 }
 
 message PersistentAggregateEventHeaders {
-
-    message PersistentAggregateEventHeader {
-        optional string key = 1;
-        optional string value = 2;
-    }
-
-    optional int64 timestamp = 1;
-    repeated PersistentAggregateEventHeader headers = 2;
+    optional int32 serializerId = 1;
+    optional bytes headers = 2;
+    optional bytes headersManifest = 3;
 }
 
 message PersistentAggregateEvent {

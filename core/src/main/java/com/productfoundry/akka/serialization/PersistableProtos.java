@@ -719,40 +719,35 @@ public final class PersistableProtos {
   public interface PersistentAggregateEventHeadersOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // optional int64 timestamp = 1;
+    // optional int32 serializerId = 1;
     /**
-     * <code>optional int64 timestamp = 1;</code>
+     * <code>optional int32 serializerId = 1;</code>
      */
-    boolean hasTimestamp();
+    boolean hasSerializerId();
     /**
-     * <code>optional int64 timestamp = 1;</code>
+     * <code>optional int32 serializerId = 1;</code>
      */
-    long getTimestamp();
+    int getSerializerId();
 
-    // repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;
+    // optional bytes headers = 2;
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headers = 2;</code>
      */
-    java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> 
-        getHeadersList();
+    boolean hasHeaders();
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headers = 2;</code>
      */
-    com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader getHeaders(int index);
+    com.google.protobuf.ByteString getHeaders();
+
+    // optional bytes headersManifest = 3;
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headersManifest = 3;</code>
      */
-    int getHeadersCount();
+    boolean hasHeadersManifest();
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headersManifest = 3;</code>
      */
-    java.util.List<? extends com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder> 
-        getHeadersOrBuilderList();
-    /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-     */
-    com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder getHeadersOrBuilder(
-        int index);
+    com.google.protobuf.ByteString getHeadersManifest();
   }
   /**
    * Protobuf type {@code PersistentAggregateEventHeaders}
@@ -807,15 +802,17 @@ public final class PersistableProtos {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              timestamp_ = input.readInt64();
+              serializerId_ = input.readInt32();
               break;
             }
             case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                headers_ = new java.util.ArrayList<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              headers_.add(input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.PARSER, extensionRegistry));
+              bitField0_ |= 0x00000002;
+              headers_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              headersManifest_ = input.readBytes();
               break;
             }
           }
@@ -826,9 +823,6 @@ public final class PersistableProtos {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          headers_ = java.util.Collections.unmodifiableList(headers_);
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -860,689 +854,59 @@ public final class PersistableProtos {
       return PARSER;
     }
 
-    public interface PersistentAggregateEventHeaderOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
-
-      // optional string key = 1;
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      boolean hasKey();
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      java.lang.String getKey();
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      com.google.protobuf.ByteString
-          getKeyBytes();
-
-      // optional string value = 2;
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      boolean hasValue();
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      java.lang.String getValue();
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      com.google.protobuf.ByteString
-          getValueBytes();
-    }
-    /**
-     * Protobuf type {@code PersistentAggregateEventHeaders.PersistentAggregateEventHeader}
-     */
-    public static final class PersistentAggregateEventHeader extends
-        com.google.protobuf.GeneratedMessage
-        implements PersistentAggregateEventHeaderOrBuilder {
-      // Use PersistentAggregateEventHeader.newBuilder() to construct.
-      private PersistentAggregateEventHeader(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-        super(builder);
-        this.unknownFields = builder.getUnknownFields();
-      }
-      private PersistentAggregateEventHeader(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final PersistentAggregateEventHeader defaultInstance;
-      public static PersistentAggregateEventHeader getDefaultInstance() {
-        return defaultInstance;
-      }
-
-      public PersistentAggregateEventHeader getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
-      @java.lang.Override
-      public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
-        return this.unknownFields;
-      }
-      private PersistentAggregateEventHeader(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
-        int mutable_bitField0_ = 0;
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-              case 10: {
-                bitField0_ |= 0x00000001;
-                key_ = input.readBytes();
-                break;
-              }
-              case 18: {
-                bitField0_ |= 0x00000002;
-                value_ = input.readBytes();
-                break;
-              }
-            }
-          }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
-        } finally {
-          this.unknownFields = unknownFields.build();
-          makeExtensionsImmutable();
-        }
-      }
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<PersistentAggregateEventHeader> PARSER =
-          new com.google.protobuf.AbstractParser<PersistentAggregateEventHeader>() {
-        public PersistentAggregateEventHeader parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new PersistentAggregateEventHeader(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<PersistentAggregateEventHeader> getParserForType() {
-        return PARSER;
-      }
-
-      private int bitField0_;
-      // optional string key = 1;
-      public static final int KEY_FIELD_NUMBER = 1;
-      private java.lang.Object key_;
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      public boolean hasKey() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      public java.lang.String getKey() {
-        java.lang.Object ref = key_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            key_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string key = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getKeyBytes() {
-        java.lang.Object ref = key_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          key_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // optional string value = 2;
-      public static final int VALUE_FIELD_NUMBER = 2;
-      private java.lang.Object value_;
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      public boolean hasValue() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      public java.lang.String getValue() {
-        java.lang.Object ref = value_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            value_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>optional string value = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-          getValueBytes() {
-        java.lang.Object ref = value_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          value_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      private void initFields() {
-        key_ = "";
-        value_ = "";
-      }
-      private byte memoizedIsInitialized = -1;
-      public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-
-        memoizedIsInitialized = 1;
-        return true;
-      }
-
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeBytes(1, getKeyBytes());
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getValueBytes());
-        }
-        getUnknownFields().writeTo(output);
-      }
-
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(1, getKeyBytes());
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getValueBytes());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-
-      private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-
-      @java.lang.Override
-      protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-      }
-      /**
-       * Protobuf type {@code PersistentAggregateEventHeaders.PersistentAggregateEventHeader}
-       */
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder {
-        public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-          return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-          return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_fieldAccessorTable
-              .ensureFieldAccessorsInitialized(
-                  com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.class, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder.class);
-        }
-
-        // Construct using com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
-
-        private Builder(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-          super(parent);
-          maybeForceBuilderInitialization();
-        }
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          }
-        }
-        private static Builder create() {
-          return new Builder();
-        }
-
-        public Builder clear() {
-          super.clear();
-          key_ = "";
-          bitField0_ = (bitField0_ & ~0x00000001);
-          value_ = "";
-          bitField0_ = (bitField0_ & ~0x00000002);
-          return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return com.productfoundry.akka.serialization.PersistableProtos.internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor;
-        }
-
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader getDefaultInstanceForType() {
-          return com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.getDefaultInstance();
-        }
-
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader build() {
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return result;
-        }
-
-        public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader buildPartial() {
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader result = new com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader(this);
-          int from_bitField0_ = bitField0_;
-          int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-            to_bitField0_ |= 0x00000001;
-          }
-          result.key_ = key_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-            to_bitField0_ |= 0x00000002;
-          }
-          result.value_ = value_;
-          result.bitField0_ = to_bitField0_;
-          onBuilt();
-          return result;
-        }
-
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader) {
-            return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-
-        public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader other) {
-          if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.getDefaultInstance()) return this;
-          if (other.hasKey()) {
-            bitField0_ |= 0x00000001;
-            key_ = other.key_;
-            onChanged();
-          }
-          if (other.hasValue()) {
-            bitField0_ |= 0x00000002;
-            value_ = other.value_;
-            onChanged();
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-
-        public final boolean isInitialized() {
-          return true;
-        }
-
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader parsedMessage = null;
-          try {
-            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader) e.getUnfinishedMessage();
-            throw e;
-          } finally {
-            if (parsedMessage != null) {
-              mergeFrom(parsedMessage);
-            }
-          }
-          return this;
-        }
-        private int bitField0_;
-
-        // optional string key = 1;
-        private java.lang.Object key_ = "";
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public boolean hasKey() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public java.lang.String getKey() {
-          java.lang.Object ref = key_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            key_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public com.google.protobuf.ByteString
-            getKeyBytes() {
-          java.lang.Object ref = key_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            key_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public Builder setKey(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-          key_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public Builder clearKey() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          key_ = getDefaultInstance().getKey();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string key = 1;</code>
-         */
-        public Builder setKeyBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-          key_ = value;
-          onChanged();
-          return this;
-        }
-
-        // optional string value = 2;
-        private java.lang.Object value_ = "";
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public boolean hasValue() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public java.lang.String getValue() {
-          java.lang.Object ref = value_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            value_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-            getValueBytes() {
-          java.lang.Object ref = value_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            value_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public Builder setValue(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          value_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public Builder clearValue() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          value_ = getDefaultInstance().getValue();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional string value = 2;</code>
-         */
-        public Builder setValueBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          value_ = value;
-          onChanged();
-          return this;
-        }
-
-        // @@protoc_insertion_point(builder_scope:PersistentAggregateEventHeaders.PersistentAggregateEventHeader)
-      }
-
-      static {
-        defaultInstance = new PersistentAggregateEventHeader(true);
-        defaultInstance.initFields();
-      }
-
-      // @@protoc_insertion_point(class_scope:PersistentAggregateEventHeaders.PersistentAggregateEventHeader)
-    }
-
     private int bitField0_;
-    // optional int64 timestamp = 1;
-    public static final int TIMESTAMP_FIELD_NUMBER = 1;
-    private long timestamp_;
+    // optional int32 serializerId = 1;
+    public static final int SERIALIZERID_FIELD_NUMBER = 1;
+    private int serializerId_;
     /**
-     * <code>optional int64 timestamp = 1;</code>
+     * <code>optional int32 serializerId = 1;</code>
      */
-    public boolean hasTimestamp() {
+    public boolean hasSerializerId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int64 timestamp = 1;</code>
+     * <code>optional int32 serializerId = 1;</code>
      */
-    public long getTimestamp() {
-      return timestamp_;
+    public int getSerializerId() {
+      return serializerId_;
     }
 
-    // repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;
+    // optional bytes headers = 2;
     public static final int HEADERS_FIELD_NUMBER = 2;
-    private java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> headers_;
+    private com.google.protobuf.ByteString headers_;
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headers = 2;</code>
      */
-    public java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> getHeadersList() {
+    public boolean hasHeaders() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bytes headers = 2;</code>
+     */
+    public com.google.protobuf.ByteString getHeaders() {
       return headers_;
     }
+
+    // optional bytes headersManifest = 3;
+    public static final int HEADERSMANIFEST_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString headersManifest_;
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headersManifest = 3;</code>
      */
-    public java.util.List<? extends com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder> 
-        getHeadersOrBuilderList() {
-      return headers_;
+    public boolean hasHeadersManifest() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+     * <code>optional bytes headersManifest = 3;</code>
      */
-    public int getHeadersCount() {
-      return headers_.size();
-    }
-    /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-     */
-    public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader getHeaders(int index) {
-      return headers_.get(index);
-    }
-    /**
-     * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-     */
-    public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder getHeadersOrBuilder(
-        int index) {
-      return headers_.get(index);
+    public com.google.protobuf.ByteString getHeadersManifest() {
+      return headersManifest_;
     }
 
     private void initFields() {
-      timestamp_ = 0L;
-      headers_ = java.util.Collections.emptyList();
+      serializerId_ = 0;
+      headers_ = com.google.protobuf.ByteString.EMPTY;
+      headersManifest_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1557,10 +921,13 @@ public final class PersistableProtos {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1, timestamp_);
+        output.writeInt32(1, serializerId_);
       }
-      for (int i = 0; i < headers_.size(); i++) {
-        output.writeMessage(2, headers_.get(i));
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, headers_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, headersManifest_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1573,11 +940,15 @@ public final class PersistableProtos {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1, timestamp_);
+          .computeInt32Size(1, serializerId_);
       }
-      for (int i = 0; i < headers_.size(); i++) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, headers_.get(i));
+          .computeBytesSize(2, headers_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, headersManifest_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1687,7 +1058,6 @@ public final class PersistableProtos {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getHeadersFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1696,14 +1066,12 @@ public final class PersistableProtos {
 
       public Builder clear() {
         super.clear();
-        timestamp_ = 0L;
+        serializerId_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        if (headersBuilder_ == null) {
-          headers_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-        } else {
-          headersBuilder_.clear();
-        }
+        headers_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        headersManifest_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -1735,16 +1103,15 @@ public final class PersistableProtos {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.timestamp_ = timestamp_;
-        if (headersBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            headers_ = java.util.Collections.unmodifiableList(headers_);
-            bitField0_ = (bitField0_ & ~0x00000002);
-          }
-          result.headers_ = headers_;
-        } else {
-          result.headers_ = headersBuilder_.build();
+        result.serializerId_ = serializerId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
         }
+        result.headers_ = headers_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.headersManifest_ = headersManifest_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1761,34 +1128,14 @@ public final class PersistableProtos {
 
       public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders other) {
         if (other == com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.getDefaultInstance()) return this;
-        if (other.hasTimestamp()) {
-          setTimestamp(other.getTimestamp());
+        if (other.hasSerializerId()) {
+          setSerializerId(other.getSerializerId());
         }
-        if (headersBuilder_ == null) {
-          if (!other.headers_.isEmpty()) {
-            if (headers_.isEmpty()) {
-              headers_ = other.headers_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-            } else {
-              ensureHeadersIsMutable();
-              headers_.addAll(other.headers_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.headers_.isEmpty()) {
-            if (headersBuilder_.isEmpty()) {
-              headersBuilder_.dispose();
-              headersBuilder_ = null;
-              headers_ = other.headers_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-              headersBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getHeadersFieldBuilder() : null;
-            } else {
-              headersBuilder_.addAllMessages(other.headers_);
-            }
-          }
+        if (other.hasHeaders()) {
+          setHeaders(other.getHeaders());
+        }
+        if (other.hasHeadersManifest()) {
+          setHeadersManifest(other.getHeadersManifest());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1817,277 +1164,109 @@ public final class PersistableProtos {
       }
       private int bitField0_;
 
-      // optional int64 timestamp = 1;
-      private long timestamp_ ;
+      // optional int32 serializerId = 1;
+      private int serializerId_ ;
       /**
-       * <code>optional int64 timestamp = 1;</code>
+       * <code>optional int32 serializerId = 1;</code>
        */
-      public boolean hasTimestamp() {
+      public boolean hasSerializerId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int64 timestamp = 1;</code>
+       * <code>optional int32 serializerId = 1;</code>
        */
-      public long getTimestamp() {
-        return timestamp_;
+      public int getSerializerId() {
+        return serializerId_;
       }
       /**
-       * <code>optional int64 timestamp = 1;</code>
+       * <code>optional int32 serializerId = 1;</code>
        */
-      public Builder setTimestamp(long value) {
+      public Builder setSerializerId(int value) {
         bitField0_ |= 0x00000001;
-        timestamp_ = value;
+        serializerId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 timestamp = 1;</code>
+       * <code>optional int32 serializerId = 1;</code>
        */
-      public Builder clearTimestamp() {
+      public Builder clearSerializerId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        timestamp_ = 0L;
+        serializerId_ = 0;
         onChanged();
         return this;
       }
 
-      // repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;
-      private java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> headers_ =
-        java.util.Collections.emptyList();
-      private void ensureHeadersIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          headers_ = new java.util.ArrayList<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader>(headers_);
-          bitField0_ |= 0x00000002;
-         }
-      }
-
-      private com.google.protobuf.RepeatedFieldBuilder<
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder> headersBuilder_;
-
+      // optional bytes headers = 2;
+      private com.google.protobuf.ByteString headers_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+       * <code>optional bytes headers = 2;</code>
        */
-      public java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> getHeadersList() {
-        if (headersBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(headers_);
-        } else {
-          return headersBuilder_.getMessageList();
-        }
+      public boolean hasHeaders() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+       * <code>optional bytes headers = 2;</code>
        */
-      public int getHeadersCount() {
-        if (headersBuilder_ == null) {
-          return headers_.size();
-        } else {
-          return headersBuilder_.getCount();
-        }
+      public com.google.protobuf.ByteString getHeaders() {
+        return headers_;
       }
       /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+       * <code>optional bytes headers = 2;</code>
        */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader getHeaders(int index) {
-        if (headersBuilder_ == null) {
-          return headers_.get(index);
-        } else {
-          return headersBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder setHeaders(
-          int index, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader value) {
-        if (headersBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureHeadersIsMutable();
-          headers_.set(index, value);
-          onChanged();
-        } else {
-          headersBuilder_.setMessage(index, value);
-        }
+      public Builder setHeaders(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        headers_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder setHeaders(
-          int index, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder builderForValue) {
-        if (headersBuilder_ == null) {
-          ensureHeadersIsMutable();
-          headers_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          headersBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder addHeaders(com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader value) {
-        if (headersBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureHeadersIsMutable();
-          headers_.add(value);
-          onChanged();
-        } else {
-          headersBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder addHeaders(
-          int index, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader value) {
-        if (headersBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureHeadersIsMutable();
-          headers_.add(index, value);
-          onChanged();
-        } else {
-          headersBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder addHeaders(
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder builderForValue) {
-        if (headersBuilder_ == null) {
-          ensureHeadersIsMutable();
-          headers_.add(builderForValue.build());
-          onChanged();
-        } else {
-          headersBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder addHeaders(
-          int index, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder builderForValue) {
-        if (headersBuilder_ == null) {
-          ensureHeadersIsMutable();
-          headers_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          headersBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public Builder addAllHeaders(
-          java.lang.Iterable<? extends com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader> values) {
-        if (headersBuilder_ == null) {
-          ensureHeadersIsMutable();
-          super.addAll(values, headers_);
-          onChanged();
-        } else {
-          headersBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+       * <code>optional bytes headers = 2;</code>
        */
       public Builder clearHeaders() {
-        if (headersBuilder_ == null) {
-          headers_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-          onChanged();
-        } else {
-          headersBuilder_.clear();
-        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        headers_ = getDefaultInstance().getHeaders();
+        onChanged();
+        return this;
+      }
+
+      // optional bytes headersManifest = 3;
+      private com.google.protobuf.ByteString headersManifest_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes headersManifest = 3;</code>
+       */
+      public boolean hasHeadersManifest() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes headersManifest = 3;</code>
+       */
+      public com.google.protobuf.ByteString getHeadersManifest() {
+        return headersManifest_;
+      }
+      /**
+       * <code>optional bytes headersManifest = 3;</code>
+       */
+      public Builder setHeadersManifest(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        headersManifest_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
+       * <code>optional bytes headersManifest = 3;</code>
        */
-      public Builder removeHeaders(int index) {
-        if (headersBuilder_ == null) {
-          ensureHeadersIsMutable();
-          headers_.remove(index);
-          onChanged();
-        } else {
-          headersBuilder_.remove(index);
-        }
+      public Builder clearHeadersManifest() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        headersManifest_ = getDefaultInstance().getHeadersManifest();
+        onChanged();
         return this;
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder getHeadersBuilder(
-          int index) {
-        return getHeadersFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder getHeadersOrBuilder(
-          int index) {
-        if (headersBuilder_ == null) {
-          return headers_.get(index);  } else {
-          return headersBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public java.util.List<? extends com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder> 
-           getHeadersOrBuilderList() {
-        if (headersBuilder_ != null) {
-          return headersBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(headers_);
-        }
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder addHeadersBuilder() {
-        return getHeadersFieldBuilder().addBuilder(
-            com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder addHeadersBuilder(
-          int index) {
-        return getHeadersFieldBuilder().addBuilder(
-            index, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .PersistentAggregateEventHeaders.PersistentAggregateEventHeader headers = 2;</code>
-       */
-      public java.util.List<com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder> 
-           getHeadersBuilderList() {
-        return getHeadersFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder> 
-          getHeadersFieldBuilder() {
-        if (headersBuilder_ == null) {
-          headersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeader.Builder, com.productfoundry.akka.serialization.PersistableProtos.PersistentAggregateEventHeaders.PersistentAggregateEventHeaderOrBuilder>(
-                  headers_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
-                  getParentForChildren(),
-                  isClean());
-          headers_ = null;
-        }
-        return headersBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:PersistentAggregateEventHeaders)
@@ -7067,11 +6246,6 @@ public final class PersistableProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_PersistentAggregateEventHeaders_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_PersistentAggregateEvent_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -7122,33 +6296,31 @@ public final class PersistableProtos {
     java.lang.String[] descriptorData = {
       "\n\027PersistableProtos.proto\"D\n\026PersistentA" +
       "ggregateTag\022\014\n\004name\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022\020\n" +
-      "\010revision\030\003 \001(\003\"\304\001\n\037PersistentAggregateE" +
-      "ventHeaders\022\021\n\ttimestamp\030\001 \001(\003\022P\n\007header" +
-      "s\030\002 \003(\0132?.PersistentAggregateEventHeader" +
-      "s.PersistentAggregateEventHeader\032<\n\036Pers" +
-      "istentAggregateEventHeader\022\013\n\003key\030\001 \001(\t\022" +
-      "\r\n\005value\030\002 \001(\t\"V\n\030PersistentAggregateEve" +
-      "nt\022\024\n\014serializerId\030\001 \001(\005\022\r\n\005event\030\002 \001(\014\022" +
-      "\025\n\reventManifest\030\003 \001(\014\"\372\001\n\020PersistentCom",
-      "mit\022$\n\003tag\030\001 \001(\0132\027.PersistentAggregateTa" +
-      "g\0221\n\007headers\030\002 \001(\0132 .PersistentAggregate" +
-      "EventHeaders\0228\n\007entries\030\003 \003(\0132\'.Persiste" +
-      "ntCommit.PersistentCommitEntry\032S\n\025Persis" +
-      "tentCommitEntry\022\020\n\010revision\030\001 \001(\003\022(\n\005eve" +
-      "nt\030\002 \001(\0132\031.PersistentAggregateEvent\"1\n\033P" +
-      "ersistentConfirmedDelivery\022\022\n\ndeliveryId" +
-      "\030\001 \001(\003\"7\n\034PersistentDeduplicationEntry\022\027" +
-      "\n\017deduplicationId\030\001 \001(\t\"\235\002\n\026PersistentDo" +
-      "mainCommit\022\020\n\010revision\030\001 \001(\003\022K\n\013eventRec",
-      "ord\030\002 \001(\01326.PersistentDomainCommit.Persi" +
-      "stentAggregateEventRecord\032\243\001\n\036Persistent" +
-      "AggregateEventRecord\022$\n\003tag\030\001 \001(\0132\027.Pers" +
-      "istentAggregateTag\0221\n\007headers\030\002 \001(\0132 .Pe" +
-      "rsistentAggregateEventHeaders\022(\n\005event\030\003" +
-      " \001(\0132\031.PersistentAggregateEvent\"6\n\"Persi" +
-      "stentDomainAggregatorSnapshot\022\020\n\010revisio" +
-      "n\030\001 \001(\003B<\n%com.productfoundry.akka.seria" +
-      "lizationB\021PersistableProtosH\001"
+      "\010revision\030\003 \001(\003\"a\n\037PersistentAggregateEv" +
+      "entHeaders\022\024\n\014serializerId\030\001 \001(\005\022\017\n\007head" +
+      "ers\030\002 \001(\014\022\027\n\017headersManifest\030\003 \001(\014\"V\n\030Pe" +
+      "rsistentAggregateEvent\022\024\n\014serializerId\030\001" +
+      " \001(\005\022\r\n\005event\030\002 \001(\014\022\025\n\reventManifest\030\003 \001" +
+      "(\014\"\372\001\n\020PersistentCommit\022$\n\003tag\030\001 \001(\0132\027.P" +
+      "ersistentAggregateTag\0221\n\007headers\030\002 \001(\0132 " +
+      ".PersistentAggregateEventHeaders\0228\n\007entr",
+      "ies\030\003 \003(\0132\'.PersistentCommit.PersistentC" +
+      "ommitEntry\032S\n\025PersistentCommitEntry\022\020\n\010r" +
+      "evision\030\001 \001(\003\022(\n\005event\030\002 \001(\0132\031.Persisten" +
+      "tAggregateEvent\"1\n\033PersistentConfirmedDe" +
+      "livery\022\022\n\ndeliveryId\030\001 \001(\003\"7\n\034Persistent" +
+      "DeduplicationEntry\022\027\n\017deduplicationId\030\001 " +
+      "\001(\t\"\235\002\n\026PersistentDomainCommit\022\020\n\010revisi" +
+      "on\030\001 \001(\003\022K\n\013eventRecord\030\002 \001(\01326.Persiste" +
+      "ntDomainCommit.PersistentAggregateEventR" +
+      "ecord\032\243\001\n\036PersistentAggregateEventRecord",
+      "\022$\n\003tag\030\001 \001(\0132\027.PersistentAggregateTag\0221" +
+      "\n\007headers\030\002 \001(\0132 .PersistentAggregateEve" +
+      "ntHeaders\022(\n\005event\030\003 \001(\0132\031.PersistentAgg" +
+      "regateEvent\"6\n\"PersistentDomainAggregato" +
+      "rSnapshot\022\020\n\010revision\030\001 \001(\003B<\n%com.produ" +
+      "ctfoundry.akka.serializationB\021Persistabl" +
+      "eProtosH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -7166,13 +6338,7 @@ public final class PersistableProtos {
           internal_static_PersistentAggregateEventHeaders_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PersistentAggregateEventHeaders_descriptor,
-              new java.lang.String[] { "Timestamp", "Headers", });
-          internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor =
-            internal_static_PersistentAggregateEventHeaders_descriptor.getNestedTypes().get(0);
-          internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_PersistentAggregateEventHeaders_PersistentAggregateEventHeader_descriptor,
-              new java.lang.String[] { "Key", "Value", });
+              new java.lang.String[] { "SerializerId", "Headers", "HeadersManifest", });
           internal_static_PersistentAggregateEvent_descriptor =
             getDescriptor().getMessageTypes().get(2);
           internal_static_PersistentAggregateEvent_fieldAccessorTable = new

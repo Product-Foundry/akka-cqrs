@@ -51,16 +51,16 @@ trait CommandRequest extends AggregateMessage {
   def checkRevision(actual: AggregateRevision)(success: () => Unit)(failed: (AggregateRevision) => Unit): Unit
 
   /**
-   * Appends the specified metadata to the command request metadata.
-   * @param metadata to append.
-   * @return command request with updated metadata.
+   * Specifies headers to store with the event.
+   * @param headers to store.
+   * @return command request with updated headers.
    */
-  def withMetadata(metadata: Map[String, String]): CommandRequest
+  def withHeaders(headers: AggregateEventHeaders): CommandRequest
 
   /**
-   * @return All metadata specified with the command.
+   * @return Optional headers specified with the command.
    */
-  def metadata: Map[String, String]
+  def headersOption: Option[AggregateEventHeaders]
 }
 
 object CommandRequest {
@@ -86,9 +86,11 @@ object CommandRequest {
  *
  * @param command to execute.
  * @param expectedOption for revision check.
- * @param metadata to store in the commit.
+ * @param headersOption to store in the commit.
  */
-private[this] case class AggregateCommandRequest(command: AggregateCommand, expectedOption: Option[AggregateRevision] = None, metadata: Map[String, String] = Map.empty) extends CommandRequest {
+private[this] case class AggregateCommandRequest(command: AggregateCommand,
+                                                 expectedOption: Option[AggregateRevision] = None,
+                                                 headersOption: Option[AggregateEventHeaders] = None) extends CommandRequest {
   type Id = command.Id
 
   /**
@@ -123,11 +125,11 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand, expe
   }
 
   /**
-   * Appends the specified metadata to the command request metadata.
-   * @param metadata to append.
-   * @return command request with updated metadata.
-   */
-  override def withMetadata(metadata: Map[String, String]): CommandRequest = {
-    copy(metadata = this.metadata ++ metadata)
+    * Specifies headers to store with the event.
+    * @param headers to store.
+    * @return command request with updated headers.
+    */
+  override def withHeaders(headers: AggregateEventHeaders): CommandRequest = {
+    copy(headersOption = Some(headers))
   }
 }

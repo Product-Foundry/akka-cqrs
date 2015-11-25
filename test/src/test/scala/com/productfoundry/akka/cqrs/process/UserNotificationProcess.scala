@@ -33,7 +33,7 @@ class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregat
                              (implicit ec: ExecutionContext, timeout: Timeout)
   extends ProcessManager {
 
-  override def receiveEvent(tag: AggregateTag, headers: AggregateEventHeaders): ReceiveEvent = {
+  override def receiveEvent(tag: AggregateTag, headersOption: Option[AggregateEventHeaders]): ReceiveEvent = {
 
     case TaskAssigned(taskId, assigneeId) =>
       aggregateFactory[UserAggregate] ! NotifyUser(assigneeId, "New task assigned")

@@ -6,10 +6,10 @@ import com.productfoundry.akka.serialization.Persistable
  * A commit with aggregate event records to keep revisions per event.
  *
  * @param tag of the aggregate to which the commit was applied.
- * @param headers for the event entries.
+ * @param headersOption optionally specify additional event info.
  * @param entries in the commit.
  */
-case class Commit(tag: AggregateTag, headers: AggregateEventHeaders, entries: Seq[CommitEntry]) extends Persistable {
+case class Commit(tag: AggregateTag, headersOption: Option[AggregateEventHeaders], entries: Seq[CommitEntry]) extends Persistable {
 
   /**
    * @return All event records from this commit.
@@ -18,7 +18,7 @@ case class Commit(tag: AggregateTag, headers: AggregateEventHeaders, entries: Se
     entries.map { entry =>
       AggregateEventRecord(
         tag.copy(revision = entry.revision),
-        headers,
+        headersOption,
         entry.event
       )
     }

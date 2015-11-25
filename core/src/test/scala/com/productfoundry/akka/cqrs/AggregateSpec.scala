@@ -277,11 +277,12 @@ class AggregateSpec extends AggregateTestSupport {
     }
   }
 
-  "Aggregate metadata" must {
+  "Commit headers" must {
 
-    "be stored in commit" in new AggregateFixture {
-      val metadata = Map("a" -> "b")
-      supervisor ! Count(testId).withMetadata(metadata)
+    "be stored" in new AggregateFixture {
+
+      val headers = DummyHeaders(System.currentTimeMillis())
+      supervisor ! Count(testId).withHeaders(headers)
       expectMsgType[AggregateStatus.Success]
 
       supervisor ! Count(testId).withExpectedRevision(AggregateRevision(1L))
