@@ -21,21 +21,21 @@ object UserNotificationProcess extends ProcessManagerCompanion[UserNotificationP
     }
   }
 
-  def factory(aggregateFactory: AggregateFactoryProvider)(implicit ec: ExecutionContext, timeout: Timeout) =
+  def factory(aggregateRegistry: AggregateRegistry)(implicit ec: ExecutionContext, timeout: Timeout) =
     new ProcessManagerFactory[UserNotificationProcess] {
       override def props(config: PassivationConfig): Props = {
-        Props(new UserNotificationProcess(config, aggregateFactory))
+        Props(new UserNotificationProcess(config, aggregateRegistry))
       }
     }
 }
 
-class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregateFactory: AggregateFactoryProvider)
+class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregateRegistry: AggregateRegistry)
                              (implicit ec: ExecutionContext, timeout: Timeout)
   extends ProcessManager {
 
   override def receiveEvent(tag: AggregateTag, headersOption: Option[CommitHeaders]): ReceiveEvent = {
 
     case TaskAssigned(taskId, assigneeId) =>
-      aggregateFactory[UserAggregate] ! NotifyUser(assigneeId, "New task assigned")
+      aggregateRegistry[UserAggregate] ! NotifyUser(assigneeId, "New task assigned")
   }
 }

@@ -41,7 +41,7 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
   trait ProcessManagerFixture {
     val commandReceiver = TestProbe()
 
-    val aggregateFactory = new AggregateFactoryProvider {
+    val aggregateRegistry = new AggregateRegistry {
       override def apply[A <: Aggregate : ClassTag]: ActorRef = commandReceiver.ref
     }
 

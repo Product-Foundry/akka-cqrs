@@ -50,11 +50,11 @@ abstract class AggregateMockSupport(_system: ActorSystem)
     })
 
     /**
-     * Aggregate factory is backed by a test probe.
+     * Aggregate registry always return reference to the test probe.
      *
      * This allows intercepting updates, mocking responses and updating memory image.
      */
-    val aggregateFactory = new AggregateFactoryProvider {
+    val aggregateRegistry = new AggregateRegistry {
       override def apply[A <: Aggregate : ClassTag]: ActorRef = autopilotProbe.ref
     }
 

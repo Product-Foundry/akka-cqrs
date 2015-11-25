@@ -29,6 +29,6 @@ class UserNotificationProcessSpec extends ProcessManagerSupport(TestConfig.syste
 
   trait Fixture extends ProcessManagerFixture {
 
-    processManagerRegistry.register(UserNotificationProcess.factory(aggregateFactory))
+    processManagerRegistry.register(UserNotificationProcess.factory(aggregateRegistry))
   }
 }
