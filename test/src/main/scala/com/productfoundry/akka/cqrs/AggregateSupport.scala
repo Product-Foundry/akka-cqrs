@@ -27,7 +27,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   /**
    * Test local entities by default, requires implicit entity factory.
    */
-  implicit val supervisorFactory = new LocalDomainContext(system).entitySupervisorFactory[A]
+  implicit val supervisorFactory = new LocalEntityContext(system).entitySupervisorFactory[A]
 
   /**
    * Entity supervisor for the actor under test.

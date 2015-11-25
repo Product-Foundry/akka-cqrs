@@ -13,7 +13,7 @@ class ProcessManagerSpec extends EntityTestSupport with GeneratorDrivenPropertyC
 
   implicit def DummyProcessManagerFactory = DummyProcessManager.factory()
 
-  implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyProcessManager]
+  implicit val supervisorFactory = entityContext.entitySupervisorFactory[DummyProcessManager]
 
   val supervisor: ActorRef = EntitySupervisor.forType[DummyProcessManager]
 

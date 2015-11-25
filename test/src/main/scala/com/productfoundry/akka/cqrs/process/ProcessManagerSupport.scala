@@ -17,21 +17,21 @@ import scala.reflect.ClassTag
 abstract class ProcessManagerSupport(_system: ActorSystem)
   extends EntitySupport(_system) {
 
-  var domainContext: LocalDomainContext = null
+  var entityContext: LocalEntityContext = null
   var processManagerRegistry: ProcessManagerRegistry = null
 
   before {
-    domainContext = new LocalDomainContext(system, UUID.randomUUID().toString)
-    processManagerRegistry = ProcessManagerRegistry(system, domainContext)
+    entityContext = new LocalEntityContext(system, UUID.randomUUID().toString)
+    processManagerRegistry = ProcessManagerRegistry(system, entityContext)
   }
 
   after {
     terminateConfirmed(
       processManagerRegistry.actor,
-      domainContext.actor
+      entityContext.actor
     )
 
-    domainContext = null
+    entityContext = null
     processManagerRegistry = null
   }
 

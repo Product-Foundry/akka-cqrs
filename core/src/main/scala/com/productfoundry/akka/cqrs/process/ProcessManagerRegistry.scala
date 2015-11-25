@@ -6,27 +6,27 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.productfoundry.akka.cqrs.process.ProcessManagerRegistryActor.Register
 import com.productfoundry.akka.cqrs.publish.{EventPublication, EventSubscriber}
-import com.productfoundry.akka.cqrs.{AggregateEventRecord, DomainContext, EntityIdResolution}
+import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityContext, EntityIdResolution}
 
 import scala.concurrent.Future
 import scala.language.existentials
 import scala.reflect.ClassTag
 
 object ProcessManagerRegistry {
-  def apply(actorRefFactory: ActorRefFactory, domainContext: DomainContext) = {
-    new ProcessManagerRegistry(actorRefFactory, domainContext)
+  def apply(actorRefFactory: ActorRefFactory, entityContext: EntityContext) = {
+    new ProcessManagerRegistry(actorRefFactory, entityContext)
   }
 }
 
 /**
  * Keeps track of all active process managers and their event mappings.
  */
-class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, domainContext: DomainContext) {
+class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: EntityContext) {
 
   val actor = actorRefFactory.actorOf(Props[ProcessManagerRegistryActor], "ProcessManagerRegistry")
 
   def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
-    val supervisorFactory = domainContext.entitySupervisorFactory[P]
+    val supervisorFactory = entityContext.entitySupervisorFactory[P]
     val supervisorName = supervisorFactory.supervisorName
     val supervisorRef = supervisorFactory.getOrCreate
     val idResolution = implicitly[EntityIdResolution[P]]

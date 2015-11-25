@@ -6,7 +6,7 @@ import com.productfoundry.akka.{Passivate, PassivationConfig}
 import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.support.AggregateTestSupport
 
-class LocalDomainContextSpec extends AggregateTestSupport {
+class LocalEntityContextSpec extends AggregateTestSupport {
 
   implicit object DummyAggregateFactory extends AggregateFactory[DummyAggregate] {
     override def props(config: PassivationConfig): Props = {
@@ -14,7 +14,7 @@ class LocalDomainContextSpec extends AggregateTestSupport {
     }
   }
 
-  implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyAggregate]
+  implicit val supervisorFactory = entityContext.entitySupervisorFactory[DummyAggregate]
 
   val supervisor: ActorRef = EntitySupervisor.forType[DummyAggregate]
 

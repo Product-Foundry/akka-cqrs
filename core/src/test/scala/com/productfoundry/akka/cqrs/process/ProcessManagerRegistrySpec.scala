@@ -12,7 +12,7 @@ class ProcessManagerRegistrySpec
   extends EntityTestSupport
   with Fixtures {
 
-  val registry = ProcessManagerRegistry(system, domainContext)
+  val registry = ProcessManagerRegistry(system, entityContext)
 
   trait DummyEvent extends AggregateEvent {
     override type Id = DummyId

@@ -1,8 +1,8 @@
 package com.productfoundry.support
 
-import com.productfoundry.akka.cqrs.LocalDomainContext
+import com.productfoundry.akka.cqrs.LocalEntityContext
 
 abstract class EntityTestSupport extends PersistenceTestSupport {
 
-  implicit val domainContext = new LocalDomainContext(system)
+  implicit val entityContext = new LocalEntityContext(system)
 }

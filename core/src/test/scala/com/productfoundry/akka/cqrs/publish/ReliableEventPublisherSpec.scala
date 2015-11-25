@@ -27,7 +27,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
     }
   }
 
-  implicit val supervisorFactory = domainContext.entitySupervisorFactory[DummyAggregate]
+  implicit val supervisorFactory = entityContext.entitySupervisorFactory[DummyAggregate]
 
   val supervisor: ActorRef = EntitySupervisor.forType[DummyAggregate]
 
