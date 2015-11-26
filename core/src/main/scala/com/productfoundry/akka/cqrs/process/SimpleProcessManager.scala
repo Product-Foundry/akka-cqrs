@@ -27,8 +27,7 @@ trait NothingLeftToRecover {
   *
   * If a message cannot be handled, processing that message will not be attempted again.
   *
-  * If a process flow is more complex and needs to be resumed for example, consider
-  * extending [[ProcessManager]] with [[akka.persistence.fsm.PersistentFSM]].
+  * If a process flow is more complex and needs to be resumed for example, consider using [[FsmProcessManager]].
   */
 trait SimpleProcessManager
   extends ProcessManager
