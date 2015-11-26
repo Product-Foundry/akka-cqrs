@@ -5,9 +5,9 @@ import ReceivePipeline.Inner
 import akka.productfoundry.contrib.pattern.ReceivePipeline
 
 trait EventPublicationInterceptor {
-  this: ReceivePipeline ⇒
+  this: ReceivePipeline =>
 
-  pipelineInner {
+  pipelineOuter {
     case publication: EventPublication =>
       publication.confirmIfRequested()
       Inner(publication.eventRecord)

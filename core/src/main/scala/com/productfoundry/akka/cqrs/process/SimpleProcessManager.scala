@@ -1,13 +1,31 @@
 package com.productfoundry.akka.cqrs.process
 
+import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import akka.productfoundry.contrib.pattern.ReceivePipeline
-import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.publish.EventPublicationInterceptor
+
+/**
+  * Default receiveRecover that does nothing.
+  */
+trait NothingLeftToRecover {
+  this: PersistentActor =>
+
+  override def receiveRecover: Receive = {
+
+    case _: SnapshotOffer =>
+      throw new IllegalArgumentException("Override receiveRecover when using snapshots")
+
+    case _: RecoveryCompleted =>
+
+    case msg =>
+      throw new IllegalArgumentException("Override receiveRecover when using persistent data")
+  }
+}
 
 /**
   * Simple process manager that de-duplicates message to ensure that they are handled only once.
   *
-  * If a message cannot be handled processing that message will not be attempted again.
+  * If a message cannot be handled, processing that message will not be attempted again.
   *
   * If a process flow is more complex and needs to be resumed for example, consider
   * extending [[ProcessManager]] with [[akka.persistence.fsm.PersistentFSM]].
@@ -15,46 +33,6 @@ import com.productfoundry.akka.cqrs.publish.EventPublicationInterceptor
 trait SimpleProcessManager
   extends ProcessManager
   with ReceivePipeline
-  with EventPublicationInterceptor{
-
-  private var deduplicationIds: Set[String] = Set.empty
-
-  /**
-    * The current event record.
-    */
-  private var _eventRecordOption: Option[AggregateEventRecord] = None
-
-  /**
-    * Handles an event record.
-    */
-  override def receiveCommand: Receive = {
-    case eventRecord: AggregateEventRecord =>
-
-      val deduplicationId = eventRecord.tag.value
-      if (deduplicationIds.contains(deduplicationId)) {
-        log.debug("Skipping duplicate: {}", deduplicationId)
-      } else {
-        persist(DeduplicationEntry(deduplicationId)) { _ =>
-          deduplicationIds = deduplicationIds + deduplicationId
-
-          try {
-            _eventRecordOption = Some(eventRecord)
-            receiveEvent(eventRecord)
-          } finally {
-            _eventRecordOption = None
-          }
-        }
-      }
-  }
-
-  override def receiveRecover: Receive = {
-    case DeduplicationEntry(deduplicationId) =>
-      deduplicationIds = deduplicationIds + deduplicationId
-  }
-
-  /**
-    * Handles the received event.
-    * @param eventRecord to handle.
-    */
-  def receiveEvent(eventRecord: AggregateEventRecord): Unit
-}
+  with EventPublicationInterceptor
+  with DeduplicationInterceptor
+  with NothingLeftToRecover

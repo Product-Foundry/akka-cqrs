@@ -18,6 +18,8 @@ class UserNotificationProcessSpec extends ProcessManagerSupport(TestConfig.syste
 
       val notifyUser = commandReceiver.expectMsgType[NotifyUser]
       notifyUser.id shouldBe assigneeId
+
+      commandReceiver.expectNoMsg()
     }
 
     "ignore other event" in new Fixture {
