@@ -11,17 +11,24 @@ import scala.collection.immutable.{Seq, TreeMap}
 import scala.concurrent.Future
 import scala.util.Try
 
+
 class InMemoryJournal extends AsyncWriteJournal {
 
   type Stream = Map[Long, Array[Byte]]
 
-  private var journal: Map[String, Stream] = Map.empty
+
+  private var journal: Map[String, PersistentStream] = Map.empty
 
   private val serialization = SerializationExtension(context.system)
 
-  private def persistentStream(persistenceId: String): Stream = {
+  case class PersistentStream(highestSequenceNr: Long = 0L, stream: Stream = TreeMap.empty[Long, Array[Byte]]) {
+
+    def values = stream.values
+  }
+
+  private def persistentStream(persistenceId: String): PersistentStream = {
     journal.getOrElse(persistenceId, {
-      val stream = TreeMap.empty[Long, Array[Byte]]
+      val stream = PersistentStream()
       journal = journal.updated(persistenceId, stream)
       stream
     })
@@ -50,11 +57,7 @@ class InMemoryJournal extends AsyncWriteJournal {
       new Callable[Long] {
         override def call(): Long = {
           val stream = persistentStream(persistenceId)
-          if (stream.isEmpty) {
-            0L
-          } else {
-            stream.keys.last
-          }
+          stream.highestSequenceNr
         }
       },
       context.dispatcher
@@ -64,12 +67,16 @@ class InMemoryJournal extends AsyncWriteJournal {
   override def asyncWriteMessages(messages: Seq[AtomicWrite]): Future[Seq[Try[Unit]]] = {
     val results = messages.map { atomicWrite =>
       val persistenceId = atomicWrite.persistenceId
-      val stream = journal.getOrElse(persistenceId, TreeMap.empty[Long, Array[Byte]])
+      val stream = persistentStream(persistenceId)
 
       val maybeUpdatedStream = atomicWrite.payload.foldLeft(Try(stream)) {
         case (acc, persistent) =>
           serialization.serialize(persistent).flatMap { bytes =>
-            acc.map(_.updated(persistent.sequenceNr, bytes))
+            acc.map { persistentStream =>
+              persistentStream.copy(
+                highestSequenceNr = persistent.sequenceNr,
+                stream = persistentStream.stream.updated(persistent.sequenceNr, bytes))
+            }
           }
       }
 
@@ -82,7 +89,9 @@ class InMemoryJournal extends AsyncWriteJournal {
   override def asyncDeleteMessagesTo(persistenceId: String, toSequenceNr: Long): Future[Unit] = {
     Future.fromTry[Unit] {
       Try {
-        journal = journal.updated(persistenceId, persistentStream(persistenceId).filterKeys(_ > toSequenceNr))
+        val stream = persistentStream(persistenceId)
+        val updated = stream.copy(stream = stream.stream.filterKeys(_ > toSequenceNr))
+        journal = journal.updated(persistenceId, updated)
       }
     }
   }
