@@ -30,6 +30,7 @@ trait DomainAggregatorCommitter extends CommitHandler {
 
     implicit val timeout = commitHandlerTimeout
 
+    // TODO [AK] Log on error, retry
     commit.records.foldLeft(response) { case (updated, eventRecord) =>
       val projectionRevision = Await.result((domainAggregatorRef ? eventRecord).mapTo[ProjectionRevision], commitHandlerTimeout.duration)
       response.withHeaders(ProjectionRevisionKey -> String.valueOf(projectionRevision.value))
