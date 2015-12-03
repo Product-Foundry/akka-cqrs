@@ -9,5 +9,6 @@ object InMemoryPluginSupport {
       |akka.persistence.journal.plugin = "in-memory-journal"
       |akka.persistence.snapshot-store.plugin = "in-memory-snapshot-store"
       |akka.test.single-expect-default = 1s
+      |akka.loglevel=ERROR
     """.stripMargin)
 }
