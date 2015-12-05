@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.persistence.{PersistentActor, PersistentRepr}
+import akka.persistence.PersistentActor
 import akka.productfoundry.contrib.pattern.ReceivePipeline
 import akka.productfoundry.contrib.pattern.ReceivePipeline.{HandledCompletely, Inner}
 import com.productfoundry.akka.cqrs.AggregateEventRecord
@@ -15,18 +15,19 @@ trait DeduplicationInterceptor {
 
       val deduplicationId = eventRecord.tag.value
 
-      if (!deduplicationIds.contains(deduplicationId)) {
-        persist(DeduplicationEntry(deduplicationId)) { _ =>
-          deduplicationIds = deduplicationIds + deduplicationId
-        }
-        Inner(eventRecord)
-      } else {
+      if (deduplicationIds.contains(deduplicationId)) {
         HandledCompletely
+      } else {
+        persist(DeduplicationEntry(deduplicationId))( _ => handled(deduplicationId))
+        Inner(eventRecord)
       }
+  }
 
-    case PersistentRepr(DeduplicationEntry(deduplicationId), _) =>
+  override def receiveRecover: Receive = {
+    case DeduplicationEntry(deduplicationId) => handled(deduplicationId)
+  }
 
-      deduplicationIds = deduplicationIds + deduplicationId
-      HandledCompletely
+  protected def handled(deduplicationId: String): Unit = {
+    deduplicationIds += deduplicationId
   }
 }
