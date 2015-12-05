@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   organization := "com.productfoundry",
-  version := "0.1.33-SNAPSHOT",
+  version := "0.1.33",
 
   scalaVersion := "2.11.7",
 
@@ -36,7 +36,7 @@ lazy val commonSettings = Seq(
 lazy val akkaVersion = "2.4.1"
 
 lazy val root = (project in file("."))
-  .aggregate(inmem, core, test)
+  .aggregate(inmem, core, cluster, test)
   .settings(commonSettings: _*)
   .settings(
     name := "akka-cqrs-root"
@@ -50,7 +50,6 @@ lazy val inmem = project
 
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-persistence"                    % akkaVersion,
-      "com.typesafe.akka"      %% "akka-persistence-query-experimental" % akkaVersion,
       "org.scala-stm"          %% "scala-stm"                           % "0.7",
       "com.typesafe.akka"      %% "akka-persistence-tck"                % akkaVersion  % "test",
       "org.scalatest"          %% "scalatest"                           % "2.2.4"      % "test"
@@ -66,13 +65,23 @@ lazy val core = project
 
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-persistence"                    % akkaVersion,
-      "com.typesafe.akka"      %% "akka-persistence-query-experimental" % akkaVersion,
-      "com.typesafe.akka"      %% "akka-cluster"                        % akkaVersion,
       "com.google.protobuf"    %  "protobuf-java"                       % "2.5.0",
       "org.scala-stm"          %% "scala-stm"                           % "0.7",
       "org.scalatest"          %% "scalatest"                           % "2.2.4"     % "test",
       "com.typesafe.akka"      %% "akka-testkit"                        % akkaVersion % "test",
       "org.scalacheck"         %% "scalacheck"                          % "1.12.2"    % "test"
+    )
+  )
+  .settings(bintrayPublishSettings: _*)
+
+lazy val cluster = project
+  .dependsOn(core, inmem)
+  .settings(commonSettings: _*)
+  .settings(
+    name := "akka-cqrs-cluster",
+
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka"      %% "akka-cluster"                        % akkaVersion
     )
   )
   .settings(bintrayPublishSettings: _*)
