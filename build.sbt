@@ -81,7 +81,9 @@ lazy val cluster = project
     name := "akka-cqrs-cluster",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka"      %% "akka-cluster"                        % akkaVersion
+      "com.typesafe.akka"      %% "akka-cluster"                        % akkaVersion,
+      "com.typesafe.akka"      %% "akka-cluster-sharding"               % akkaVersion,
+      "com.typesafe.akka"      %% "akka-cluster-tools"                  % akkaVersion
     )
   )
   .settings(bintrayPublishSettings: _*)
