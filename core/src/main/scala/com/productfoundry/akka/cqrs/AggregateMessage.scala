@@ -7,8 +7,5 @@ trait AggregateMessage extends EntityMessage {
 
   type Id <: EntityId
 
-  /**
-   * Aggregate identity has more specific requirements.
-   */
   def id: Id
 }
