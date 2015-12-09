@@ -8,6 +8,10 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.util.Try
 
+object InMemoryJournal {
+  final val Identifier = "in-memory-journal"
+}
+
 class InMemoryJournal extends AsyncWriteJournal {
 
   val storage = InMemoryJournalStorageExtension(context.system)
