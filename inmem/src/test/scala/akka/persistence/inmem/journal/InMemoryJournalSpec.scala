@@ -1,8 +1,8 @@
-package com.productfoundry.akka.journal
+package akka.persistence.inmem.journal
 
 import akka.persistence.CapabilityFlag
 import akka.persistence.journal.JournalSpec
-import com.productfoundry.akka.InMemoryPluginSupport
+import akka.persistence.inmem.InMemoryPluginSupport
 
 class InMemoryJournalSpec extends JournalSpec(InMemoryPluginSupport.config) {
 

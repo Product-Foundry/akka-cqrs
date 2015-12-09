@@ -1,4 +1,4 @@
-package com.productfoundry.akka
+package akka.persistence.inmem
 
 import com.typesafe.config.ConfigFactory
 

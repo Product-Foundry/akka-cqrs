@@ -1,6 +1,6 @@
-package com.productfoundry.akka.snapshot
+package akka.persistence.inmem.snapshot
 
+import akka.persistence.inmem.InMemoryPluginSupport
 import akka.persistence.snapshot.SnapshotStoreSpec
-import com.productfoundry.akka.InMemoryPluginSupport
 
 class InMemorySnapshotStoreSpec extends SnapshotStoreSpec(InMemoryPluginSupport.config)

@@ -1,4 +1,4 @@
-package com.productfoundry.akka.journal
+package akka.persistence.inmem.journal
 
 import akka.persistence.journal.{AsyncWriteJournal, Tagged}
 import akka.persistence.{AtomicWrite, PersistentRepr}

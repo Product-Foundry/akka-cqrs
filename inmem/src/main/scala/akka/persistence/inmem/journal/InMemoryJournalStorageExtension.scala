@@ -1,4 +1,4 @@
-package com.productfoundry.akka.journal
+package akka.persistence.inmem.journal
 
 import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 

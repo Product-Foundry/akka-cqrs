@@ -1,4 +1,4 @@
-package com.productfoundry.akka.snapshot
+package akka.persistence.inmem.snapshot
 
 import akka.persistence.serialization.Snapshot
 import akka.persistence.snapshot.SnapshotStore

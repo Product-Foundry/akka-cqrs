@@ -1,4 +1,4 @@
-package com.productfoundry.akka.snapshot
+package akka.persistence.inmem.snapshot
 
 import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import akka.persistence.{SnapshotMetadata, SnapshotSelectionCriteria}
