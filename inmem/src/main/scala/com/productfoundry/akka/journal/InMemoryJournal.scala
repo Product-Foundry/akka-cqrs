@@ -1,102 +1,75 @@
 package com.productfoundry.akka.journal
 
-import java.util.concurrent.Callable
-
-import akka.dispatch.Futures
-import akka.persistence.journal.AsyncWriteJournal
+import akka.persistence.journal.{AsyncWriteJournal, Tagged}
 import akka.persistence.{AtomicWrite, PersistentRepr}
 import akka.serialization.SerializationExtension
 
-import scala.collection.immutable.{Seq, TreeMap}
+import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.util.Try
 
-
 class InMemoryJournal extends AsyncWriteJournal {
 
-  type Stream = Map[Long, Array[Byte]]
+  val store = InMemoryStoreExtension(context.system)
 
+  val serialization = SerializationExtension(context.system)
 
-  private var journal: Map[String, PersistentStream] = Map.empty
-
-  private val serialization = SerializationExtension(context.system)
-
-  case class PersistentStream(highestSequenceNr: Long = 0L, stream: Stream = TreeMap.empty[Long, Array[Byte]]) {
-
-    def values = stream.values
-  }
-
-  private def persistentStream(persistenceId: String): PersistentStream = {
-    journal.getOrElse(persistenceId, {
-      val stream = PersistentStream()
-      journal = journal.updated(persistenceId, stream)
-      stream
-    })
-  }
+  implicit val executionContext = context.dispatcher
 
   override def asyncReplayMessages(persistenceId: String, fromSequenceNr: Long, toSequenceNr: Long, max: Long)(replayCallback: (PersistentRepr) => Unit): Future[Unit] = {
-
-    def deserialize(bytes: Array[Byte]): PersistentRepr = serialization.deserialize(bytes, classOf[PersistentRepr]).get
-
-    Futures.future(
-      new Callable[Unit] {
-        override def call(): Unit = {
-          val stream = persistentStream(persistenceId)
-          val messages = stream.values.map(deserialize).filter(m => m.sequenceNr >= fromSequenceNr && m.sequenceNr <= toSequenceNr)
-          val maxInt = max.toInt
-          val limited = if (maxInt >= 0) messages.take(maxInt) else messages
-          limited.foreach(replayCallback)
-        }
-      },
-      context.dispatcher
-    )
+    Future {
+      store.findByPersistenceId(persistenceId, fromSequenceNr, toSequenceNr, max)
+        .map(entry => serialization.deserialize(entry.bytes, classOf[PersistentRepr]).get)
+        .foreach(replayCallback)
+    }
   }
 
   override def asyncReadHighestSequenceNr(persistenceId: String, fromSequenceNr: Long): Future[Long] = {
-    Futures.future(
-      new Callable[Long] {
-        override def call(): Long = {
-          val stream = persistentStream(persistenceId)
-          stream.highestSequenceNr
-        }
-      },
-      context.dispatcher
-    )
+    Future {
+      store.highestSequenceNr(persistenceId)
+    }
   }
 
   override def asyncWriteMessages(messages: Seq[AtomicWrite]): Future[Seq[Try[Unit]]] = {
-    val results = messages.map { atomicWrite =>
-      val persistenceId = atomicWrite.persistenceId
-      val stream = persistentStream(persistenceId)
 
-      val maybeUpdatedStream = atomicWrite.payload.foldLeft(Try(stream)) {
-        case (acc, persistent) =>
-          serialization.serialize(persistent).flatMap { bytes =>
-            acc.map { persistentStream =>
-              persistentStream.copy(
-                highestSequenceNr = persistent.sequenceNr,
-                stream = persistentStream.stream.updated(persistent.sequenceNr, bytes))
-            }
-          }
+    val serialized = messages.map { atomicWrite =>
+
+      val entryAttempts = atomicWrite.payload.map { persistentRepr =>
+        val (persistent, tags) = persistentRepr.payload match {
+          case Tagged(_payload, _tags) =>
+            (persistentRepr.withPayload(_payload), _tags)
+
+          case _ =>
+            (persistentRepr, Set.empty[String])
+        }
+
+        serialization.serialize(persistent).map { bytes =>
+          Entry(
+            persistent.persistenceId,
+            persistent.sequenceNr,
+            bytes,
+            tags
+          )
+        }
       }
 
-      maybeUpdatedStream.map[Unit](updatedStream => journal = journal.updated(persistenceId, updatedStream))
+      entryAttempts.foldLeft(Try(Vector.empty[Entry])) { case (acc, entryAttempt) =>
+          acc.flatMap(entries => entryAttempt.map(entry => entries :+ entry))
+      }
     }
 
-    Future.successful(results)
+    Future {
+      serialized.map(_.map(store.addEntries))
+    }
   }
 
   override def asyncDeleteMessagesTo(persistenceId: String, toSequenceNr: Long): Future[Unit] = {
-    Future.fromTry[Unit] {
-      Try {
-        val stream = persistentStream(persistenceId)
-        val updated = stream.copy(stream = stream.stream.filterKeys(_ > toSequenceNr))
-        journal = journal.updated(persistenceId, updated)
-      }
+    Future {
+      store.removeEntries(persistenceId, toSequenceNr)
     }
   }
 
   override def postStop(): Unit = {
-    journal = Map.empty
+    store.clear()
   }
 }
