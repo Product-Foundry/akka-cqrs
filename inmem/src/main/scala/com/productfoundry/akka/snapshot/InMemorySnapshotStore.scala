@@ -9,48 +9,40 @@ import scala.concurrent.Future
 
 class InMemorySnapshotStore extends SnapshotStore {
 
+  val storage = InMemorySnapshotStorageExtension(context.system)
+
   val serialization = SerializationExtension(context.system)
 
-  var snapshots: List[(SnapshotMetadata, Array[Byte])] = List.empty
+  implicit val executionContext = context.dispatcher
 
   override def loadAsync(persistenceId: String, criteria: SnapshotSelectionCriteria): Future[Option[SelectedSnapshot]] = {
-
-    def deserialize(bytes: Array[Byte]): Snapshot = serialization.deserialize(bytes, classOf[Snapshot]).get
-
-    Future.successful {
-      snapshots.find { case (metadata, bytes) =>
-        metadata.persistenceId == persistenceId && metadata.sequenceNr <= criteria.maxSequenceNr && metadata.timestamp <= criteria.maxTimestamp
-      }.map { case (metadata, bytes) =>
-        SelectedSnapshot(metadata, deserialize(bytes).data)
+    Future {
+      storage.findLatestByCriteria(persistenceId, criteria).map { case entry =>
+        SelectedSnapshot(entry.metadata, serialization.deserialize(entry.bytes, classOf[Snapshot]).get.data)
       }
     }
   }
 
-  override def saveAsync(metadata: SnapshotMetadata, snapshot: Any): Future[Unit] = {
-
-    def serialize(snapshot: Snapshot): Array[Byte] = serialization.findSerializerFor(snapshot).toBinary(snapshot)
-
-    Future.successful {
-      val bytes = serialize(Snapshot(snapshot))
-      snapshots = (metadata, bytes) :: snapshots
+  override def saveAsync(metadata: SnapshotMetadata, data: Any): Future[Unit] = {
+    Future {
+      val snapshot = Snapshot(data)
+      storage.addEntry(SnapshotEntry(metadata, serialization.findSerializerFor(snapshot).toBinary(snapshot)))
     }
   }
 
   override def deleteAsync(metadata: SnapshotMetadata): Future[Unit] = {
-    Future.successful {
-      snapshots = snapshots.filterNot {
-        case (md, bytes) => md.persistenceId == metadata.persistenceId &&
-          md.sequenceNr == metadata.sequenceNr &&
-          (md.timestamp == metadata.timestamp || metadata.timestamp == 0)
-      }
+    Future {
+      storage.removeByMetadata(metadata)
     }
   }
 
   override def deleteAsync(persistenceId: String, criteria: SnapshotSelectionCriteria): Future[Unit] = {
-    Future.successful {
-      snapshots = snapshots.filterNot { case (metadata, bytes) =>
-        metadata.persistenceId == persistenceId && metadata.sequenceNr <= criteria.maxSequenceNr && metadata.timestamp <= criteria.maxTimestamp
-      }
+    Future {
+      storage.removeBySelectionCriteria(persistenceId, criteria)
     }
+  }
+
+  override def postStop(): Unit = {
+    storage.clear()
   }
 }

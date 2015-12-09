@@ -10,7 +10,7 @@ import scala.util.Try
 
 class InMemoryJournal extends AsyncWriteJournal {
 
-  val store = InMemoryStoreExtension(context.system)
+  val storage = InMemoryJournalStorageExtension(context.system)
 
   val serialization = SerializationExtension(context.system)
 
@@ -18,7 +18,7 @@ class InMemoryJournal extends AsyncWriteJournal {
 
   override def asyncReplayMessages(persistenceId: String, fromSequenceNr: Long, toSequenceNr: Long, max: Long)(replayCallback: (PersistentRepr) => Unit): Future[Unit] = {
     Future {
-      store.findByPersistenceId(persistenceId, fromSequenceNr, toSequenceNr, max)
+      storage.findByPersistenceId(persistenceId, fromSequenceNr, toSequenceNr, max)
         .map(entry => serialization.deserialize(entry.bytes, classOf[PersistentRepr]).get)
         .foreach(replayCallback)
     }
@@ -26,7 +26,7 @@ class InMemoryJournal extends AsyncWriteJournal {
 
   override def asyncReadHighestSequenceNr(persistenceId: String, fromSequenceNr: Long): Future[Long] = {
     Future {
-      store.highestSequenceNr(persistenceId)
+      storage.highestSequenceNr(persistenceId)
     }
   }
 
@@ -44,7 +44,7 @@ class InMemoryJournal extends AsyncWriteJournal {
         }
 
         serialization.serialize(persistent).map { bytes =>
-          Entry(
+          JournalEntry(
             persistent.persistenceId,
             persistent.sequenceNr,
             bytes,
@@ -53,23 +53,23 @@ class InMemoryJournal extends AsyncWriteJournal {
         }
       }
 
-      entryAttempts.foldLeft(Try(Vector.empty[Entry])) { case (acc, entryAttempt) =>
+      entryAttempts.foldLeft(Try(Vector.empty[JournalEntry])) { case (acc, entryAttempt) =>
           acc.flatMap(entries => entryAttempt.map(entry => entries :+ entry))
       }
     }
 
     Future {
-      serialized.map(_.map(store.addEntries))
+      serialized.map(_.map(storage.addEntries))
     }
   }
 
   override def asyncDeleteMessagesTo(persistenceId: String, toSequenceNr: Long): Future[Unit] = {
     Future {
-      store.removeEntries(persistenceId, toSequenceNr)
+      storage.removeEntries(persistenceId, toSequenceNr)
     }
   }
 
   override def postStop(): Unit = {
-    store.clear()
+    storage.clear()
   }
 }
