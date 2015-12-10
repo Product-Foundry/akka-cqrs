@@ -1,6 +1,8 @@
 Akka CQRS
 =========
 
+[![Join the chat at https://gitter.im/Product-Foundry/akka-cqrs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Product-Foundry/akka-cqrs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![License](https://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 [![Build Status](https://travis-ci.org/Product-Foundry/akka-cqrs.svg?branch=master)](https://travis-ci.org/Product-Foundry/akka-cqrs)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/ed9ff4454c664bc5806a3bdc64584026)](https://www.codacy.com/app/Product-Foundry/akka-cqrs)
