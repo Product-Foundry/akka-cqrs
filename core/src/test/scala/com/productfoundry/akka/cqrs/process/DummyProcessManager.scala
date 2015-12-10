@@ -14,7 +14,7 @@ object DummyProcessManager extends ProcessManagerCompanion[DummyProcessManager] 
 
   def factory() = new ProcessManagerFactory[DummyProcessManager] {
     override def props(config: PassivationConfig): Props = {
-      Props(new DummyProcessManager(config))
+      Props(classOf[DummyProcessManager], config)
     }
   }
 }

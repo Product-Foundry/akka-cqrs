@@ -24,7 +24,7 @@ class FanoutPublisher(val timeout: Duration = 30.minutes) extends Actor with Act
 
     case confirmable: Confirmable =>
       publishersByConfirmable.get(confirmable).fold {
-        val publisher = context.actorOf(Props(new PublicationHandler(confirmable, subscribers, timeout)))
+        val publisher = context.actorOf(Props(classOf[PublicationHandler], confirmable, subscribers, timeout))
         publishersByConfirmable = publishersByConfirmable.updated(confirmable, publisher)
       } { publisher =>
         publisher ! PublicationHandler.RedeliverUnconfirmed

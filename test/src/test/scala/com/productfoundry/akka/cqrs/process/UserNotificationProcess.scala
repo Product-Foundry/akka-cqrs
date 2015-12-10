@@ -8,8 +8,6 @@ import com.productfoundry.akka.cqrs.TaskEvent.TaskAssigned
 import com.productfoundry.akka.cqrs.UserCommand.NotifyUser
 import com.productfoundry.akka.cqrs._
 
-import scala.concurrent.ExecutionContext
-
 case class UserNotificationProcessId(entityId: String) extends EntityId
 
 object UserNotificationProcess extends ProcessManagerCompanion[UserNotificationProcess] {
@@ -21,16 +19,15 @@ object UserNotificationProcess extends ProcessManagerCompanion[UserNotificationP
     }
   }
 
-  def factory(aggregateRegistry: AggregateRegistry)(implicit ec: ExecutionContext, timeout: Timeout) =
+  def factory(aggregateRegistry: AggregateRegistry) =
     new ProcessManagerFactory[UserNotificationProcess] {
       override def props(config: PassivationConfig): Props = {
-        Props(new UserNotificationProcess(config, aggregateRegistry))
+        Props(classOf[UserNotificationProcess], config, aggregateRegistry)
       }
     }
 }
 
 class UserNotificationProcess(val passivationConfig: PassivationConfig, aggregateRegistry: AggregateRegistry)
-                             (implicit ec: ExecutionContext, timeout: Timeout)
   extends SimpleProcessManager {
 
   override def receiveCommand: Receive = {

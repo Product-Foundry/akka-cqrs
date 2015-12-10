@@ -34,7 +34,7 @@ class DomainAggregatorViewSpec extends PersistenceTestSupport with GeneratorDriv
 
     val persistenceId = randomPersistenceId
 
-    val domainAggregator = system.actorOf(Props(new DomainAggregator(persistenceId)))
+    val domainAggregator = system.actorOf(Props(classOf[DomainAggregator], persistenceId, Integer.MAX_VALUE))
 
     val recoveryThreshold = 1.millis
 

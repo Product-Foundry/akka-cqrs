@@ -10,7 +10,7 @@ class LocalEntityContextSpec extends AggregateTestSupport {
 
   implicit object DummyAggregateFactory extends AggregateFactory[DummyAggregate] {
     override def props(config: PassivationConfig): Props = {
-      Props(new DummyAggregate(config))
+      Props(classOf[DummyAggregate], config)
     }
   }
 

@@ -19,6 +19,10 @@ object TestConfig {
       |      auto-update-interval = 4s
       |    }
       |  }
+      |  actor {
+      |    serialize-creators = off
+      |    serialize-messages = off
+      |  }
       |  test {
       |    single-expect-default = 500ms
       |  }

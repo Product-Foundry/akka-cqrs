@@ -27,7 +27,7 @@ class DomainAggregatorSpec extends PersistenceTestSupport with GeneratorDrivenPr
   trait fixture extends {
     val persistenceId = DummyId.generate().toString
 
-    val domainAggregatorProps = Props(new DomainAggregator(persistenceId))
+    val domainAggregatorProps = Props(classOf[DomainAggregator], persistenceId, Integer.MAX_VALUE)
 
     val domainAggregator = system.actorOf(domainAggregatorProps)
   }
