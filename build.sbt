@@ -69,7 +69,7 @@ lazy val core = project
       "org.scala-stm"          %% "scala-stm"                           % "0.7",
       "org.scalatest"          %% "scalatest"                           % "2.2.4"     % "test",
       "com.typesafe.akka"      %% "akka-testkit"                        % akkaVersion % "test",
-      "org.scalacheck"         %% "scalacheck"                          % "1.12.2"    % "test"
+      "org.scalacheck"         %% "scalacheck"                          % "1.12.5"    % "test"
     )
   )
   .settings(bintrayPublishSettings: _*)
@@ -97,7 +97,7 @@ lazy val test = project
     libraryDependencies ++= Seq(
       "org.scalatest"          %% "scalatest"                         % "2.2.4",
       "com.typesafe.akka"      %% "akka-testkit"                      % akkaVersion,
-      "org.scalacheck"         %% "scalacheck"                        % "1.12.2"
+      "org.scalacheck"         %% "scalacheck"                        % "1.12.5"
     )
   )
   .settings(bintrayPublishSettings: _*)
