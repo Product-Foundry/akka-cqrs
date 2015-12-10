@@ -1,6 +1,15 @@
+sudo: false
+
 language: scala
+
 scala:
   - "2.11.6"
+
 jdk:
   - oraclejdk8
-sudo: false
+
+script:
+   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+   - sbt ++$TRAVIS_SCALA_VERSION coverageReport
+   - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+   - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
