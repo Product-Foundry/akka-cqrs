@@ -50,7 +50,6 @@ lazy val inmem = project
 
     libraryDependencies ++= Seq(
       "com.typesafe.akka"      %% "akka-persistence"                    % akkaVersion,
-      "org.scala-stm"          %% "scala-stm"                           % "0.7",
       "com.typesafe.akka"      %% "akka-persistence-tck"                % akkaVersion  % "test",
       "org.scalatest"          %% "scalatest"                           % "2.2.4"      % "test"
     )
