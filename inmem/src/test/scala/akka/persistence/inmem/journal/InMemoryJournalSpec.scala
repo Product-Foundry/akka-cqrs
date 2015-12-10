@@ -6,5 +6,5 @@ import akka.persistence.inmem.InMemoryPluginSupport
 
 class InMemoryJournalSpec extends JournalSpec(InMemoryPluginSupport.config) {
 
-  override protected def supportsRejectingNonSerializableObjects: CapabilityFlag = CapabilityFlag.off()
+  override protected def supportsRejectingNonSerializableObjects: CapabilityFlag = CapabilityFlag.on()
 }
