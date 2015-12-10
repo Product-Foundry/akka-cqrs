@@ -8,6 +8,8 @@ Akka CQRS
 
 ### Warning: This is a work in progress, API changes are likely
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Product-Foundry/akka-cqrs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Dependency
 ----------
 
