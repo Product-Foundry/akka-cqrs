@@ -5,6 +5,7 @@ Akka CQRS
 [![License](https://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 [![Build Status](https://travis-ci.org/Product-Foundry/akka-cqrs.svg?branch=master)](https://travis-ci.org/Product-Foundry/akka-cqrs)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/ed9ff4454c664bc5806a3bdc64584026)](https://www.codacy.com/app/Product-Foundry/akka-cqrs)
+[![Codacy Badge](https://api.codacy.com/project/badge/coverage/ed9ff4454c664bc5806a3bdc64584026)](https://www.codacy.com/app/andrekampert/akka-cqrs)
 [![Download](https://api.bintray.com/packages/productfoundry/maven/akka-cqrs/images/download.svg) ](https://bintray.com/productfoundry/maven/akka-cqrs/_latestVersion)
 
 ### Warning: This is a work in progress, API changes are likely
