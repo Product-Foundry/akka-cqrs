@@ -41,7 +41,6 @@ object ClusterConfig extends MultiNodeConfig {
               native = off
               dir = "target/test-shared-journal"
             }
-            snapshot-store.local.dir = "target/test-snapshots"
           }
         }
       """
