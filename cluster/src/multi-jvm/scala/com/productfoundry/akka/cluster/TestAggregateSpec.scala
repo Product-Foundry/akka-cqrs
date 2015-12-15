@@ -32,10 +32,15 @@ class TestAggregateSpec  extends ClusterSpec {
     val entityContext = new ClusterSingletonEntityContext(system)
 
     "send all commands to same account aggregate" in {
+
+      val testId = TestId.generate()
+
       on(node1) {
+        entityContext.entitySupervisorFactory[TestAggregate].getOrCreate ! Count(testId)
       }
 
       on(node2) {
+        entityContext.entitySupervisorFactory[TestAggregate].getOrCreate ! Count(testId)
       }
     }
   }

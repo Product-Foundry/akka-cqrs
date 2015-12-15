@@ -13,7 +13,11 @@ trait TestMessage extends AggregateMessage {
 
 trait TestCommand extends TestMessage with AggregateCommand
 
+case class Count(id: TestId) extends TestCommand
+
 trait TestEvent extends TestMessage with AggregateEvent
+
+case class Counted(id: TestId, value: Int) extends TestEvent
 
 object TestId {
 
@@ -24,10 +28,10 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
 
   type S = TestState
 
-  case class TestState() extends AggregateState {
+  case class TestState(counter: Int = 0) extends AggregateState {
 
     override def update: StateModifications = {
-      case _ => this
+      case Counted(id, value) => copy(counter = counter + 1)
     }
   }
 
@@ -36,6 +40,6 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
   }
 
   override def handleCommand: Receive = {
-    case _ =>
+    case Count(id) => tryCommit(Right(Changes(Counted(id, state.counter + 1))))
   }
 }

@@ -42,6 +42,8 @@ object Dependencies {
 
     val leveldbjni = "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8"
 
+    val logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
+
     val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
 
     val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
@@ -54,9 +56,9 @@ object Dependencies {
 
   val inmem = l ++= Seq(akkaPersistence.value, akkaSlf4j.value, Test.akkaPersistenceTck.value, Test.scalaTest)
 
-  val core = l ++= Seq(akkaPersistence.value, protobuf.value, stm, Test.akkaTestkit.value, Test.scalaTest, Test.scalaCheck)
+  val core = l ++= Seq(akkaPersistence.value, akkaSlf4j.value, protobuf.value, stm, Test.akkaTestkit.value, Test.scalaTest, Test.scalaCheck)
 
-  val cluster = l ++= Seq(akkaCluster.value, akkaClusterSharding.value, akkaClusterTools.value, Test.akkaTestkit.value, Test.akkaMultiNodeTestkit.value, Test.scalaTest, Test.scalaCheck, Test.leveldb, Test.leveldbjni)
+  val cluster = l ++= Seq(akkaCluster.value, akkaSlf4j.value, akkaClusterSharding.value, akkaClusterTools.value, Test.akkaTestkit.value, Test.akkaMultiNodeTestkit.value, Test.scalaTest, Test.scalaCheck, Test.leveldb, Test.leveldbjni, Test.logback)
 
   val test = l ++= Seq(Test.akkaTestkit.value.copy(configurations = Some("compile")), Test.scalaTest.copy(configurations = Some("compile")), Test.scalaCheck.copy(configurations = Some("compile")))
 
