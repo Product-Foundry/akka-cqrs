@@ -1,3 +1,3 @@
 resolvers += Resolver.url("bintray-productfoundry-releases", url("http://dl.bintray.com/productfoundry/"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("me.lessis" % "bintray-sbt" % "0.2.0")
+addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")
