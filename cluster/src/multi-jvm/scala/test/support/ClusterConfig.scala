@@ -12,7 +12,7 @@ object ClusterConfig extends MultiNodeConfig {
     ConfigFactory.parseString(
       """
         akka {
-          loglevel = INFO
+          loglevel = ERROR
           loggers = ["akka.event.slf4j.Slf4jLogger"]
 
           actor {

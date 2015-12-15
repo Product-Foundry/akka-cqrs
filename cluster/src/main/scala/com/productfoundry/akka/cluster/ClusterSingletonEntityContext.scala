@@ -35,7 +35,11 @@ class ClusterSingletonEntityContext(system: ActorSystem, actorName: String = "Do
 
         implicit val timeout = Timeout(30.seconds)
 
-        val supervisorRefFuture = (singletonProxy ? GetOrCreateSupervisor(Props(new LocalEntitySupervisor[E]), supervisorName)).mapTo[ActorRef]
+        val supervisorRefFuture = (singletonProxy ? GetOrCreateSupervisor(LocalEntitySupervisor.props(
+          implicitly[ClassTag[E]],
+          implicitly[EntityFactory[E]],
+          implicitly[EntityIdResolution[E]]
+        ), supervisorName)).mapTo[ActorRef]
         Await.result(supervisorRefFuture, timeout.duration)
       }
     }

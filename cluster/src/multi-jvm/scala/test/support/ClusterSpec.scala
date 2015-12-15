@@ -12,8 +12,6 @@ import akka.remote.testconductor.RoleName
 import akka.remote.testkit.MultiNodeSpec
 import akka.testkit.ImplicitSender
 
-import scala.concurrent.duration._
-import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
 abstract class ClusterSpec
@@ -94,13 +92,5 @@ abstract class ClusterSpec
 
   def on(nodes: RoleName*)(thunk: ⇒ Unit): Unit = {
     runOn(nodes: _*)(thunk)
-  }
-
-  def expectReply[T](obj: T) {
-    expectMsg(20.seconds, obj)
-  }
-
-  def expectReply[T](implicit tag: ClassTag[T]) {
-    expectMsgClass(20.seconds, tag.runtimeClass)
   }
 }

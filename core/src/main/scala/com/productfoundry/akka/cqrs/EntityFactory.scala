@@ -7,7 +7,7 @@ import com.productfoundry.akka.PassivationConfig
  * Creates entities.
  * @tparam E Entity type.
  */
-trait EntityFactory[E <: Entity] {
+trait EntityFactory[E <: Entity] extends Serializable {
 
   /**
    * Creates entity props.

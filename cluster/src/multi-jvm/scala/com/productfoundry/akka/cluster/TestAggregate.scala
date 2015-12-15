@@ -1,7 +1,5 @@
 package com.productfoundry.akka.cluster
 
-import java.util.UUID
-
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs._
 
@@ -19,10 +17,9 @@ trait TestEvent extends TestMessage with AggregateEvent
 
 case class Counted(id: TestId, value: Int) extends TestEvent
 
-object TestId {
+case class GetCount(id: TestId) extends TestMessage
 
-  def generate(): TestId = TestId(UUID.randomUUID().toString)
-}
+case class GetCountResult(count: Int)
 
 class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate {
 
@@ -36,10 +33,14 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
   }
 
   override val factory: StateModifications = {
-    case _ => TestState()
+    case Counted(_, value) => TestState(counter = value)
   }
 
   override def handleCommand: Receive = {
-    case Count(id) => tryCommit(Right(Changes(Counted(id, state.counter + 1))))
+    case Count(id) =>
+      tryCommit(Right(Changes(Counted(id, stateOption.fold(1)(_.counter + 1)))))
+
+    case GetCount(id) =>
+      sender() ! GetCountResult(stateOption.fold(0)(_.counter))
   }
 }

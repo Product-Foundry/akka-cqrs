@@ -17,6 +17,13 @@ import scala.reflect.ClassTag
  */
 case class BufferedMessage(sender: ActorRef, message: EntityMessage)
 
+object LocalEntitySupervisor {
+
+  def props[E <: Entity](classTag: ClassTag[E], entityFactory: EntityFactory[E], entityIdResolution: EntityIdResolution[E]): Props = {
+    Props(new LocalEntitySupervisor()(classTag, entityFactory, entityIdResolution))
+  }
+}
+
 /**
  * Supervises local entities.
  * @param inactivityTimeout before the entity passivates.

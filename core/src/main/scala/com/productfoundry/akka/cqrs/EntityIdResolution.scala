@@ -7,7 +7,7 @@ object EntityIdResolution {
   type EntityIdResolver = PartialFunction[Any, EntityId]
 }
 
-trait EntityIdResolution[A] {
+trait EntityIdResolution[A] extends Serializable {
 
   def entityIdResolver: EntityIdResolver
 }

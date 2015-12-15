@@ -2,23 +2,32 @@ package com.productfoundry.akka.cluster
 
 import akka.actor.Props
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.{AggregateFactory, AggregateIdResolution, EntityIdResolution}
+import com.productfoundry.akka.cqrs.{AggregateStatus, AggregateFactory, AggregateIdResolution, EntityIdResolution}
+import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Seconds, Millis, Span}
 import test.support.ClusterSpec
 
 class TestAggregateSpecMultiJvmNode1 extends TestAggregateSpec
 class TestAggregateSpecMultiJvmNode2 extends TestAggregateSpec
 
-class TestAggregateSpec  extends ClusterSpec {
+object TestActorFactory extends AggregateFactory[TestAggregate] {
+  override def props(config: PassivationConfig): Props = {
+    Props(classOf[TestAggregate], config)
+  }
+}
+
+class TestAggregateSpec  extends ClusterSpec with Eventually {
 
   import test.support.ClusterConfig._
 
-  implicit object AccountActorFactory extends AggregateFactory[TestAggregate] {
-    override def props(config: PassivationConfig): Props = {
-      Props(classOf[TestAggregate], config)
-    }
-  }
-
   implicit def entityIdResolution: EntityIdResolution[TestAggregate] = new AggregateIdResolution[TestAggregate]()
+
+  implicit def aggregateFactory: AggregateFactory[TestAggregate] = TestActorFactory
+
+  implicit override val patienceConfig = PatienceConfig(
+    timeout = scaled(Span(5, Seconds)),
+    interval = scaled(Span(100, Millis))
+  )
 
   "Test aggregate" must {
 
@@ -31,17 +40,24 @@ class TestAggregateSpec  extends ClusterSpec {
 
     val entityContext = new ClusterSingletonEntityContext(system)
 
-    "send all commands to same account aggregate" in {
+    "send all commands to same aggregate" in {
 
-      val testId = TestId.generate()
+      def test(): Unit = {
+        val aggregate = entityContext.entitySupervisorFactory[TestAggregate].getOrCreate
+        val id = TestId("1")
 
-      on(node1) {
-        entityContext.entitySupervisorFactory[TestAggregate].getOrCreate ! Count(testId)
+        aggregate ! Count(id)
+        expectMsgType[AggregateStatus.Success]
+
+        eventually {
+          aggregate ! GetCount(id)
+          expectMsgType[GetCountResult].count shouldBe 2
+        }
       }
 
-      on(node2) {
-        entityContext.entitySupervisorFactory[TestAggregate].getOrCreate ! Count(testId)
-      }
+      on(node1)(test())
+
+      on(node2)(test())
     }
   }
 }
