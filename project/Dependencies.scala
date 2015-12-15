@@ -36,6 +36,12 @@ object Dependencies {
 
     val akkaTestkit = Def.setting { "com.typesafe.akka" %% "akka-testkit" % akkaVersion.value  % "test" }
 
+    val akkaMultiNodeTestkit = Def.setting { "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion.value % "test" }
+
+    val leveldb = "org.iq80.leveldb" % "leveldb" % "0.7" % "test"
+
+    val leveldbjni = "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8"
+
     val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
 
     val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
@@ -50,7 +56,7 @@ object Dependencies {
 
   val core = l ++= Seq(akkaPersistence.value, protobuf.value, stm, Test.akkaTestkit.value, Test.scalaTest, Test.scalaCheck)
 
-  val cluster = l ++= Seq(akkaCluster.value, akkaClusterSharding.value, akkaClusterTools.value, Test.akkaTestkit.value, Test.scalaTest, Test.scalaCheck)
+  val cluster = l ++= Seq(akkaCluster.value, akkaClusterSharding.value, akkaClusterTools.value, Test.akkaTestkit.value, Test.akkaMultiNodeTestkit.value, Test.scalaTest, Test.scalaCheck, Test.leveldb, Test.leveldbjni)
 
   val test = l ++= Seq(Test.akkaTestkit.value.copy(configurations = Some("compile")), Test.scalaTest.copy(configurations = Some("compile")), Test.scalaCheck.copy(configurations = Some("compile")))
 

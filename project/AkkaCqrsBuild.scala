@@ -1,6 +1,7 @@
 package akka.cqrs
 
 import bintray.BintrayKeys._
+import com.typesafe.sbt.SbtMultiJvm.MultiJvmKeys.MultiJvm
 import sbt.Keys._
 import sbt._
 
@@ -33,7 +34,7 @@ object AkkaCqrsBuild extends Build {
     id = "akka-cqrs-cluster",
     base = file("cluster"),
     dependencies = Seq(inmem, core)
-  )
+  ).configs(MultiJvm)
 
   lazy val test = Project(
     id = "akka-cqrs-test",
@@ -68,6 +69,7 @@ object AkkaCqrsBuild extends Build {
   lazy val defaultSettings = resolverSettings ++
     bintraySettings ++
     Protobuf.settings ++
+    MultiJvmSettings.settings ++
     Seq(
       scalacOptions in Compile ++= Seq("-encoding", "UTF-8", "-target:jvm-1.8", "-feature", "-unchecked", "-Xlog-reflective-calls", "-Xlint"),
       javacOptions in compile ++= Seq("-encoding", "UTF-8", "-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
@@ -77,13 +79,6 @@ object AkkaCqrsBuild extends Build {
 
       parallelExecution in Test := false,
 
-      fork in Test := true,
-
-      // show full stack traces and test case durations
-      testOptions in Test += Tests.Argument("-oDF"),
-
-      // -v Log "test run started" / "test started" / "test run finished" events on log level "info" instead of "debug".
-      // -a Show stack traces and exception class name for AssertionErrors.
-      testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a")
+      fork in Test := true
     )
 }
