@@ -80,6 +80,8 @@ object ProcessManagerRegistryActor {
 
   case class Register(supervisorName: String, supervisorRef: ActorRef, idResolution: EntityIdResolution[_ <: ProcessManager])
 
+  case object Acknowledge
+
 }
 
 class ProcessManagerRegistryActor
@@ -97,14 +99,16 @@ class ProcessManagerRegistryActor
   override def receive: Receive = {
 
     case Register(supervisorName, supervisorRef, idResolution) =>
+
+      log.info("Add process registration for {}", supervisorName)
       registrations = registrations.updated(supervisorName, Registration(supervisorRef, idResolution))
-      sender() ! Success(Unit)
+      sender() ! Acknowledge
 
     case eventRecord: AggregateEventRecord =>
 
-      // TODO [AK] Guaranteed delivery
       registrations.foreach { case (supervisorName, registration) =>
         try {
+          // TODO [AK] Guaranteed delivery
           val publication = EventPublication(eventRecord)
           if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
             log.info("{} receives {}", supervisorName, eventRecord.tag)
