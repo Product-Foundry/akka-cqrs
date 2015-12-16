@@ -13,18 +13,9 @@ import scala.reflect.ClassTag
 /**
   * Entity context that uses a cluster singleton to handle all updates on a single node.
   */
-class ClusterSingletonEntityContext(system: ActorSystem, actorName: String = "Domain") extends EntityContext {
+class ClusterSingletonEntityContext(system: ActorSystem, actorName: String = "Domain-Cluster") extends EntityContext {
 
-  val singleton = system.actorOf(ClusterSingletonManager.props(
-    singletonProps = Props[EntityContextActor],
-    terminationMessage = PoisonPill,
-    settings = ClusterSingletonManagerSettings(system)),
-    name = actorName)
-
-  val singletonProxy = system.actorOf(ClusterSingletonProxy.props(
-    singletonManagerPath = s"/user/$actorName",
-    settings = ClusterSingletonProxySettings(system)),
-    name = s"${actorName}Proxy")
+  val actor = singletonActor(Props[EntityContextActor], actorName)
 
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
@@ -35,13 +26,30 @@ class ClusterSingletonEntityContext(system: ActorSystem, actorName: String = "Do
 
         implicit val timeout = Timeout(30.seconds)
 
-        val supervisorRefFuture = (singletonProxy ? GetOrCreateSupervisor(LocalEntitySupervisor.props(
-          implicitly[ClassTag[E]],
-          implicitly[EntityFactory[E]],
-          implicitly[EntityIdResolution[E]]
-        ), supervisorName)).mapTo[ActorRef]
+        val supervisorRefFuture = (actor ? GetOrCreateSupervisor(LocalEntitySupervisor.props, supervisorName)).mapTo[ActorRef]
         Await.result(supervisorRefFuture, timeout.duration)
       }
     }
   }
+
+  /**
+    * TODO [AK] This should not be needed, there is some flaw in the context design related to process managers
+    */
+  override def singletonActor(props: Props, name: String): ActorRef = {
+    val singleton = system.actorOf(ClusterSingletonManager.props(
+      singletonProps = props,
+      terminationMessage = PoisonPill,
+      settings = ClusterSingletonManagerSettings(system)),
+      name = name)
+
+    system.actorOf(ClusterSingletonProxy.props(
+      singletonManagerPath = singleton.path.toStringWithoutAddress,
+      settings = ClusterSingletonProxySettings(system)),
+      name = s"$name-Proxy")
+  }
+
+  /**
+    * TODO [AK] This should not be needed, there is some logical flaw in the context design related to context
+    */
+  override val localContext: EntityContext = new LocalEntityContext(system)
 }

@@ -19,7 +19,7 @@ case class BufferedMessage(sender: ActorRef, message: EntityMessage)
 
 object LocalEntitySupervisor {
 
-  def props[E <: Entity](classTag: ClassTag[E], entityFactory: EntityFactory[E], entityIdResolution: EntityIdResolution[E]): Props = {
+  def props[E <: Entity](implicit classTag: ClassTag[E], entityFactory: EntityFactory[E], entityIdResolution: EntityIdResolution[E]): Props = {
     Props(new LocalEntitySupervisor()(classTag, entityFactory, entityIdResolution))
   }
 }
@@ -92,7 +92,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  *
  * @param actorRefFactory used to create entities supervisor factories.
  */
-class LocalEntityContext(actorRefFactory: ActorRefFactory, actorName: String = "Domain") extends EntityContext {
+class LocalEntityContext(actorRefFactory: ActorRefFactory, actorName: String = "Domain-Local") extends EntityContext {
 
   val actor = actorRefFactory.actorOf(Props[EntityContextActor], actorName)
 
@@ -110,6 +110,18 @@ class LocalEntityContext(actorRefFactory: ActorRefFactory, actorName: String = "
       }
     }
   }
+
+  /**
+    * TODO [AK] This should not be needed, there is some flaw in the context design related to process managers
+    */
+  override def singletonActor(props: Props, name: String): ActorRef = {
+    actorRefFactory.actorOf(props, name)
+  }
+
+  /**
+    * TODO [AK] This should not be needed, there is some logical flaw in the context design related to context
+    */
+  override val localContext: EntityContext = this
 }
 
 class EntityContextActor extends Actor with ActorContextCreationSupport with ActorLogging {

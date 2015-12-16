@@ -24,10 +24,10 @@ object ProcessManagerRegistry {
   */
 class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: EntityContext) {
 
-  val actor = actorRefFactory.actorOf(Props[ProcessManagerRegistryActor], "ProcessManagerRegistry")
+  val actor = entityContext.singletonActor(ProcessManagerRegistryActor.props(), "ProcessManagerRegistry")
 
   def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
-    val supervisorFactory = entityContext.entitySupervisorFactory[P]
+    val supervisorFactory = entityContext.localContext.entitySupervisorFactory[P]
     val supervisorName = supervisorFactory.supervisorName
     val supervisorRef = supervisorFactory.getOrCreate
     val idResolution = implicitly[EntityIdResolution[P]]
@@ -73,6 +73,10 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: En
 }
 
 object ProcessManagerRegistryActor {
+
+  def props(): Props = {
+    Props(classOf[ProcessManagerRegistryActor])
+  }
 
   case class Register(supervisorName: String, supervisorRef: ActorRef, idResolution: EntityIdResolution[_ <: ProcessManager])
 
