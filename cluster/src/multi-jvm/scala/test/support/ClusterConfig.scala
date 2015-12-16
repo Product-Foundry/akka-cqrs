@@ -17,6 +17,7 @@ object ClusterConfig extends MultiNodeConfig {
 
           actor {
             provider = "akka.cluster.ClusterActorRefProvider"
+            serialize-messages = on
           }
 
           remote {
