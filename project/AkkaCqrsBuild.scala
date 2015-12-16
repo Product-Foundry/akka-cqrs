@@ -53,7 +53,8 @@ object AkkaCqrsBuild extends Build {
   lazy val baseSettings = Defaults.coreDefaultSettings
 
   lazy val bintraySettings = Seq(
-    bintrayOrganization in bintray := Some("productfoundry")
+    licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
+    bintrayOrganization := Some("productfoundry")
   )
 
   lazy val parentSettings = baseSettings ++ Seq(
