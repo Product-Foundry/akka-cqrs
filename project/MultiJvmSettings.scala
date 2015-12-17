@@ -10,18 +10,6 @@ object MultiJvmSettings {
   val settings = Seq(
     compile in MultiJvm <<= (compile in MultiJvm) triggeredBy (compile in Test),
 
-    parallelExecution in Test := false,
-
-    executeTests in Test <<= (executeTests in Test, executeTests in MultiJvm) map {
-      case (testResults, multiNodeResults)  =>
-        val overall =
-          if (testResults.overall.id < multiNodeResults.overall.id)
-            multiNodeResults.overall
-          else
-            testResults.overall
-        Tests.Output(overall,
-          testResults.events ++ multiNodeResults.events,
-          testResults.summaries ++ multiNodeResults.summaries)
-    }
+    parallelExecution in Test := false
   )
 }

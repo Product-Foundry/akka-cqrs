@@ -1,3 +1,0 @@
-import akka.cqrs.AkkaCqrsBuild
-
-AkkaCqrsBuild.defaultSettings
