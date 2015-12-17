@@ -27,6 +27,8 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
 
   after {
     terminateConfirmed(
+      // Yikes
+      processManagerRegistry.registryActor,
       processManagerRegistry.actor,
       entityContext.actor
     )

@@ -26,15 +26,17 @@ object ProcessManagerRegistry {
   */
 class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: EntityContext) {
 
-  val actor = entityContext.singletonActor(ProcessManagerRegistryActor.props(), "ProcessManagerRegistry")
+  val registryActor = actorRefFactory.actorOf(ProcessManagerRegistryActor.props(), "ProcessManagerRegistry")
 
   def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
     val supervisorFactory = entityContext.localContext.entitySupervisorFactory[P]
     val supervisorName = supervisorFactory.supervisorName
     val supervisorRef = supervisorFactory.getOrCreate
     val idResolution = implicitly[EntityIdResolution[P]]
-    actor ? Register(supervisorName, supervisorRef, idResolution)
+    registryActor ? Register(supervisorName, supervisorRef, idResolution)
   }
+
+  val actor = entityContext.singletonActor(ProcessManagerMessageForwarder.props(registryActor), "ProcessManagerRegistryForwarder")
 
   /**
     * Registers a process manager.
@@ -71,6 +73,21 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: En
     */
   def register[P <: ProcessManager : ProcessManagerCompanion : ClassTag](factory: ProcessManagerFactory[P])(implicit timeout: Timeout): Future[Any] = {
     register[P](factory, implicitly[ProcessManagerCompanion[P]].idResolution, implicitly[ClassTag[P]], timeout)
+  }
+}
+
+object ProcessManagerMessageForwarder {
+
+  def props(processManagerRegistry: ActorRef): Props = {
+    Props(classOf[ProcessManagerMessageForwarder], processManagerRegistry)
+  }
+
+}
+
+class ProcessManagerMessageForwarder(processManagerRegistry: ActorRef) extends Actor {
+
+  override def receive: Actor.Receive = {
+    case msg => processManagerRegistry.forward(msg)
   }
 }
 
