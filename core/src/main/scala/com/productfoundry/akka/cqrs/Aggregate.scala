@@ -64,18 +64,11 @@ trait Aggregate
       }
 
       // Updates the state with the event in scope.
-      def updateState(state: S): Option[S] = {
-        if (event.isDeleteEvent) {
-          None
-        } else if (state.update.isDefinedAt(event)) {
-          Some(state.update(event))
-        } else {
-          if (factory.isDefinedAt(event)) {
-            throw AggregateAlreadyInitializedException(revision)
-          } else {
-            throw AggregateInternalException(s"Update not defined for $event")
-          }
-        }
+      def updateState(state: S): Option[S] = event match {
+        case e: AggregateDeleteEvent => None
+        case _ if state.update.isDefinedAt(event) => Some(state.update(event))
+        case _ if factory.isDefinedAt(event) => throw AggregateAlreadyInitializedException(revision)
+        case _ => throw AggregateInternalException(s"Update not defined for $event")
       }
 
       copy(
