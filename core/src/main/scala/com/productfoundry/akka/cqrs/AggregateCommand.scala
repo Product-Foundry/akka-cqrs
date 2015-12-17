@@ -1,5 +1,8 @@
 package com.productfoundry.akka.cqrs
 
+import scala.language.implicitConversions
+
+
 /**
   * This trait makes it easier to obtain a command from different messages.
   */
@@ -95,8 +98,6 @@ trait CommandRequest extends AggregateCommandMessage {
 }
 
 object CommandRequest {
-
-  import scala.language.implicitConversions
 
   /**
    * Create a new command request for the specified command.

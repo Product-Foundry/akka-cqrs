@@ -2,11 +2,13 @@ package com.productfoundry.akka.cluster
 
 import akka.actor._
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
+import akka.pattern.ask
 import akka.util.Timeout
 import com.productfoundry.akka.cqrs.EntityContextActor.GetOrCreateSupervisor
 import com.productfoundry.akka.cqrs._
 
 import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
@@ -20,9 +22,6 @@ class ClusterSingletonEntityContext(system: ActorSystem, actorName: String = "Do
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
       override def getOrCreate: ActorRef = {
-        import akka.pattern.ask
-
-        import scala.concurrent.duration._
 
         implicit val timeout = Timeout(30.seconds)
 

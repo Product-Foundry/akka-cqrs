@@ -6,9 +6,10 @@ import com.productfoundry.akka.cqrs.EntityContextActor.GetOrCreateSupervisor
 import com.productfoundry.akka.{ActorContextCreationSupport, PassivationConfig, PassivationRequest}
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
+import akka.pattern.ask
+import scala.concurrent.duration._
 
 /**
  * In-between receiving Passivate and Terminated the supervisor buffers all incoming messages for the entity being passivated.
@@ -99,10 +100,6 @@ class LocalEntityContext(actorRefFactory: ActorRefFactory, actorName: String = "
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {
       override def getOrCreate: ActorRef = {
-        import akka.pattern.ask
-
-        import scala.concurrent.duration._
-
         implicit val timeout = Timeout(30.seconds)
 
         val supervisorRefFuture = (actor ? GetOrCreateSupervisor(Props(new LocalEntitySupervisor[E]), supervisorName)).mapTo[ActorRef]

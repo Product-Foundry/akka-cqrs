@@ -1,6 +1,5 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.actor.Status.Success
 import akka.actor._
 import akka.pattern.ask
 import akka.productfoundry.contrib.pattern.ReceivePipeline
@@ -12,6 +11,7 @@ import com.productfoundry.akka.cqrs.{AggregateEventRecord, EntityContext, Entity
 import scala.concurrent.Future
 import scala.language.existentials
 import scala.reflect.ClassTag
+import ProcessManagerRegistryActor._
 
 object ProcessManagerRegistry {
   def apply(actorRefFactory: ActorRefFactory, entityContext: EntityContext) = {
@@ -89,8 +89,6 @@ class ProcessManagerRegistryActor
   with ActorLogging
   with ReceivePipeline
   with EventPublicationInterceptor {
-
-  import ProcessManagerRegistryActor._
 
   case class Registration(supervisorRef: ActorRef, idResolution: EntityIdResolution[_ <: ProcessManager])
 

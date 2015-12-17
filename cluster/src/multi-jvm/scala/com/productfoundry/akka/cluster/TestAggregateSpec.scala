@@ -6,6 +6,7 @@ import com.productfoundry.akka.cqrs.{AggregateStatus, AggregateFactory, Aggregat
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Seconds, Millis, Span}
 import test.support.ClusterSpec
+import test.support.ClusterConfig._
 
 class TestAggregateSpecMultiJvmNode1 extends TestAggregateSpec
 class TestAggregateSpecMultiJvmNode2 extends TestAggregateSpec
@@ -17,8 +18,6 @@ object TestActorFactory extends AggregateFactory[TestAggregate] {
 }
 
 class TestAggregateSpec  extends ClusterSpec with Eventually {
-
-  import test.support.ClusterConfig._
 
   implicit def entityIdResolution: EntityIdResolution[TestAggregate] = new AggregateIdResolution[TestAggregate]()
 

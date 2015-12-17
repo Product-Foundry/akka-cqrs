@@ -9,6 +9,7 @@ import com.productfoundry.akka.cqrs.project.ProjectionRevision
 import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainAggregatorSnapshot}
 import com.productfoundry.akka.messaging.ConfirmedDelivery
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
+import scala.collection.JavaConverters._
 
 /**
   * Marker trait for persistables.
@@ -53,7 +54,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
   }
 
   private def commit(persistentCommit: proto.PersistentCommit): Commit = {
-    import scala.collection.JavaConverters._
 
     val entries = persistentCommit.getEntriesList.asScala.map { persistentCommitEntry =>
       CommitEntry(
