@@ -1,5 +1,7 @@
 package com.productfoundry.akka.cqrs
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 
@@ -30,6 +32,6 @@ object TestConfig {
   )
 
   def system = {
-    ActorSystem("Tests", config)
+    ActorSystem(s"Test-${UUID.randomUUID()}", config)
   }
 }
