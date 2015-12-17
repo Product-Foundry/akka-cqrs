@@ -90,7 +90,7 @@ abstract class ClusterSpec
     enterBarrier("after-2")
   }
 
-  def on(nodes: RoleName*)(thunk: ⇒ Unit): Unit = {
+  def on(nodes: RoleName*)(thunk: => Unit): Unit = {
     runOn(nodes: _*)(thunk)
   }
 }
