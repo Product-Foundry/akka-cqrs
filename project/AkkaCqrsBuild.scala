@@ -58,7 +58,9 @@ object AkkaCqrsBuild extends Build {
   )
 
   lazy val parentSettings = baseSettings ++ Seq(
-    publishArtifact := false
+    publishArtifact := false,
+
+    parallelExecution in ThisBuild := false
   )
 
   lazy val resolverSettings = {
