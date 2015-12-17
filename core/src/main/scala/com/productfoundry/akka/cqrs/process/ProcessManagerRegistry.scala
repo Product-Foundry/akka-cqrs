@@ -84,10 +84,12 @@ object ProcessManagerMessageForwarder {
 
 }
 
-class ProcessManagerMessageForwarder(processManagerRegistry: ActorRef) extends Actor {
+class ProcessManagerMessageForwarder(processManagerRegistry: ActorRef) extends Actor with ActorLogging {
 
   override def receive: Actor.Receive = {
-    case msg => processManagerRegistry.forward(msg)
+    case msg =>
+      log.info("Forward process manager message to registry: {}", msg)
+      processManagerRegistry.forward(msg)
   }
 }
 
@@ -117,7 +119,7 @@ class ProcessManagerRegistryActor
 
     case Register(supervisorName, supervisorRef, idResolution) =>
 
-      log.info("Add process registration for {}", supervisorName)
+      log.info("Add process registration for {}: {}", supervisorName, supervisorRef)
       registrations = registrations.updated(supervisorName, Registration(supervisorRef, idResolution))
       sender() ! Acknowledge
 
@@ -128,7 +130,7 @@ class ProcessManagerRegistryActor
           // TODO [AK] Guaranteed delivery
           val publication = EventPublication(eventRecord)
           if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
-            log.info("{} receives {}", supervisorName, eventRecord.tag)
+            log.info("{} forward to {}: {}", supervisorName, registration.supervisorRef, eventRecord.tag)
             registration.supervisorRef.forward(publication)
           } else {
             log.debug("{} ignores {}", supervisorName, eventRecord.tag)
