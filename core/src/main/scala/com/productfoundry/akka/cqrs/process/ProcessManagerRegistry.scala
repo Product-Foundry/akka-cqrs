@@ -13,6 +13,8 @@ import scala.language.existentials
 import scala.reflect.ClassTag
 import ProcessManagerRegistryActor._
 
+import scala.util.control.NonFatal
+
 object ProcessManagerRegistry {
   def apply(actorRefFactory: ActorRefFactory, entityContext: EntityContext) = {
     new ProcessManagerRegistry(actorRefFactory, entityContext)
@@ -115,7 +117,7 @@ class ProcessManagerRegistryActor
             log.debug("{} ignores {}", supervisorName, eventRecord.tag)
           }
         } catch {
-          case e: Exception => log.error(e, "{} crashes handling {}", supervisorName, eventRecord.tag)
+          case NonFatal(e) => log.error(e, "{} crashes handling {}", supervisorName, eventRecord.tag)
         }
       }
   }

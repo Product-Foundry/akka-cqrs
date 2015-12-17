@@ -5,6 +5,8 @@ import Keys._
 
 import java.io.File
 
+import scala.util.control.NonFatal
+
 object Protobuf {
   val paths = SettingKey[Seq[File]]("protobuf-paths", "The paths that contain *.proto files.")
   val outputPaths = SettingKey[Seq[File]]("protobuf-output-paths", "The paths where to save the generated *.java files.")
@@ -43,8 +45,8 @@ object Protobuf {
     try {
       val proc = Process(protoc, args)
       thunk(proc, log)
-    } catch { case e: Exception =>
-      throw new RuntimeException("error while executing '%s' with args: %s" format(protoc, args.mkString(" ")), e)
+    } catch {
+      case NonFatal(e) => throw new RuntimeException("error while executing '%s' with args: %s" format(protoc, args.mkString(" ")), e)
     }
 
   private def checkProtocVersion(protoc: String, protocVersion: String, log: Logger): Unit = {
