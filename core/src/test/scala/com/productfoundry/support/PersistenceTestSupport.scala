@@ -7,9 +7,6 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 abstract class PersistenceTestSupport
   extends TestKit(TestConfig.testSystem)
   with ImplicitSender
@@ -27,6 +24,5 @@ abstract class PersistenceTestSupport
 
   override protected def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
-    Await.result(system.whenTerminated, 10.seconds)
   }
 }

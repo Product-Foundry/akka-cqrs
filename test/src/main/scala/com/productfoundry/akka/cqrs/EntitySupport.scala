@@ -7,7 +7,6 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Second, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 abstract class EntitySupport(_system: ActorSystem)
@@ -29,7 +28,7 @@ abstract class EntitySupport(_system: ActorSystem)
 
   implicit val executionContext = system.dispatcher
 
-  implicit val executionTimeout = Timeout(1.second)
+  implicit val executionTimeout = Timeout(5.seconds)
 
   /**
     * Terminates specified actors and wait until termination is confirmed.
@@ -54,6 +53,5 @@ abstract class EntitySupport(_system: ActorSystem)
     */
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
-    Await.result(system.whenTerminated, executionTimeout.duration)
   }
 }
