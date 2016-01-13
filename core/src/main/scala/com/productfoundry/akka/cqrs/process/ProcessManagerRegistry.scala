@@ -16,17 +16,17 @@ import ProcessManagerRegistryActor._
 import scala.util.control.NonFatal
 
 object ProcessManagerRegistry {
-  def apply(actorRefFactory: ActorRefFactory, entityContext: EntityContext) = {
-    new ProcessManagerRegistry(actorRefFactory, entityContext)
+  def apply(actorRefFactory: ActorRefFactory, entityContext: EntityContext, name: String = "ProcessManagerRegistry") = {
+    new ProcessManagerRegistry(actorRefFactory, entityContext, name)
   }
 }
 
 /**
   * Keeps track of all active process managers and their event mappings.
   */
-class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: EntityContext) {
+class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: EntityContext, name: String) {
 
-  val registryActor = actorRefFactory.actorOf(ProcessManagerRegistryActor.props(), "ProcessManagerRegistry")
+  val registryActor = actorRefFactory.actorOf(ProcessManagerRegistryActor.props(), name)
 
   def register[P <: ProcessManager : ProcessManagerFactory : EntityIdResolution : ClassTag](implicit timeout: Timeout): Future[Any] = {
     val supervisorFactory = entityContext.localContext.entitySupervisorFactory[P]
@@ -36,7 +36,7 @@ class ProcessManagerRegistry(actorRefFactory: ActorRefFactory, entityContext: En
     registryActor ? Register(supervisorName, supervisorRef, idResolution)
   }
 
-  val actor = entityContext.singletonActor(ProcessManagerMessageForwarder.props(registryActor), "ProcessManagerRegistryForwarder")
+  val actor = entityContext.singletonActor(ProcessManagerMessageForwarder.props(registryActor), name + "Forwarder")
 
   /**
     * Registers a process manager.

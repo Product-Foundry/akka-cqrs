@@ -20,9 +20,11 @@ abstract class ProcessManagerSupport(_system: ActorSystem)
   var entityContext: LocalEntityContext = null
   var processManagerRegistry: ProcessManagerRegistry = null
 
+  def randomName() = UUID.randomUUID().toString
+
   before {
-    entityContext = new LocalEntityContext(system, UUID.randomUUID().toString)
-    processManagerRegistry = ProcessManagerRegistry(system, entityContext)
+    entityContext = new LocalEntityContext(system, randomName())
+    processManagerRegistry = ProcessManagerRegistry(system, entityContext, randomName())
   }
 
   after {
