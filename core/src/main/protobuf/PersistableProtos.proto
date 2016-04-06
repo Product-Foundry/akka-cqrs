@@ -4,57 +4,66 @@ option java_outer_classname = "PersistableProtos";
 
 option optimize_for = SPEED;
 
-message PersistentAggregateTag {
+message AggregateTag {
     optional string name = 1;
     optional string id = 2;
     optional int64 revision = 3;
 }
 
-message PersistentCommitHeaders {
+message CommitHeaders {
     optional int32 serializerId = 1;
     optional bytes headers = 2;
     optional bytes headersManifest = 3;
 }
 
-message PersistentAggregateEvent {
+message AggregateEvent {
     optional int32 serializerId = 1;
     optional bytes event = 2;
     optional bytes eventManifest = 3;
 }
 
-message PersistentCommit {
+message Commit {
 
-    message PersistentCommitEntry {
+    message CommitEntry {
         optional int64 revision = 1;
-        optional PersistentAggregateEvent event = 2;
+        optional AggregateEvent event = 2;
     }
 
-    optional PersistentAggregateTag tag = 1;
-    optional PersistentCommitHeaders headers = 2;
-    repeated PersistentCommitEntry entries = 3;
+    optional AggregateTag tag = 1;
+    optional CommitHeaders headers = 2;
+    repeated CommitEntry entries = 3;
 }
 
-message PersistentConfirmedDelivery {
+message ConfirmedDelivery {
     optional int64 deliveryId = 1;
 }
 
-message PersistentDeduplicationEntry {
+message DeduplicationEntry {
     optional string deduplicationId = 1;
 }
 
-
-message PersistentDomainCommit {
-
-    message PersistentAggregateEventRecord {
-        optional PersistentAggregateTag tag = 1;
-        optional PersistentCommitHeaders headers = 2;
-        optional PersistentAggregateEvent event = 3;
-    }
-
-    optional int64 revision = 1;
-    optional PersistentAggregateEventRecord eventRecord = 2;
+message AggregateEventRecord {
+    optional AggregateTag tag = 1;
+    optional CommitHeaders headers = 2;
+    optional AggregateEvent event = 3;
 }
 
-message PersistentDomainAggregatorSnapshot {
+message DomainCommit {
     optional int64 revision = 1;
+    optional AggregateEventRecord eventRecord = 2;
+}
+
+message DomainAggregatorSnapshot {
+    optional int64 revision = 1;
+}
+
+message ConfirmDeliveryRequest {
+    optional string target = 1;
+    optional int64 deliveryId = 2;
+}
+
+message EventPublication {
+    optional AggregateEventRecord eventRecord = 1;
+    optional ConfirmDeliveryRequest confirmation = 2;
+    optional string commander = 3;
 }

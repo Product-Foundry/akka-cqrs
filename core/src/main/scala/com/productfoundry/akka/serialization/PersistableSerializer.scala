@@ -6,9 +6,11 @@ import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.process.DeduplicationEntry
 import com.productfoundry.akka.cqrs.project.ProjectionRevision
-import com.productfoundry.akka.cqrs.project.domain.{DomainCommit, DomainAggregatorSnapshot}
-import com.productfoundry.akka.messaging.ConfirmedDelivery
+import com.productfoundry.akka.cqrs.project.domain.{DomainAggregatorSnapshot, DomainCommit}
+import com.productfoundry.akka.cqrs.publish.EventPublication
+import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDelivery}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
+
 import scala.collection.JavaConverters._
 
 /**
@@ -21,41 +23,44 @@ trait Persistable extends Serializable
   */
 class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest with BaseSerializer {
 
-  val CommitManifest = "Commit"
-  val ConfirmedDeliveryManifest = "ConfirmedDelivery"
-  val DeduplicationEntryManifest = "DeduplicationEntry"
-  val DomainCommitManifest = "DomainCommit"
-  val DomainAggregatorSnapshotManifest = "DomainAggregatorSnapshot"
-
   private lazy val serialization = SerializationExtension(system)
 
   override def manifest(o: AnyRef): String = o match {
-    case _: Commit => CommitManifest
-    case _: ConfirmedDelivery => ConfirmedDeliveryManifest
-    case _: DeduplicationEntry => DeduplicationEntryManifest
-    case _: DomainCommit => DomainCommitManifest
-    case _: DomainAggregatorSnapshot => DomainAggregatorSnapshotManifest
+    case _: Commit => "Commit"
+    case _: ConfirmedDelivery => "ConfirmedDelivery"
+    case _: DeduplicationEntry => "DeduplicationEntry"
+    case _: DomainCommit => "DomainCommit"
+    case _: DomainAggregatorSnapshot => "DomainAggregatorSnapshot"
+    case _: AggregateEventRecord => "AggregateEventRecord"
+    case _: ConfirmDeliveryRequest => "ConfirmDeliveryRequest"
+    case _: EventPublication => "EventPublication"
   }
 
   override def toBinary(o: AnyRef): Array[Byte] = o match {
-    case c: Commit => persistentCommit(c).build().toByteArray
-    case c: ConfirmedDelivery => persistentConfirmedDelivery(c).build().toByteArray
-    case r: DeduplicationEntry => persistentDeduplicationEntry(r).build().toByteArray
-    case d: DomainCommit => persistentDomainCommit(d).build().toByteArray
-    case d: DomainAggregatorSnapshot => persistentDomainAggregatorSnapshot(d).build().toByteArray
+    case persistable: Commit => persistentCommit(persistable).build().toByteArray
+    case persistable: ConfirmedDelivery => persistentConfirmedDelivery(persistable).build().toByteArray
+    case persistable: DeduplicationEntry => persistentDeduplicationEntry(persistable).build().toByteArray
+    case persistable: DomainCommit => persistentDomainCommit(persistable).build().toByteArray
+    case persistable: DomainAggregatorSnapshot => persistentDomainAggregatorSnapshot(persistable).build().toByteArray
+    case persistable: AggregateEventRecord => persistentAggregateEventRecord(persistable).build().toByteArray
+    case persistable: ConfirmDeliveryRequest => persistentConfirmDeliveryRequest(persistable).build().toByteArray
+    case persistable: EventPublication => persistentEventPublication(persistable).build().toByteArray
   }
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
-    case CommitManifest => commit(proto.PersistentCommit.parseFrom(bytes))
-    case ConfirmedDeliveryManifest => confirmedDelivery(proto.PersistentConfirmedDelivery.parseFrom(bytes))
-    case DeduplicationEntryManifest => deduplicationEntry(proto.PersistentDeduplicationEntry.parseFrom(bytes))
-    case DomainCommitManifest => domainCommit(proto.PersistentDomainCommit.parseFrom(bytes))
-    case DomainAggregatorSnapshotManifest => domainAggregatorSnapshot(proto.PersistentDomainAggregatorSnapshot.parseFrom(bytes))
+    case "Commit" => commit(proto.Commit.parseFrom(bytes))
+    case "ConfirmedDelivery" => confirmedDelivery(proto.ConfirmedDelivery.parseFrom(bytes))
+    case "DeduplicationEntry" => deduplicationEntry(proto.DeduplicationEntry.parseFrom(bytes))
+    case "DomainCommit" => domainCommit(proto.DomainCommit.parseFrom(bytes))
+    case "DomainAggregatorSnapshot" => domainAggregatorSnapshot(proto.DomainAggregatorSnapshot.parseFrom(bytes))
+    case "AggregateEventRecord" => eventRecord(proto.AggregateEventRecord.parseFrom(bytes))
+    case "ConfirmDeliveryRequest" => confirmDeliveryRequest(proto.ConfirmDeliveryRequest.parseFrom(bytes))
+    case "EventPublication" => eventPublication(proto.EventPublication.parseFrom(bytes))
   }
 
-  private def commit(persistentCommit: proto.PersistentCommit): Commit = {
+  private def commit(persistent: proto.Commit): Commit = {
 
-    val entries = persistentCommit.getEntriesList.asScala.map { persistentCommitEntry =>
+    val entries = persistent.getEntriesList.asScala.map { persistentCommitEntry =>
       CommitEntry(
         AggregateRevision(persistentCommitEntry.getRevision),
         aggregateEvent(persistentCommitEntry.getEvent)
@@ -63,82 +68,98 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     }
 
     Commit(
-      aggregateTag(persistentCommit.getTag),
-      if (persistentCommit.hasHeaders) Some(commitHeaders(persistentCommit.getHeaders)) else None,
-      entries.toSeq
+      aggregateTag(persistent.getTag),
+      if (persistent.hasHeaders) Some(commitHeaders(persistent.getHeaders)) else None,
+      entries
     )
   }
 
-  private def confirmedDelivery(persistentConfirmedDelivery: proto.PersistentConfirmedDelivery): ConfirmedDelivery = {
+  private def confirmedDelivery(persistent: proto.ConfirmedDelivery): ConfirmedDelivery = {
     ConfirmedDelivery(
-      persistentConfirmedDelivery.getDeliveryId
+      persistent.getDeliveryId
     )
   }
 
-  private def domainCommit(persistentDomainCommit: proto.PersistentDomainCommit): DomainCommit = {
-
-    val persistentEventRecord = persistentDomainCommit.getEventRecord
-
+  private def domainCommit(persistent: proto.DomainCommit): DomainCommit = {
     DomainCommit(
-      ProjectionRevision(persistentDomainCommit.getRevision),
-      AggregateEventRecord(
-        aggregateTag(persistentEventRecord.getTag),
-        if (persistentEventRecord.hasHeaders) Some(commitHeaders(persistentEventRecord.getHeaders)) else None,
-        aggregateEvent(persistentEventRecord.getEvent)
-      )
+      ProjectionRevision(persistent.getRevision),
+      eventRecord(persistent.getEventRecord)
     )
   }
 
-  private def domainAggregatorSnapshot(persistentDomainAggregatorSnapshot: proto.PersistentDomainAggregatorSnapshot): DomainAggregatorSnapshot = {
+  private def domainAggregatorSnapshot(persistent: proto.DomainAggregatorSnapshot): DomainAggregatorSnapshot = {
     DomainAggregatorSnapshot(
-      ProjectionRevision(persistentDomainAggregatorSnapshot.getRevision)
+      ProjectionRevision(persistent.getRevision)
     )
   }
 
-  private def deduplicationEntry(persistentDeduplicationEntry: proto.PersistentDeduplicationEntry): DeduplicationEntry = {
-    DeduplicationEntry(persistentDeduplicationEntry.getDeduplicationId)
+  private def eventRecord(persistent: proto.AggregateEventRecord): AggregateEventRecord = {
+    AggregateEventRecord(
+      aggregateTag(persistent.getTag),
+      if (persistent.hasHeaders) Some(commitHeaders(persistent.getHeaders)) else None,
+      aggregateEvent(persistent.getEvent)
+    )
   }
 
-  private def aggregateTag(persistentAggregateTag: proto.PersistentAggregateTag): AggregateTag = {
+  private def confirmDeliveryRequest(persistent: proto.ConfirmDeliveryRequest): ConfirmDeliveryRequest = {
+    ConfirmDeliveryRequest(
+      system.provider.resolveActorRef(persistent.getTarget),
+      persistent.getDeliveryId
+    )
+  }
+
+  private def eventPublication(persistent: proto.EventPublication): EventPublication = {
+    EventPublication(
+      eventRecord(persistent.getEventRecord),
+      if (persistent.hasConfirmation) Some(confirmDeliveryRequest(persistent.getConfirmation)) else None,
+      if (persistent.hasCommander) Some(system.provider.resolveActorRef(persistent.getCommander)) else None
+    )
+  }
+
+  private def deduplicationEntry(persistent: proto.DeduplicationEntry): DeduplicationEntry = {
+    DeduplicationEntry(persistent.getDeduplicationId)
+  }
+
+  private def aggregateTag(persistent: proto.AggregateTag): AggregateTag = {
     AggregateTag(
-      persistentAggregateTag.getName,
-      persistentAggregateTag.getId,
-      AggregateRevision(persistentAggregateTag.getRevision)
+      persistent.getName,
+      persistent.getId,
+      AggregateRevision(persistent.getRevision)
     )
   }
 
-  private def commitHeaders(persistentHeaders: proto.PersistentCommitHeaders): CommitHeaders = {
+  private def commitHeaders(persistent: proto.CommitHeaders): CommitHeaders = {
 
-    val manifest = if (persistentHeaders.hasHeadersManifest) {
-      persistentHeaders.getHeadersManifest.toStringUtf8
+    val manifest = if (persistent.hasHeadersManifest) {
+      persistent.getHeadersManifest.toStringUtf8
     } else {
       ""
     }
 
     serialization.deserialize(
-      persistentHeaders.getHeaders.toByteArray,
-      persistentHeaders.getSerializerId,
+      persistent.getHeaders.toByteArray,
+      persistent.getSerializerId,
       manifest
     ).get.asInstanceOf[CommitHeaders]
   }
 
-  private def aggregateEvent(persistentAggregateEvent: proto.PersistentAggregateEvent): AggregateEvent = {
+  private def aggregateEvent(persistent: proto.AggregateEvent): AggregateEvent = {
 
-    val manifest = if (persistentAggregateEvent.hasEventManifest) {
-      persistentAggregateEvent.getEventManifest.toStringUtf8
+    val manifest = if (persistent.hasEventManifest) {
+      persistent.getEventManifest.toStringUtf8
     } else {
       ""
     }
 
     serialization.deserialize(
-      persistentAggregateEvent.getEvent.toByteArray,
-      persistentAggregateEvent.getSerializerId,
+      persistent.getEvent.toByteArray,
+      persistent.getSerializerId,
       manifest
     ).get.asInstanceOf[AggregateEvent]
   }
 
-  private def persistentCommit(commit: Commit): proto.PersistentCommit.Builder = {
-    val builder = proto.PersistentCommit.newBuilder()
+  private def persistentCommit(commit: Commit): proto.Commit.Builder = {
+    val builder = proto.Commit.newBuilder()
 
     builder.setTag(persistentAggregateTag(commit.tag))
 
@@ -147,7 +168,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     }
 
     commit.entries.foreach { entry =>
-      val entryBuilder = proto.PersistentCommit.PersistentCommitEntry.newBuilder()
+      val entryBuilder = proto.Commit.CommitEntry.newBuilder()
       entryBuilder.setRevision(entry.revision.value)
       entryBuilder.setEvent(persistentAggregateEvent(entry.event))
       builder.addEntries(entryBuilder)
@@ -156,44 +177,56 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.PersistentConfirmedDelivery.Builder = {
-    val builder = proto.PersistentConfirmedDelivery.newBuilder()
+  private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.ConfirmedDelivery.Builder = {
+    val builder = proto.ConfirmedDelivery.newBuilder()
     builder.setDeliveryId(confirmedDelivery.deliveryId)
     builder
   }
 
-  private def persistentDomainCommit(domainCommit: DomainCommit): proto.PersistentDomainCommit.Builder = {
-    val builder = proto.PersistentDomainCommit.newBuilder()
-
-    val eventRecord = domainCommit.eventRecord
-    val eventRecordBuilder = proto.PersistentDomainCommit.PersistentAggregateEventRecord.newBuilder()
-    eventRecordBuilder.setTag(persistentAggregateTag(eventRecord.tag))
-
-    eventRecord.headersOption.foreach { headers =>
-      eventRecordBuilder.setHeaders(persistentCommitHeaders(headers))
-    }
-
-    eventRecordBuilder.setEvent(persistentAggregateEvent(eventRecord.event))
-
+  private def persistentDomainCommit(domainCommit: DomainCommit): proto.DomainCommit.Builder = {
+    val builder = proto.DomainCommit.newBuilder()
     builder.setRevision(domainCommit.revision.value)
-    builder.setEventRecord(eventRecordBuilder)
+    builder.setEventRecord(persistentAggregateEventRecord(domainCommit.eventRecord))
     builder
   }
 
-  private def persistentDomainAggregatorSnapshot(domainAggregatorSnapshot: DomainAggregatorSnapshot): proto.PersistentDomainAggregatorSnapshot.Builder = {
-    val builder = proto.PersistentDomainAggregatorSnapshot.newBuilder()
+  private def persistentDomainAggregatorSnapshot(domainAggregatorSnapshot: DomainAggregatorSnapshot): proto.DomainAggregatorSnapshot.Builder = {
+    val builder = proto.DomainAggregatorSnapshot.newBuilder()
     builder.setRevision(domainAggregatorSnapshot.revision.value)
     builder
   }
 
-  private def persistentDeduplicationEntry(deduplicationEntry: DeduplicationEntry): proto.PersistentDeduplicationEntry.Builder = {
-    val builder = proto.PersistentDeduplicationEntry.newBuilder()
+  private def persistentAggregateEventRecord(eventRecord: AggregateEventRecord): proto.AggregateEventRecord.Builder = {
+    val builder = proto.AggregateEventRecord.newBuilder()
+    builder.setTag(persistentAggregateTag(eventRecord.tag))
+    eventRecord.headersOption.foreach(headers => builder.setHeaders(persistentCommitHeaders(headers)))
+    builder.setEvent(persistentAggregateEvent(eventRecord.event))
+    builder
+  }
+
+  private def persistentConfirmDeliveryRequest(confirmDeliveryRequest: ConfirmDeliveryRequest): proto.ConfirmDeliveryRequest.Builder = {
+    val builder = proto.ConfirmDeliveryRequest.newBuilder()
+    builder.setTarget(Serialization.serializedActorPath(confirmDeliveryRequest.target))
+    builder.setDeliveryId(confirmDeliveryRequest.deliveryId)
+    builder
+  }
+
+  private def persistentEventPublication(eventPublication: EventPublication): proto.EventPublication.Builder = {
+    val builder = proto.EventPublication.newBuilder()
+    builder.setEventRecord(persistentAggregateEventRecord(eventPublication.eventRecord))
+    eventPublication.confirmationOption.foreach(confirmation => builder.setConfirmation(persistentConfirmDeliveryRequest(confirmation)))
+    eventPublication.commanderOption.foreach(commander => builder.setCommander(Serialization.serializedActorPath(commander)))
+    builder
+  }
+
+  private def persistentDeduplicationEntry(deduplicationEntry: DeduplicationEntry): proto.DeduplicationEntry.Builder = {
+    val builder = proto.DeduplicationEntry.newBuilder()
     builder.setDeduplicationId(deduplicationEntry.deduplicationId)
     builder
   }
 
-  private def persistentAggregateTag(aggregateTag: AggregateTag): proto.PersistentAggregateTag.Builder = {
-    val builder = proto.PersistentAggregateTag.newBuilder()
+  private def persistentAggregateTag(aggregateTag: AggregateTag): proto.AggregateTag.Builder = {
+    val builder = proto.AggregateTag.newBuilder()
 
     builder.setName(aggregateTag.name)
     builder.setId(aggregateTag.id)
@@ -201,9 +234,9 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentCommitHeaders(headers: CommitHeaders): proto.PersistentCommitHeaders.Builder = {
+  private def persistentCommitHeaders(headers: CommitHeaders): proto.CommitHeaders.Builder = {
     val serializer = serialization.findSerializerFor(headers)
-    val builder = proto.PersistentCommitHeaders.newBuilder()
+    val builder = proto.CommitHeaders.newBuilder()
 
     builder.setSerializerId(serializer.identifier)
     createManifestOption(serializer, headers).foreach(builder.setHeadersManifest)
@@ -212,10 +245,10 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def persistentAggregateEvent(event: AggregateEvent): proto.PersistentAggregateEvent.Builder = {
+  private def persistentAggregateEvent(event: AggregateEvent): proto.AggregateEvent.Builder = {
     val payload = event.asInstanceOf[AnyRef]
     val serializer = serialization.findSerializerFor(payload)
-    val builder = proto.PersistentAggregateEvent.newBuilder()
+    val builder = proto.AggregateEvent.newBuilder()
 
     builder.setSerializerId(serializer.identifier)
     createManifestOption(serializer, payload).foreach(builder.setEventManifest)
