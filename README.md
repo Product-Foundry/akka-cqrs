@@ -20,7 +20,7 @@ To include this library into your `sbt` project, add the following lines to your
 
     libraryDependencies += "com.productfoundry" %% "akka-cqrs" % "0.1.40"
 
-This version of `akka-cqrs` is built using Akka 2.4.1 and Scala 2.11.7.
+This version of `akka-cqrs` is built using Akka 2.4.3 and Scala 2.11.8.
 
 Usage
 -----
