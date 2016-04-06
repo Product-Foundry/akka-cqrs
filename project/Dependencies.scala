@@ -9,7 +9,7 @@ object Dependencies {
   lazy val cqrsVersion = settingKey[String]("The version of CQRS to use.")
 
   val Versions = Seq(
-    akkaVersion := "2.4.1"
+    akkaVersion := "2.4.3"
   )
 
   object Compile {
