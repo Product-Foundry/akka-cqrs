@@ -60,7 +60,11 @@ trait Aggregate
 
       // Creates new state with the event in scope.
       def createState: Option[S] = {
-        if (factory.isDefinedAt(event)) Some(factory.apply(event)) else throw AggregateNotInitializedException(event)
+        if (factory.isDefinedAt(event)) {
+          Some(factory.apply(event))
+        } else {
+          throw AggregateNotInitializedException(s"Unable to initialize aggregate with $event")
+        }
       }
 
       // Updates the state with the event in scope.
@@ -102,9 +106,9 @@ trait Aggregate
     * Provides access to the aggregate state.
     *
     * @return current aggregate state.
-    * @throws AggregateInternalException if the state is not initialized
+    * @throws AggregateNotInitializedException if the state is not initialized
     */
-  def state: S = stateOption.getOrElse(throw AggregateInternalException("Aggregate state not initialized"))
+  def state: S = stateOption.getOrElse(throw AggregateNotInitializedException("Aggregate state not initialized"))
 
   /**
     * Indication whether the state is initialized or not.
@@ -153,7 +157,9 @@ trait Aggregate
   /**
     * @return Indication if the aggregate is deleted.
     */
-  private def isDeleted: Boolean = stateOption.isEmpty && revision > AggregateRevision.Initial
+  private def isDeleted: Boolean = {
+    stateOption.isEmpty && revision > AggregateRevision.Initial
+  }
 
   /**
     * Handle all commands and keep the command for reference in the aggregate.
