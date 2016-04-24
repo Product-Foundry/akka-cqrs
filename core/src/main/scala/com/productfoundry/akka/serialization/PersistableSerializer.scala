@@ -1,6 +1,7 @@
 package com.productfoundry.akka.serialization
 
 import akka.actor.ExtendedActorSystem
+import akka.event.Logging
 import akka.serialization._
 import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
@@ -12,6 +13,7 @@ import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDeliv
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 /**
   * Marker trait for persistables.
@@ -24,6 +26,8 @@ trait Persistable extends Serializable
 class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest with BaseSerializer {
 
   private lazy val serialization = SerializationExtension(system)
+
+  private val log = Logging(system, getClass.getName)
 
   override def manifest(o: AnyRef): String = o match {
     case _: Commit => "Commit"
@@ -60,17 +64,25 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
   private def commit(persistent: proto.Commit): Commit = {
 
-    val entries = persistent.getEntriesList.asScala.map { persistentCommitEntry =>
-      CommitEntry(
-        AggregateRevision(persistentCommitEntry.getRevision),
-        aggregateEvent(persistentCommitEntry.getEvent)
-      )
+    val entryOptions = persistent.getEntriesList.asScala.map { persistentCommitEntry =>
+
+      val eventOption = aggregateEvent(persistentCommitEntry.getEvent) match {
+        case Success(event) => Some(event)
+        case Failure(UnknownEventException(manifest)) =>
+          log.warning("Ignoring event with manifest {}", manifest)
+          None
+        case Failure(e) => throw e
+      }
+
+      eventOption.map { event =>
+        CommitEntry(AggregateRevision(persistentCommitEntry.getRevision), event)
+      }
     }
 
     Commit(
       aggregateTag(persistent.getTag),
       if (persistent.hasHeaders) Some(commitHeaders(persistent.getHeaders)) else None,
-      entries
+      entryOptions.flatten
     )
   }
 
@@ -97,7 +109,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     AggregateEventRecord(
       aggregateTag(persistent.getTag),
       if (persistent.hasHeaders) Some(commitHeaders(persistent.getHeaders)) else None,
-      aggregateEvent(persistent.getEvent)
+      aggregateEvent(persistent.getEvent).get
     )
   }
 
@@ -143,7 +155,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     ).get.asInstanceOf[CommitHeaders]
   }
 
-  private def aggregateEvent(persistent: proto.AggregateEvent): AggregateEvent = {
+  private def aggregateEvent(persistent: proto.AggregateEvent): Try[AggregateEvent] = {
 
     val manifest = if (persistent.hasEventManifest) {
       persistent.getEventManifest.toStringUtf8
@@ -155,7 +167,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
       persistent.getEvent.toByteArray,
       persistent.getSerializerId,
       manifest
-    ).get.asInstanceOf[AggregateEvent]
+    ).map(_.asInstanceOf[AggregateEvent])
   }
 
   private def persistentCommit(commit: Commit): proto.Commit.Builder = {
