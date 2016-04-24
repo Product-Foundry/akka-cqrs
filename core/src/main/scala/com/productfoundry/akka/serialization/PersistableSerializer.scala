@@ -6,8 +6,6 @@ import akka.serialization._
 import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.process.DeduplicationEntry
-import com.productfoundry.akka.cqrs.project.ProjectionRevision
-import com.productfoundry.akka.cqrs.project.domain.{DomainAggregatorSnapshot, DomainCommit}
 import com.productfoundry.akka.cqrs.publish.EventPublication
 import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDelivery}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
@@ -33,8 +31,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case _: Commit => "Commit"
     case _: ConfirmedDelivery => "ConfirmedDelivery"
     case _: DeduplicationEntry => "DeduplicationEntry"
-    case _: DomainCommit => "DomainCommit"
-    case _: DomainAggregatorSnapshot => "DomainAggregatorSnapshot"
     case _: AggregateEventRecord => "AggregateEventRecord"
     case _: ConfirmDeliveryRequest => "ConfirmDeliveryRequest"
     case _: EventPublication => "EventPublication"
@@ -44,8 +40,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case persistable: Commit => persistentCommit(persistable).build().toByteArray
     case persistable: ConfirmedDelivery => persistentConfirmedDelivery(persistable).build().toByteArray
     case persistable: DeduplicationEntry => persistentDeduplicationEntry(persistable).build().toByteArray
-    case persistable: DomainCommit => persistentDomainCommit(persistable).build().toByteArray
-    case persistable: DomainAggregatorSnapshot => persistentDomainAggregatorSnapshot(persistable).build().toByteArray
     case persistable: AggregateEventRecord => persistentAggregateEventRecord(persistable).build().toByteArray
     case persistable: ConfirmDeliveryRequest => persistentConfirmDeliveryRequest(persistable).build().toByteArray
     case persistable: EventPublication => persistentEventPublication(persistable).build().toByteArray
@@ -55,8 +49,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case "Commit" => commit(proto.Commit.parseFrom(bytes))
     case "ConfirmedDelivery" => confirmedDelivery(proto.ConfirmedDelivery.parseFrom(bytes))
     case "DeduplicationEntry" => deduplicationEntry(proto.DeduplicationEntry.parseFrom(bytes))
-    case "DomainCommit" => domainCommit(proto.DomainCommit.parseFrom(bytes))
-    case "DomainAggregatorSnapshot" => domainAggregatorSnapshot(proto.DomainAggregatorSnapshot.parseFrom(bytes))
     case "AggregateEventRecord" => eventRecord(proto.AggregateEventRecord.parseFrom(bytes))
     case "ConfirmDeliveryRequest" => confirmDeliveryRequest(proto.ConfirmDeliveryRequest.parseFrom(bytes))
     case "EventPublication" => eventPublication(proto.EventPublication.parseFrom(bytes))
@@ -89,19 +81,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
   private def confirmedDelivery(persistent: proto.ConfirmedDelivery): ConfirmedDelivery = {
     ConfirmedDelivery(
       persistent.getDeliveryId
-    )
-  }
-
-  private def domainCommit(persistent: proto.DomainCommit): DomainCommit = {
-    DomainCommit(
-      ProjectionRevision(persistent.getRevision),
-      eventRecord(persistent.getEventRecord)
-    )
-  }
-
-  private def domainAggregatorSnapshot(persistent: proto.DomainAggregatorSnapshot): DomainAggregatorSnapshot = {
-    DomainAggregatorSnapshot(
-      ProjectionRevision(persistent.getRevision)
     )
   }
 
@@ -192,19 +171,6 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
   private def persistentConfirmedDelivery(confirmedDelivery: ConfirmedDelivery): proto.ConfirmedDelivery.Builder = {
     val builder = proto.ConfirmedDelivery.newBuilder()
     builder.setDeliveryId(confirmedDelivery.deliveryId)
-    builder
-  }
-
-  private def persistentDomainCommit(domainCommit: DomainCommit): proto.DomainCommit.Builder = {
-    val builder = proto.DomainCommit.newBuilder()
-    builder.setRevision(domainCommit.revision.value)
-    builder.setEventRecord(persistentAggregateEventRecord(domainCommit.eventRecord))
-    builder
-  }
-
-  private def persistentDomainAggregatorSnapshot(domainAggregatorSnapshot: DomainAggregatorSnapshot): proto.DomainAggregatorSnapshot.Builder = {
-    val builder = proto.DomainAggregatorSnapshot.newBuilder()
-    builder.setRevision(domainAggregatorSnapshot.revision.value)
     builder
   }
 

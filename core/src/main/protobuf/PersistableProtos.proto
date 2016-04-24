@@ -48,15 +48,6 @@ message AggregateEventRecord {
     optional AggregateEvent event = 3;
 }
 
-message DomainCommit {
-    optional int64 revision = 1;
-    optional AggregateEventRecord eventRecord = 2;
-}
-
-message DomainAggregatorSnapshot {
-    optional int64 revision = 1;
-}
-
 message ConfirmDeliveryRequest {
     optional string target = 1;
     optional int64 deliveryId = 2;
