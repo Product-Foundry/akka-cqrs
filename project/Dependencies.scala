@@ -6,10 +6,9 @@ import Keys._
 object Dependencies {
 
   lazy val akkaVersion = settingKey[String]("The version of Akka to use.")
-  lazy val cqrsVersion = settingKey[String]("The version of CQRS to use.")
 
   val Versions = Seq(
-    akkaVersion := "2.4.3"
+    akkaVersion := "2.4.4"
   )
 
   object Compile {
