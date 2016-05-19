@@ -88,7 +88,7 @@ class ProcessManagerMessageForwarder(processManagerRegistry: ActorRef) extends A
 
   override def receive: Actor.Receive = {
     case msg =>
-      log.info("Forward process manager message to registry: {}", msg)
+      log.debug("Forward process manager message to registry: {}", msg)
       processManagerRegistry.forward(msg)
   }
 }
@@ -130,7 +130,7 @@ class ProcessManagerRegistryActor
           // TODO [AK] Guaranteed delivery
           val publication = EventPublication(eventRecord)
           if (registration.idResolution.entityIdResolver.isDefinedAt(publication)) {
-            log.info("{} forward to {}: {}", supervisorName, registration.supervisorRef, eventRecord.tag)
+            log.debug("{} forward to {}: {}", supervisorName, registration.supervisorRef, eventRecord.tag)
             registration.supervisorRef.forward(publication)
           } else {
             log.debug("{} ignores {}", supervisorName, eventRecord.tag)
