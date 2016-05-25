@@ -8,7 +8,7 @@ object Dependencies {
   lazy val akkaVersion = settingKey[String]("The version of Akka to use.")
 
   val Versions = Seq(
-    akkaVersion := "2.4.5"
+    akkaVersion := "2.4.6"
   )
 
   object Compile {
