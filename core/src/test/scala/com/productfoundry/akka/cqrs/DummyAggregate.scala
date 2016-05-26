@@ -7,48 +7,43 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
 
   type S = DummyState
 
-  override def handleCommand: Receive = {
+  override def handleCommand: CommandHandler = {
     case Create(aggregateId) =>
-      tryCommit {
-        Right(Changes(Created(aggregateId)))
-      }
+      Right(Changes(Created(aggregateId)))
 
     case Count(aggregateId) =>
-      tryCommit {
-        Right(Changes(Counted(aggregateId, state.count + 1)))
-      }
+      Right(Changes(Counted(aggregateId, state.count + 1)))
 
     case CountWithRequiredRevisionCheck(aggregateId) =>
-      tryCommit {
-        Right(Changes(Counted(aggregateId, state.count + 1)))
-      }
+      Right(Changes(Counted(aggregateId, state.count + 1)))
 
     case CountWithPayload(aggregateId) =>
-      tryCommit {
-        Right(Changes(Counted(aggregateId, state.count + 1)).withResponse(state.count))
-      }
+      Right(Changes(Counted(aggregateId, state.count + 1)).withResponse(state.count))
 
     case Increment(aggregateId, amount) =>
-      tryCommit {
-        if (amount > 0) {
-          Right(Changes(Incremented(aggregateId, amount)))
-        } else {
-          Left(ValidationError(InvalidIncrement(amount)))
-        }
+      if (amount > 0) {
+        Right(Changes(Incremented(aggregateId, amount)))
+      } else {
+        Left(ValidationError(InvalidIncrement(amount)))
       }
 
     case Delete(aggregateId) =>
-      tryCommit {
-        Right(Changes(Deleted(aggregateId)))
-      }
+      Right(Changes(Deleted(aggregateId)))
 
     case NoOp(aggregateId) =>
-      tryCommit {
-        Right(Changes())
-      }
+      Right(Changes())
+  }
 
+  /**
+    * Sends the configured passivation message to the parent actor on receive timeout.
+    *
+    * @param message unhandled message.
+    */
+  override def unhandled(message: Any): Unit = message match {
     case GetCount(_) =>
       sender() ! state.count
+    case _ =>
+      super.unhandled(message)
   }
 
   override val factory: StateModifications = {

@@ -7,12 +7,14 @@ import akka.actor._
   */
 trait Aggregate
   extends Entity
-  with CommitHandler
-  with ActorLogging {
+    with CommitHandler
+    with ActorLogging {
 
   type S <: AggregateState
 
   type StateModifications = PartialFunction[AggregateEvent, S]
+
+  type CommandHandler = PartialFunction[Any, Either[AggregateUpdateFailure, Changes]]
 
   /**
     * Creates aggregate state.
@@ -37,7 +39,7 @@ trait Aggregate
   /**
     * Specifies the aggregate state with its revision.
     *
-    * @param revision of the aggregate state.
+    * @param revision    of the aggregate state.
     * @param stateOption containing aggregate state.
     */
   case class RevisedState(revision: AggregateRevision, stateOption: Option[S]) {
@@ -112,6 +114,7 @@ trait Aggregate
 
   /**
     * Indication whether the state is initialized or not.
+    *
     * @return true if this aggregate is initialized, otherwise false.
     */
   def initialized = stateOption.isDefined
@@ -151,7 +154,7 @@ trait Aggregate
       handleCommandRequest(message.commandRequest)
 
     case message =>
-      handleCommand.applyOrElse(message, unhandled)
+      unhandled(message)
   }
 
   /**
@@ -171,7 +174,14 @@ trait Aggregate
     def handleCommandInContext() = {
       try {
         commandRequestOption = Some(commandRequest)
-        handleCommand.applyOrElse(commandRequest.command, unhandled)
+
+        val command = commandRequest.command
+
+        handleCommand.lift.apply(command).fold {
+          sender() ! Status.Failure(AggregateCommandUnknownException(command))
+        } { changesAttempt =>
+          tryCommit(changesAttempt)
+        }
       } finally {
         commandRequestOption = None
       }
@@ -187,7 +197,7 @@ trait Aggregate
   /**
     * Handles all aggregate commands.
     */
-  def handleCommand: Receive
+  def handleCommand: CommandHandler
 
   /**
     * Handle recovery of commits and aggregator confirmation status.
@@ -208,7 +218,7 @@ trait Aggregate
     *
     * @param changesAttempt containing changes or a validation failure.
     */
-  def tryCommit(changesAttempt: Either[AggregateUpdateFailure, Changes]): Unit = {
+  private def tryCommit(changesAttempt: Either[AggregateUpdateFailure, Changes]): Unit = {
     if (isDeleted) {
       sender() ! AggregateStatus.Failure(AggregateDeleted(revision))
     } else {
@@ -234,6 +244,7 @@ trait Aggregate
 
   /**
     * Commit changes.
+    *
     * @param changes to commit.
     */
   private def commit(changes: Changes): Unit = {
@@ -252,6 +263,7 @@ trait Aggregate
 
       // No exception thrown, persist and update state for real
       persist(commit) { _ =>
+
         // Updating state should never fail, since we already performed a dry run
         revisedState = updatedState
 
@@ -274,7 +286,8 @@ trait Aggregate
 
   /**
     * Can be overridden by commit handlers mixins to add additional commit behavior.
-    * @param commit to handle.
+    *
+    * @param commit   to handle.
     * @param response which can be manipulated by additional commit handlers.
     * @return Updated response.
     */
@@ -283,11 +296,29 @@ trait Aggregate
   /**
     * Sends the exception message to the caller.
     *
-    * @param cause the Throwable that caused the restart to happen.
+    * @param cause   the Throwable that caused the restart to happen.
     * @param message optionally the current message the actor processed when failing, if applicable.
     */
   override def preRestart(cause: Throwable, message: Option[Any]): Unit = {
+    log.error(cause, "Failed to handle message type [{}] for persistenceId [{}].", message.getClass.getName, persistenceId)
     sender() ! Status.Failure(cause)
     super.preRestart(cause, message)
+  }
+
+  /**
+    * Notify the sender in case persisting the event fails.
+    */
+  override protected def onPersistFailure(cause: Throwable, event: Any, seqNr: Long): Unit = {
+    sender() ! Status.Failure(cause)
+    super.onPersistFailure(cause, event, seqNr)
+  }
+
+  /**
+    * Notify the sender in case persisting the event fails.
+    */
+  override protected def onPersistRejected(cause: Throwable, event: Any, seqNr: Long): Unit = {
+    sender() ! Status.Failure(cause)
+    super.onPersistRejected(cause, event, seqNr)
+    context.stop(self)
   }
 }

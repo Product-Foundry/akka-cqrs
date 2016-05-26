@@ -3,8 +3,9 @@ package com.productfoundry.akka.cqrs
 import java.util.UUID
 
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.TaskCommand.{TaskAlreadyAssigned, AssignTask, CreateTask}
+import com.productfoundry.akka.cqrs.TaskCommand.{AssignTask, CreateTask, TaskAlreadyAssigned}
 import com.productfoundry.akka.cqrs.TaskEvent.{TaskAssigned, TaskCreated}
+import com.sun.corba.se.impl.activation.CommandHandler
 
 case class TaskId(entityId: String) extends EntityId {
   override def toString: String = entityId
@@ -29,6 +30,7 @@ object TaskCommand {
   trait TaskValidationMessage extends ValidationMessage
 
   case class TaskAlreadyAssigned(assigneeId: UserId) extends TaskValidationMessage
+
 }
 
 object TaskEvent {
@@ -38,6 +40,7 @@ object TaskEvent {
   case class TaskCreated(id: TaskId, creationTime: Long, title: String) extends TaskEvent
 
   case class TaskAssigned(id: TaskId, assigneeId: UserId) extends TaskEvent
+
 }
 
 class TaskAggregate(override val passivationConfig: PassivationConfig) extends Aggregate {
@@ -56,18 +59,16 @@ class TaskAggregate(override val passivationConfig: PassivationConfig) extends A
     }
   }
 
-  override def handleCommand: Receive = {
+  override def handleCommand: CommandHandler = {
 
     case CreateTask(taskId, title) =>
-      tryCommit(Right(Changes(TaskCreated(taskId, System.currentTimeMillis(), title))))
+      Right(Changes(TaskCreated(taskId, System.currentTimeMillis(), title)))
 
     case AssignTask(taskId, assigneeId) =>
-      tryCommit {
-        state.assigneeIdOption.map {
-          assigneeId => Left(ValidationError(TaskAlreadyAssigned(assigneeId)))
-        } getOrElse {
-          Right(Changes(TaskAssigned(taskId, assigneeId)))
-        }
+      state.assigneeIdOption.map {
+        assigneeId => Left(ValidationError(TaskAlreadyAssigned(assigneeId)))
+      } getOrElse {
+        Right(Changes(TaskAssigned(taskId, assigneeId)))
       }
   }
 }

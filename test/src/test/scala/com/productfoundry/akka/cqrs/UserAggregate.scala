@@ -3,8 +3,9 @@ package com.productfoundry.akka.cqrs
 import java.util.UUID
 
 import com.productfoundry.akka.PassivationConfig
-import com.productfoundry.akka.cqrs.UserCommand.{NotifyUser, CreateUser}
-import com.productfoundry.akka.cqrs.UserEvent.{UserNotified, UserCreated}
+import com.productfoundry.akka.cqrs.UserCommand.{CreateUser, NotifyUser}
+import com.productfoundry.akka.cqrs.UserEvent.{UserCreated, UserNotified}
+import com.sun.corba.se.impl.activation.CommandHandler
 
 case class UserId(entityId: String) extends EntityId {
   override def toString: String = entityId
@@ -51,12 +52,12 @@ class UserAggregate(override val passivationConfig: PassivationConfig) extends A
     }
   }
 
-  override def handleCommand: Receive = {
+  override def handleCommand: CommandHandler = {
 
     case CreateUser(userId, name) =>
-      tryCommit(Right(Changes(UserCreated(userId, name))))
+      Right(Changes(UserCreated(userId, name)))
 
     case NotifyUser(userId, notification) =>
-      tryCommit(Right(Changes(UserNotified(userId, notification))))
+      Right(Changes(UserNotified(userId, notification)))
   }
 }

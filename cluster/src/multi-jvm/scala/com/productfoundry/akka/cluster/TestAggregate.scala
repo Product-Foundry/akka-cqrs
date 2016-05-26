@@ -2,6 +2,7 @@ package com.productfoundry.akka.cluster
 
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs._
+import com.sun.corba.se.impl.activation.CommandHandler
 
 case class TestId(entityId: String) extends EntityId
 
@@ -36,11 +37,15 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
     case Counted(_, value) => TestState(counter = value)
   }
 
-  override def handleCommand: Receive = {
+  override def handleCommand: CommandHandler = {
     case Count(id) =>
-      tryCommit(Right(Changes(Counted(id, stateOption.fold(1)(_.counter + 1)))))
+      Right(Changes(Counted(id, stateOption.fold(1)(_.counter + 1))))
+  }
 
+  override def unhandled(message: Any): Unit = message match {
     case GetCount(id) =>
       sender() ! GetCountResult(stateOption.fold(0)(_.counter))
+    case _ =>
+      super.unhandled(message)
   }
 }
