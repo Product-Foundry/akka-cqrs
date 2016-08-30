@@ -1,6 +1,7 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
+import akka.persistence.{SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
 
 /**
   * Aggregate.
@@ -15,6 +16,8 @@ trait Aggregate
   type StateModifications = PartialFunction[AggregateEvent, S]
 
   type CommandHandler = PartialFunction[Any, Either[AggregateUpdateFailure, Changes]]
+
+  type SnapshotHandler = PartialFunction[Any, S]
 
   /**
     * Creates aggregate state.
@@ -200,10 +203,16 @@ trait Aggregate
   def handleCommand: CommandHandler
 
   /**
+    * Handles all saved snapshots.
+    */
+  def handleSnapshot: SnapshotHandler = PartialFunction.empty
+
+  /**
     * Handle recovery of commits and aggregator confirmation status.
     */
   override def receiveRecover: Receive = {
     case commit: Commit => updateState(commit)
+    case SnapshotOffer(_, AggregateSnapshot(revision, snapshot)) => updateStateFromSnapshot(revision, snapshot)
   }
 
   /**
@@ -211,6 +220,17 @@ trait Aggregate
     */
   private def updateState(commit: Commit): Unit = {
     revisedState = revisedState.applyCommit(commit)
+  }
+
+  /**
+    * Use the snapshot to set the current aggregate state.
+    */
+  private def updateStateFromSnapshot(revision: AggregateRevision, snapshot: Any): Unit = {
+    if (handleSnapshot.isDefinedAt(snapshot)) {
+      revisedState = RevisedState(revision, Some(handleSnapshot(snapshot)))
+    } else {
+      throw AggregateInternalException(s"Unable to recover state from snapshot: $snapshot")
+    }
   }
 
   /**
@@ -230,6 +250,20 @@ trait Aggregate
         }
       })
     }
+  }
+
+  /**
+    * Saves a `snapshot` of this aggregate's state.
+    *
+    * The [[Aggregate]] will be notified about the success or failure of this
+    * via an [[SaveSnapshotSuccess]] or [[SaveSnapshotFailure]] message.
+    */
+  override def saveSnapshot(snapshot: Any): Unit = {
+    if (snapshot.isInstanceOf[AggregateState]) {
+      throw AggregateInternalException("Aggregate state should not be used as a snapshot directly")
+    }
+
+    super.saveSnapshot(AggregateSnapshot(revision, snapshot))
   }
 
   /**
@@ -277,7 +311,7 @@ trait Aggregate
 
     // Fail revision check.
     def unexpectedRevision(expected: AggregateRevision): Unit = {
-      throw new AggregateInternalException("Revision unexpectedly updated between commits")
+      throw AggregateInternalException("Revision unexpectedly updated between commits")
     }
 
     // Optionally perform a revision check and only perform the commit if successful

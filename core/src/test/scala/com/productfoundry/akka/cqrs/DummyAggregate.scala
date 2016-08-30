@@ -3,6 +3,8 @@ package com.productfoundry.akka.cqrs
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.DummyAggregate._
 
+case class DummySnapshot(count: Int)
+
 class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate {
 
   type S = DummyState
@@ -42,8 +44,21 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
   override def unhandled(message: Any): Unit = message match {
     case GetCount(_) =>
       sender() ! state.count
+
+    case Snapshot(id) =>
+      saveSnapshot(state.count)
+      requestPassivation()
+      sender() ! SnapshotComplete
+
     case _ =>
       super.unhandled(message)
+  }
+
+  /**
+    * Handles all saved snapshots.
+    */
+  override def handleSnapshot: SnapshotHandler = {
+    case count: Int => DummyState(count)
   }
 
   override val factory: StateModifications = {
@@ -56,7 +71,6 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
       case Incremented(_, amount) => copy(count = count + amount)
     }
   }
-
 }
 
 object DummyAggregate {
@@ -96,5 +110,9 @@ object DummyAggregate {
   case class InvalidIncrement(value: Int) extends TestValidationMessage
 
   case class GetCount(id: DummyId) extends DummyMessage
+
+  case class Snapshot(id: DummyId) extends DummyMessage
+
+  case object SnapshotComplete
 
 }

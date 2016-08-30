@@ -22,6 +22,18 @@ message AggregateEvent {
     optional bytes eventManifest = 3;
 }
 
+message AggregateSnapshot {
+
+    message Snapshot {
+        optional int32 serializerId = 1;
+        optional bytes snapshot = 2;
+        optional bytes snapshotManifest = 3;
+    }
+
+    optional int64 revision = 1;
+    optional Snapshot snapshot = 2;
+}
+
 message Commit {
 
     message CommitEntry {

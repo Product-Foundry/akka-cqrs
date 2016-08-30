@@ -292,6 +292,30 @@ class AggregateSpec extends AggregateTestSupport {
     }
   }
 
+  "Aggregate snapshot" must {
+
+    "succeed" in new AggregateFixture {
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(2))
+
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(3))
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(4))
+
+      supervisor ! Snapshot(testId)
+      fishForMessage() {
+        case SnapshotComplete => true
+      }
+
+      supervisor ! GetCount(testId)
+      expectMsg(3)
+
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(5))
+    }
+  }
+
   "Aggregate exceptions" must {
 
     "be recoverable" in new AggregateFixture {

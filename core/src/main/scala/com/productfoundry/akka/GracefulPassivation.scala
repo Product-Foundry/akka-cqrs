@@ -46,9 +46,13 @@ trait GracefulPassivation extends Actor {
    */
   override def unhandled(message: Any): Unit = {
     message match {
-      case ReceiveTimeout => context.parent ! PassivationRequest(passivationConfig.passivationMessage)
+      case ReceiveTimeout => requestPassivation()
       case msg if msg == passivationConfig.passivationMessage => context.stop(self)
       case _ => super.unhandled(message)
     }
+  }
+
+  def requestPassivation(): Unit = {
+    context.parent ! PassivationRequest(passivationConfig.passivationMessage)
   }
 }

@@ -15,16 +15,13 @@ object TestConfig {
       |    snapshot-store {
       |      plugin = "in-memory-snapshot-store"
       |    }
-      |    view {
-      |      auto-update-interval = 4s
-      |    }
       |  }
       |  actor {
       |    serialize-creators = off
       |    serialize-messages = off
       |  }
       |  test {
-      |    single-expect-default = 500ms
+      |    single-expect-default = 1s
       |  }
       |}
     """.stripMargin

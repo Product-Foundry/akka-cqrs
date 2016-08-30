@@ -32,6 +32,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case _: ConfirmedDelivery => "ConfirmedDelivery"
     case _: DeduplicationEntry => "DeduplicationEntry"
     case _: AggregateEventRecord => "AggregateEventRecord"
+    case _: AggregateSnapshot => "AggregateSnapshot"
     case _: ConfirmDeliveryRequest => "ConfirmDeliveryRequest"
     case _: EventPublication => "EventPublication"
   }
@@ -41,6 +42,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case persistable: ConfirmedDelivery => persistentConfirmedDelivery(persistable).build().toByteArray
     case persistable: DeduplicationEntry => persistentDeduplicationEntry(persistable).build().toByteArray
     case persistable: AggregateEventRecord => persistentAggregateEventRecord(persistable).build().toByteArray
+    case persistable: AggregateSnapshot => persistentAggregateSnapshot(persistable).build().toByteArray
     case persistable: ConfirmDeliveryRequest => persistentConfirmDeliveryRequest(persistable).build().toByteArray
     case persistable: EventPublication => persistentEventPublication(persistable).build().toByteArray
   }
@@ -50,6 +52,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     case "ConfirmedDelivery" => confirmedDelivery(proto.ConfirmedDelivery.parseFrom(bytes))
     case "DeduplicationEntry" => deduplicationEntry(proto.DeduplicationEntry.parseFrom(bytes))
     case "AggregateEventRecord" => eventRecord(proto.AggregateEventRecord.parseFrom(bytes))
+    case "AggregateSnapshot" => aggregateSnapshot(proto.AggregateSnapshot.parseFrom(bytes))
     case "ConfirmDeliveryRequest" => confirmDeliveryRequest(proto.ConfirmDeliveryRequest.parseFrom(bytes))
     case "EventPublication" => eventPublication(proto.EventPublication.parseFrom(bytes))
   }
@@ -135,17 +138,10 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
   }
 
   private def aggregateEvent(persistent: proto.AggregateEvent): Try[AggregateEvent] = {
-
-    val manifest = if (persistent.hasEventManifest) {
-      persistent.getEventManifest.toStringUtf8
-    } else {
-      ""
-    }
-
     serialization.deserialize(
       persistent.getEvent.toByteArray,
       persistent.getSerializerId,
-      manifest
+      if (persistent.hasEventManifest) persistent.getEventManifest.toStringUtf8 else ""
     ).map(_.asInstanceOf[AggregateEvent])
   }
 
@@ -179,6 +175,37 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder.setTag(persistentAggregateTag(eventRecord.tag))
     eventRecord.headersOption.foreach(headers => builder.setHeaders(persistentCommitHeaders(headers)))
     builder.setEvent(persistentAggregateEvent(eventRecord.event))
+    builder
+  }
+
+  private def aggregateSnapshot(persistent: proto.AggregateSnapshot): AggregateSnapshot = {
+    val persistentSnapshot = persistent.getSnapshot
+
+    val snapshotAttempt = serialization.deserialize(
+      persistentSnapshot.getSnapshot.toByteArray,
+      persistentSnapshot.getSerializerId,
+      if (persistentSnapshot.hasSnapshotManifest) persistentSnapshot.getSnapshotManifest.toStringUtf8 else ""
+    )
+
+    AggregateSnapshot(
+      AggregateRevision(persistent.getRevision),
+      snapshotAttempt.get
+    )
+  }
+
+  private def persistentAggregateSnapshot(aggregateSnapshot: AggregateSnapshot): proto.AggregateSnapshot.Builder = {
+    val builder = proto.AggregateSnapshot.newBuilder()
+    builder.setRevision(aggregateSnapshot.revision.value)
+
+    val snapshot = aggregateSnapshot.snapshot.asInstanceOf[AnyRef]
+    val serializer = serialization.findSerializerFor(snapshot)
+    val snapshotBuilder = proto.AggregateSnapshot.Snapshot.newBuilder()
+    snapshotBuilder.setSerializerId(serializer.identifier)
+    createManifestOption(serializer, snapshot).foreach(snapshotBuilder.setSnapshotManifest)
+    snapshotBuilder.setSnapshot(ByteString.copyFrom(serializer.toBinary(snapshot)))
+
+    builder.setSnapshot(snapshotBuilder)
+
     builder
   }
 
