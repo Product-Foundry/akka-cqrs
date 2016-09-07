@@ -32,6 +32,22 @@ class AggregateSpec extends AggregateTestSupport {
       success.response.tag.revision should be(AggregateRevision(1L))
     }
 
+    "fail for other message type" in {
+      case class UnsupportedCommand(id: DummyId) extends AggregateCommand {
+        override type Id = DummyId
+      }
+
+      supervisor ! UnsupportedCommand(DummyId.generate())
+      val failure = expectMsgType[akka.actor.Status.Failure]
+      failure.cause.isInstanceOf[IllegalArgumentException] shouldBe true
+    }
+
+    "fail for other event type" in {
+      supervisor ! CreateFailure(DummyId.generate())
+      val failure = expectMsgType[akka.actor.Status.Failure]
+      failure.cause.isInstanceOf[IllegalArgumentException] shouldBe true
+    }
+
     "fail for existing" in {
       val id = DummyId.generate()
 

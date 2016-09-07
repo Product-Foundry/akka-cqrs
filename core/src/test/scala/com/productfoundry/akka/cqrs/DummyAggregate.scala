@@ -9,9 +9,16 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
 
   type S = DummyState
 
+  override type M = DummyMessage
+
+  override val messageClass = classOf[DummyMessage]
+
   override def handleCommand: CommandHandler = {
     case Create(aggregateId) =>
       Right(Changes(Created(aggregateId)))
+
+    case CreateFailure(aggregateId) =>
+      Right(Changes(UnsupportedEvent(aggregateId)))
 
     case Count(aggregateId) =>
       Right(Changes(Counted(aggregateId, state.count + 1)))
@@ -83,6 +90,8 @@ object DummyAggregate {
 
   case class Create(id: DummyId) extends DummyAggregateCommand
 
+  case class CreateFailure(id: DummyId) extends DummyAggregateCommand
+
   case class Count(id: DummyId) extends DummyAggregateCommand
 
   case class CountWithRequiredRevisionCheck(id: DummyId) extends DummyAggregateCommand with RequiredRevisionCheck
@@ -96,6 +105,10 @@ object DummyAggregate {
   case class NoOp(id: DummyId) extends DummyAggregateCommand
 
   sealed trait DummyEvent extends DummyMessage with AggregateEvent
+
+  case class UnsupportedEvent(id: DummyId) extends AggregateEvent {
+    override type Id = DummyId
+  }
 
   case class Created(id: DummyId) extends DummyEvent
 

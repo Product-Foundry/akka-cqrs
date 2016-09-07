@@ -45,7 +45,11 @@ object TaskEvent {
 
 class TaskAggregate(override val passivationConfig: PassivationConfig) extends Aggregate {
 
-  type S = TaskState
+  override type S = TaskState
+
+  override type M = TaskMessage
+
+  override val messageClass = classOf[TaskMessage]
 
   override val factory: StateModifications = {
     case TaskCreated(_, _, _) => TaskState()

@@ -24,7 +24,11 @@ case class GetCountResult(count: Int)
 
 class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate {
 
-  type S = TestState
+  override type S = TestState
+
+  override type M = TestMessage
+
+  override val messageClass = classOf[M]
 
   case class TestState(counter: Int = 0) extends AggregateState {
 

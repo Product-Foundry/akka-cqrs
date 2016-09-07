@@ -11,7 +11,20 @@ trait Aggregate
     with CommitHandler
     with ActorLogging {
 
+  /**
+    * Aggregate state definition
+    */
   type S <: AggregateState
+
+  /**
+    * Aggregate messages that are supported to update this aggregate.
+    */
+  type M <: AggregateMessage
+
+  /**
+    * @return Class of aggregate messages that are supported to update this aggregate
+    */
+  def messageClass: Class[M]
 
   type StateModifications = PartialFunction[AggregateEvent, S]
 
@@ -52,7 +65,7 @@ trait Aggregate
       */
     def applyCommit(commit: Commit): RevisedState = {
       val updated = commit.entries.foldLeft(this)(_ applyEntry _)
-      assert(updated.revision == commit.nextTag.revision)
+      require(updated.revision == commit.nextTag.revision)
       updated
     }
 
@@ -62,6 +75,10 @@ trait Aggregate
     private def applyEntry(commitEntry: CommitEntry): RevisedState = {
 
       val event = commitEntry.event
+
+      if (!event.hasType(messageClass)) {
+        throw new IllegalArgumentException(s"Unable to handle event $event in aggregate of type $getClass")
+      }
 
       // Creates new state with the event in scope.
       def createState: Option[S] = {
@@ -153,8 +170,11 @@ trait Aggregate
     */
   override def receiveCommand: Receive = {
 
-    case message: AggregateCommandMessage =>
+    case message: AggregateCommandMessage if message.hasType(messageClass) =>
       handleCommandRequest(message.commandRequest)
+
+    case message: AggregateCommandMessage =>
+      throw new IllegalArgumentException(s"Unable to handle command $message aggregate of type $getClass")
 
     case message =>
       unhandled(message)
@@ -177,9 +197,7 @@ trait Aggregate
     def handleCommandInContext() = {
       try {
         commandRequestOption = Some(commandRequest)
-
         val command = commandRequest.command
-
         handleCommand.lift.apply(command).fold {
           sender() ! Status.Failure(AggregateCommandUnknownException(command))
         } { changesAttempt =>

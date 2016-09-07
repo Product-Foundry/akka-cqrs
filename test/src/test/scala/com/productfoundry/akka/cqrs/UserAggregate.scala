@@ -39,7 +39,11 @@ object UserEvent {
 
 class UserAggregate(override val passivationConfig: PassivationConfig) extends Aggregate {
 
-  type S = UserState
+  override type S = UserState
+
+  override type M = UserMessage
+
+  override val messageClass = classOf[UserMessage]
 
   override val factory: StateModifications = {
     case UserCreated(_, name) => UserState(name)
