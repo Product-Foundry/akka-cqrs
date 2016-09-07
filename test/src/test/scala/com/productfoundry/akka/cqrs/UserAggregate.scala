@@ -5,7 +5,6 @@ import java.util.UUID
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.UserCommand.{CreateUser, NotifyUser}
 import com.productfoundry.akka.cqrs.UserEvent.{UserCreated, UserNotified}
-import com.sun.corba.se.impl.activation.CommandHandler
 
 case class UserId(entityId: String) extends EntityId {
   override def toString: String = entityId

@@ -2,7 +2,6 @@ package com.productfoundry.akka.cluster
 
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs._
-import com.sun.corba.se.impl.activation.CommandHandler
 
 case class TestId(entityId: String) extends EntityId
 

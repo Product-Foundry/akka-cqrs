@@ -5,7 +5,6 @@ import java.util.UUID
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.TaskCommand.{AssignTask, CreateTask, TaskAlreadyAssigned}
 import com.productfoundry.akka.cqrs.TaskEvent.{TaskAssigned, TaskCreated}
-import com.sun.corba.se.impl.activation.CommandHandler
 
 case class TaskId(entityId: String) extends EntityId {
   override def toString: String = entityId
