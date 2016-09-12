@@ -207,11 +207,11 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
      *
      * @param commands to send to aggregate, must succeed,
      */
-    def given(commands: AggregateCommand*): Unit = {
+    def given(commands: AggregateCommandMessage*): Unit = {
       atomic { implicit txn =>
         revisionRef.transform { revision =>
           commands.foldLeft(revision) { case (rev, command) =>
-            supervisor ! command.withExpectedRevision(rev)
+            supervisor ! command.commandRequest.withExpectedRevision(rev)
             expectMsgSuccess.response.tag.revision
           }
         }
@@ -224,12 +224,12 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
      * @param cmd to execute.
      * @return status.
      */
-    def command(cmd: AggregateCommand): AggregateStatus = {
+    def command(cmd: AggregateCommandMessage): AggregateStatus = {
       atomic { implicit txn =>
         val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
 
         revisionRef.transform { revision =>
-          supervisor ! cmd.withExpectedRevision(revision)
+          supervisor ! defaultHeadersOption.foldLeft(cmd.commandRequest.withExpectedRevision(revision))(_ withHeaders _)
           expectMsgPF() {
             case success: AggregateStatus.Success =>
               statusOptionRef.set(Some(success))
@@ -244,6 +244,8 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
         statusOptionRef().getOrElse(throw new RuntimeException("Unexpected status"))
       }
     }
+
+    def defaultHeadersOption: Option[CommitHeaders] = None
   }
 
 }
