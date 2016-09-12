@@ -85,14 +85,18 @@ case class LocalCommitCollector(actorName: String = "CommitCollector")(implicit 
     ref ! DumpCommits
   }
 
+  def eventRecords(implicit ec: ExecutionContext, timeout: Timeout): Vector[AggregateEventRecord] = {
+    val res = ref ? GetCommitsRequest collect {
+      case GetCommitsResponse(commits) => commits.flatMap(_.records)
+    }
+
+    Await.result(res, timeout.duration)
+  }
+
   /**
     * @return a view of all the committed events extracted from the commits.
     */
   def events(implicit ec: ExecutionContext, timeout: Timeout): Vector[AggregateEvent] = {
-    val res = ref ? GetCommitsRequest collect {
-      case GetCommitsResponse(commits) => commits.flatMap(_.records.map(_.event))
-    }
-
-    Await.result(res, timeout.duration)
+    eventRecords.map(_.event)
   }
 }

@@ -93,10 +93,32 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @param event that is expected.
    * @param CommitTag indicates commit type with events.
    */
-  def expectEvent(event: AggregateEvent)(implicit CommitTag: ClassTag[Commit]): Unit = {
+  def expectEvent(event: AggregateEvent, headersOption: Option[CommitHeaders] = None)(implicit CommitTag: ClassTag[Commit]): Unit = {
     eventually {
       withCommitCollector { commitCollector =>
-        assert(commitCollector.events.contains(event), s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")
+        commitCollector.eventRecords.find(_.event == event) match {
+          case None => fail(s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")
+          case Some(eventRecord) if headersOption.exists(_ != eventRecord.headers) => fail(s"Unexpected headers: ${eventRecord.headers}")
+          case Some(eventRecord) =>
+        }
+      }
+    }
+  }
+
+  /**
+   * Asserts an event is committed that matches the specified partial function.
+   *
+   * For all matching events, an assertion can be executed.
+   *
+   * @param eventRecordCheckFunction to match and assert events.
+   */
+  def expectEventRecordPF(eventRecordCheckFunction: PartialFunction[AggregateEventRecord, Unit]): Unit = {
+    eventually {
+      withCommitCollector { commitCollector =>
+        val eventRecords = commitCollector.eventRecords
+        val toCheck = eventRecords.filter(eventRecordCheckFunction.isDefinedAt)
+        assert(toCheck.nonEmpty, s"No events match provided partial function: $eventRecords")
+        toCheck.foreach(eventRecordCheckFunction)
       }
     }
   }
@@ -109,12 +131,22 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @param eventCheckFunction to match and assert events.
    */
   def expectEventPF(eventCheckFunction: PartialFunction[AggregateEvent, Unit]): Unit = {
+    expectEventRecordPF {
+      case eventRecord if eventCheckFunction.isDefinedAt(eventRecord.event) => eventCheckFunction(eventRecord.event)
+    }
+  }
+
+  /**
+   * Maps a matching event to a value.
+   * @param eventRecordMapFunction to map an event to a value.
+   */
+  def mapEventRecordPF[E](eventRecordMapFunction: PartialFunction[AggregateEventRecord, E]): E = {
     eventually {
       withCommitCollector { commitCollector =>
-        val events = commitCollector.events
-        val toCheck = events.filter(eventCheckFunction.isDefinedAt)
-        assert(toCheck.nonEmpty, s"No events match provided partial function: $events")
-        toCheck.foreach(eventCheckFunction)
+        val eventRecords = commitCollector.eventRecords
+        val toCheck = eventRecords.filter(eventRecordMapFunction.isDefinedAt)
+        assert(toCheck.size == 1, s"Other than 1 event matches provided partial function: $eventRecords")
+        toCheck.map(eventRecordMapFunction).head
       }
     }
   }
@@ -124,13 +156,8 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
    * @param eventMapFunction to map an event to a value.
    */
   def mapEventPF[E](eventMapFunction: PartialFunction[AggregateEvent, E]): E = {
-    eventually {
-      withCommitCollector { commitCollector =>
-        val events = commitCollector.events
-        val toCheck = events.filter(eventMapFunction.isDefinedAt)
-        assert(toCheck.size == 1, s"Other than 1 event matches provided partial function: $events")
-        toCheck.map(eventMapFunction).head
-      }
+    mapEventRecordPF {
+      case eventRecord if eventMapFunction.isDefinedAt(eventRecord.event) => eventMapFunction(eventRecord.event)
     }
   }
 
