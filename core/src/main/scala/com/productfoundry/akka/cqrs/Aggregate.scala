@@ -262,7 +262,7 @@ trait Aggregate
     } else {
       changesAttempt.fold(cause => sender() ! AggregateStatus.Failure(cause), { changes =>
         if (changes.isEmpty) {
-          sender() ! AggregateStatus.Success(AggregateResponse(tag, changes.response))
+          sender() ! AggregateStatus.Success(AggregateResponse(tag, tag, changes.response))
         } else {
           commit(changes)
         }
@@ -304,6 +304,7 @@ trait Aggregate
     // Performs a commit for the specified changes
     def performCommit(): Unit = {
 
+
       // Add default headers when no headers are present
       val changesToCommit = changes.headersOption.fold(getDefaultHeaders.fold(changes)(changes.withHeaders))(_ => changes)
 
@@ -315,12 +316,14 @@ trait Aggregate
 
       // No exception thrown, persist and update state for real
       persist(commit) { _ =>
+        // Keep the previous tag to return as part of the aggregate response
+        val previous = tag
 
         // Updating state should never fail, since we already performed a dry run
         revisedState = updatedState
 
         // Perform additional mixed in commit handling logic
-        val response = handleCommit(commit, AggregateResponse(tag, changesToCommit.response))
+        val response = handleCommit(commit, AggregateResponse(tag, previous, changesToCommit.response))
 
         // Notify the sender of the commit
         sender() ! AggregateStatus.Success(response)
