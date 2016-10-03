@@ -8,7 +8,7 @@ object Dependencies {
   lazy val akkaVersion = settingKey[String]("The version of Akka to use.")
 
   val Versions = Seq(
-    akkaVersion := "2.4.9"
+    akkaVersion := "2.4.11"
   )
 
   object Compile {
@@ -43,9 +43,9 @@ object Dependencies {
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
 
-    val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
+    val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.13.2" % "test"
 
-    val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+    val scalaTest = "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
   }
 
