@@ -27,34 +27,46 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
   private val log = Logging(system, getClass.getName)
 
-  override def manifest(o: AnyRef): String = o match {
-    case _: Commit => "Commit"
-    case _: ConfirmedDelivery => "ConfirmedDelivery"
-    case _: DeduplicationEntry => "DeduplicationEntry"
-    case _: AggregateEventRecord => "AggregateEventRecord"
-    case _: AggregateSnapshot => "AggregateSnapshot"
-    case _: ConfirmDeliveryRequest => "ConfirmDeliveryRequest"
-    case _: EventPublication => "EventPublication"
-  }
+  override def manifest(o: AnyRef): String = ""
 
-  override def toBinary(o: AnyRef): Array[Byte] = o match {
-    case persistable: Commit => persistentCommit(persistable).build().toByteArray
-    case persistable: ConfirmedDelivery => persistentConfirmedDelivery(persistable).build().toByteArray
-    case persistable: DeduplicationEntry => persistentDeduplicationEntry(persistable).build().toByteArray
-    case persistable: AggregateEventRecord => persistentAggregateEventRecord(persistable).build().toByteArray
-    case persistable: AggregateSnapshot => persistentAggregateSnapshot(persistable).build().toByteArray
-    case persistable: ConfirmDeliveryRequest => persistentConfirmDeliveryRequest(persistable).build().toByteArray
-    case persistable: EventPublication => persistentEventPublication(persistable).build().toByteArray
+  override def toBinary(o: AnyRef): Array[Byte] = {
+    val builder = proto.Persistable.newBuilder()
+
+    o match {
+      case persistable: Commit => builder.setCommit(persistentCommit(persistable))
+      case persistable: ConfirmedDelivery => builder.setConfirmedDelivery(persistentConfirmedDelivery(persistable))
+      case persistable: DeduplicationEntry => builder.setDeduplicationEntry(persistentDeduplicationEntry(persistable))
+      case persistable: AggregateEventRecord => builder.setAggregateEventRecord(persistentAggregateEventRecord(persistable))
+      case persistable: AggregateSnapshot => builder.setAggregateSnapshot(persistentAggregateSnapshot(persistable))
+      case persistable: ConfirmDeliveryRequest => builder.setConfirmDeliveryRequest(persistentConfirmDeliveryRequest(persistable))
+      case persistable: EventPublication => builder.setEventPublication(persistentEventPublication(persistable))
+    }
+
+    builder.build().toByteArray
   }
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
+    // Legacy messages stored with manifest
     case "Commit" => commit(proto.Commit.parseFrom(bytes))
     case "ConfirmedDelivery" => confirmedDelivery(proto.ConfirmedDelivery.parseFrom(bytes))
     case "DeduplicationEntry" => deduplicationEntry(proto.DeduplicationEntry.parseFrom(bytes))
-    case "AggregateEventRecord" => eventRecord(proto.AggregateEventRecord.parseFrom(bytes))
+    case "AggregateEventRecord" => aggregateEventRecord(proto.AggregateEventRecord.parseFrom(bytes))
     case "AggregateSnapshot" => aggregateSnapshot(proto.AggregateSnapshot.parseFrom(bytes))
     case "ConfirmDeliveryRequest" => confirmDeliveryRequest(proto.ConfirmDeliveryRequest.parseFrom(bytes))
     case "EventPublication" => eventPublication(proto.EventPublication.parseFrom(bytes))
+
+    // New messages are contained in another Protobuf object that establishes the type
+    case "" =>
+      proto.Persistable.parseFrom(bytes) match {
+        case p if p.hasCommit => commit(p.getCommit)
+        case p if p.hasConfirmedDelivery => confirmedDelivery(p.getConfirmedDelivery)
+        case p if p.hasDeduplicationEntry => deduplicationEntry(p.getDeduplicationEntry)
+        case p if p.hasAggregateEventRecord => aggregateEventRecord(p.getAggregateEventRecord)
+        case p if p.hasAggregateSnapshot => aggregateSnapshot(p.getAggregateSnapshot)
+        case p if p.hasConfirmDeliveryRequest => confirmDeliveryRequest(p.getConfirmDeliveryRequest)
+        case p if p.hasEventPublication => eventPublication(p.getEventPublication)
+        case p => throw new NoSuchElementException(s"Unexpected persistable: $p")
+      }
   }
 
   private def commit(persistent: proto.Commit): Commit = {
@@ -87,7 +99,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
   }
 
-  private def eventRecord(persistent: proto.AggregateEventRecord): AggregateEventRecord = {
+  private def aggregateEventRecord(persistent: proto.AggregateEventRecord): AggregateEventRecord = {
     AggregateEventRecord(
       aggregateTag(persistent.getTag),
       if (persistent.hasHeaders) Some(commitHeaders(persistent.getHeaders)) else None,
@@ -104,7 +116,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
 
   private def eventPublication(persistent: proto.EventPublication): EventPublication = {
     EventPublication(
-      eventRecord(persistent.getEventRecord),
+      aggregateEventRecord(persistent.getEventRecord),
       if (persistent.hasConfirmation) Some(confirmDeliveryRequest(persistent.getConfirmation)) else None,
       if (persistent.hasCommander) Some(system.provider.resolveActorRef(persistent.getCommander)) else None
     )

@@ -70,3 +70,13 @@ message EventPublication {
     optional ConfirmDeliveryRequest confirmation = 2;
     optional string commander = 3;
 }
+
+message Persistable {
+    optional Commit commit = 1;
+    optional ConfirmedDelivery confirmedDelivery = 2;
+    optional DeduplicationEntry deduplicationEntry = 3;
+    optional AggregateEventRecord aggregateEventRecord = 4;
+    optional AggregateSnapshot aggregateSnapshot = 5;
+    optional ConfirmDeliveryRequest confirmDeliveryRequest = 6;
+    optional EventPublication eventPublication = 7;
+}

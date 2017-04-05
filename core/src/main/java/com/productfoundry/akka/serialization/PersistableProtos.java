@@ -7810,6 +7810,1665 @@ public final class PersistableProtos {
     // @@protoc_insertion_point(class_scope:EventPublication)
   }
 
+  public interface PersistableOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .Commit commit = 1;
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    boolean hasCommit();
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.Commit getCommit();
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder getCommitOrBuilder();
+
+    // optional .ConfirmedDelivery confirmedDelivery = 2;
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    boolean hasConfirmedDelivery();
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery getConfirmedDelivery();
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder getConfirmedDeliveryOrBuilder();
+
+    // optional .DeduplicationEntry deduplicationEntry = 3;
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    boolean hasDeduplicationEntry();
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry getDeduplicationEntry();
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder getDeduplicationEntryOrBuilder();
+
+    // optional .AggregateEventRecord aggregateEventRecord = 4;
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    boolean hasAggregateEventRecord();
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord getAggregateEventRecord();
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder getAggregateEventRecordOrBuilder();
+
+    // optional .AggregateSnapshot aggregateSnapshot = 5;
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    boolean hasAggregateSnapshot();
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot getAggregateSnapshot();
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder getAggregateSnapshotOrBuilder();
+
+    // optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    boolean hasConfirmDeliveryRequest();
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest getConfirmDeliveryRequest();
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder getConfirmDeliveryRequestOrBuilder();
+
+    // optional .EventPublication eventPublication = 7;
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    boolean hasEventPublication();
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.EventPublication getEventPublication();
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder getEventPublicationOrBuilder();
+  }
+  /**
+   * Protobuf type {@code Persistable}
+   */
+  public static final class Persistable extends
+      com.google.protobuf.GeneratedMessage
+      implements PersistableOrBuilder {
+    // Use Persistable.newBuilder() to construct.
+    private Persistable(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Persistable(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Persistable defaultInstance;
+    public static Persistable getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Persistable getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Persistable(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = commit_.toBuilder();
+              }
+              commit_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.Commit.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(commit_);
+                commit_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+            case 18: {
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = confirmedDelivery_.toBuilder();
+              }
+              confirmedDelivery_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(confirmedDelivery_);
+                confirmedDelivery_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
+            case 26: {
+              com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                subBuilder = deduplicationEntry_.toBuilder();
+              }
+              deduplicationEntry_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(deduplicationEntry_);
+                deduplicationEntry_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000004;
+              break;
+            }
+            case 34: {
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                subBuilder = aggregateEventRecord_.toBuilder();
+              }
+              aggregateEventRecord_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(aggregateEventRecord_);
+                aggregateEventRecord_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000008;
+              break;
+            }
+            case 42: {
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                subBuilder = aggregateSnapshot_.toBuilder();
+              }
+              aggregateSnapshot_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(aggregateSnapshot_);
+                aggregateSnapshot_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000010;
+              break;
+            }
+            case 50: {
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                subBuilder = confirmDeliveryRequest_.toBuilder();
+              }
+              confirmDeliveryRequest_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(confirmDeliveryRequest_);
+                confirmDeliveryRequest_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000020;
+              break;
+            }
+            case 58: {
+              com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                subBuilder = eventPublication_.toBuilder();
+              }
+              eventPublication_ = input.readMessage(com.productfoundry.akka.serialization.PersistableProtos.EventPublication.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(eventPublication_);
+                eventPublication_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000040;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_Persistable_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.productfoundry.akka.serialization.PersistableProtos.internal_static_Persistable_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.productfoundry.akka.serialization.PersistableProtos.Persistable.class, com.productfoundry.akka.serialization.PersistableProtos.Persistable.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Persistable> PARSER =
+        new com.google.protobuf.AbstractParser<Persistable>() {
+      public Persistable parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Persistable(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Persistable> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .Commit commit = 1;
+    public static final int COMMIT_FIELD_NUMBER = 1;
+    private com.productfoundry.akka.serialization.PersistableProtos.Commit commit_;
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    public boolean hasCommit() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.Commit getCommit() {
+      return commit_;
+    }
+    /**
+     * <code>optional .Commit commit = 1;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder getCommitOrBuilder() {
+      return commit_;
+    }
+
+    // optional .ConfirmedDelivery confirmedDelivery = 2;
+    public static final int CONFIRMEDDELIVERY_FIELD_NUMBER = 2;
+    private com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery confirmedDelivery_;
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    public boolean hasConfirmedDelivery() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery getConfirmedDelivery() {
+      return confirmedDelivery_;
+    }
+    /**
+     * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder getConfirmedDeliveryOrBuilder() {
+      return confirmedDelivery_;
+    }
+
+    // optional .DeduplicationEntry deduplicationEntry = 3;
+    public static final int DEDUPLICATIONENTRY_FIELD_NUMBER = 3;
+    private com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry deduplicationEntry_;
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    public boolean hasDeduplicationEntry() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry getDeduplicationEntry() {
+      return deduplicationEntry_;
+    }
+    /**
+     * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder getDeduplicationEntryOrBuilder() {
+      return deduplicationEntry_;
+    }
+
+    // optional .AggregateEventRecord aggregateEventRecord = 4;
+    public static final int AGGREGATEEVENTRECORD_FIELD_NUMBER = 4;
+    private com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord aggregateEventRecord_;
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    public boolean hasAggregateEventRecord() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord getAggregateEventRecord() {
+      return aggregateEventRecord_;
+    }
+    /**
+     * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder getAggregateEventRecordOrBuilder() {
+      return aggregateEventRecord_;
+    }
+
+    // optional .AggregateSnapshot aggregateSnapshot = 5;
+    public static final int AGGREGATESNAPSHOT_FIELD_NUMBER = 5;
+    private com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot aggregateSnapshot_;
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    public boolean hasAggregateSnapshot() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot getAggregateSnapshot() {
+      return aggregateSnapshot_;
+    }
+    /**
+     * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder getAggregateSnapshotOrBuilder() {
+      return aggregateSnapshot_;
+    }
+
+    // optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;
+    public static final int CONFIRMDELIVERYREQUEST_FIELD_NUMBER = 6;
+    private com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest confirmDeliveryRequest_;
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    public boolean hasConfirmDeliveryRequest() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest getConfirmDeliveryRequest() {
+      return confirmDeliveryRequest_;
+    }
+    /**
+     * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder getConfirmDeliveryRequestOrBuilder() {
+      return confirmDeliveryRequest_;
+    }
+
+    // optional .EventPublication eventPublication = 7;
+    public static final int EVENTPUBLICATION_FIELD_NUMBER = 7;
+    private com.productfoundry.akka.serialization.PersistableProtos.EventPublication eventPublication_;
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    public boolean hasEventPublication() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.EventPublication getEventPublication() {
+      return eventPublication_;
+    }
+    /**
+     * <code>optional .EventPublication eventPublication = 7;</code>
+     */
+    public com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder getEventPublicationOrBuilder() {
+      return eventPublication_;
+    }
+
+    private void initFields() {
+      commit_ = com.productfoundry.akka.serialization.PersistableProtos.Commit.getDefaultInstance();
+      confirmedDelivery_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.getDefaultInstance();
+      deduplicationEntry_ = com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.getDefaultInstance();
+      aggregateEventRecord_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.getDefaultInstance();
+      aggregateSnapshot_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.getDefaultInstance();
+      confirmDeliveryRequest_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.getDefaultInstance();
+      eventPublication_ = com.productfoundry.akka.serialization.PersistableProtos.EventPublication.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, commit_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, confirmedDelivery_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeMessage(3, deduplicationEntry_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeMessage(4, aggregateEventRecord_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeMessage(5, aggregateSnapshot_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeMessage(6, confirmDeliveryRequest_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeMessage(7, eventPublication_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, commit_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, confirmedDelivery_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, deduplicationEntry_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, aggregateEventRecord_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, aggregateSnapshot_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, confirmDeliveryRequest_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, eventPublication_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.productfoundry.akka.serialization.PersistableProtos.Persistable parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.productfoundry.akka.serialization.PersistableProtos.Persistable prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Persistable}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.productfoundry.akka.serialization.PersistableProtos.PersistableOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_Persistable_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_Persistable_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.productfoundry.akka.serialization.PersistableProtos.Persistable.class, com.productfoundry.akka.serialization.PersistableProtos.Persistable.Builder.class);
+      }
+
+      // Construct using com.productfoundry.akka.serialization.PersistableProtos.Persistable.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCommitFieldBuilder();
+          getConfirmedDeliveryFieldBuilder();
+          getDeduplicationEntryFieldBuilder();
+          getAggregateEventRecordFieldBuilder();
+          getAggregateSnapshotFieldBuilder();
+          getConfirmDeliveryRequestFieldBuilder();
+          getEventPublicationFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (commitBuilder_ == null) {
+          commit_ = com.productfoundry.akka.serialization.PersistableProtos.Commit.getDefaultInstance();
+        } else {
+          commitBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (confirmedDeliveryBuilder_ == null) {
+          confirmedDelivery_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.getDefaultInstance();
+        } else {
+          confirmedDeliveryBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        if (deduplicationEntryBuilder_ == null) {
+          deduplicationEntry_ = com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.getDefaultInstance();
+        } else {
+          deduplicationEntryBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        if (aggregateEventRecordBuilder_ == null) {
+          aggregateEventRecord_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.getDefaultInstance();
+        } else {
+          aggregateEventRecordBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000008);
+        if (aggregateSnapshotBuilder_ == null) {
+          aggregateSnapshot_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.getDefaultInstance();
+        } else {
+          aggregateSnapshotBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
+        if (confirmDeliveryRequestBuilder_ == null) {
+          confirmDeliveryRequest_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.getDefaultInstance();
+        } else {
+          confirmDeliveryRequestBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        if (eventPublicationBuilder_ == null) {
+          eventPublication_ = com.productfoundry.akka.serialization.PersistableProtos.EventPublication.getDefaultInstance();
+        } else {
+          eventPublicationBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000040);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.internal_static_Persistable_descriptor;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.Persistable getDefaultInstanceForType() {
+        return com.productfoundry.akka.serialization.PersistableProtos.Persistable.getDefaultInstance();
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.Persistable build() {
+        com.productfoundry.akka.serialization.PersistableProtos.Persistable result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.productfoundry.akka.serialization.PersistableProtos.Persistable buildPartial() {
+        com.productfoundry.akka.serialization.PersistableProtos.Persistable result = new com.productfoundry.akka.serialization.PersistableProtos.Persistable(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (commitBuilder_ == null) {
+          result.commit_ = commit_;
+        } else {
+          result.commit_ = commitBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (confirmedDeliveryBuilder_ == null) {
+          result.confirmedDelivery_ = confirmedDelivery_;
+        } else {
+          result.confirmedDelivery_ = confirmedDeliveryBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        if (deduplicationEntryBuilder_ == null) {
+          result.deduplicationEntry_ = deduplicationEntry_;
+        } else {
+          result.deduplicationEntry_ = deduplicationEntryBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        if (aggregateEventRecordBuilder_ == null) {
+          result.aggregateEventRecord_ = aggregateEventRecord_;
+        } else {
+          result.aggregateEventRecord_ = aggregateEventRecordBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        if (aggregateSnapshotBuilder_ == null) {
+          result.aggregateSnapshot_ = aggregateSnapshot_;
+        } else {
+          result.aggregateSnapshot_ = aggregateSnapshotBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        if (confirmDeliveryRequestBuilder_ == null) {
+          result.confirmDeliveryRequest_ = confirmDeliveryRequest_;
+        } else {
+          result.confirmDeliveryRequest_ = confirmDeliveryRequestBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        if (eventPublicationBuilder_ == null) {
+          result.eventPublication_ = eventPublication_;
+        } else {
+          result.eventPublication_ = eventPublicationBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.productfoundry.akka.serialization.PersistableProtos.Persistable) {
+          return mergeFrom((com.productfoundry.akka.serialization.PersistableProtos.Persistable)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.productfoundry.akka.serialization.PersistableProtos.Persistable other) {
+        if (other == com.productfoundry.akka.serialization.PersistableProtos.Persistable.getDefaultInstance()) return this;
+        if (other.hasCommit()) {
+          mergeCommit(other.getCommit());
+        }
+        if (other.hasConfirmedDelivery()) {
+          mergeConfirmedDelivery(other.getConfirmedDelivery());
+        }
+        if (other.hasDeduplicationEntry()) {
+          mergeDeduplicationEntry(other.getDeduplicationEntry());
+        }
+        if (other.hasAggregateEventRecord()) {
+          mergeAggregateEventRecord(other.getAggregateEventRecord());
+        }
+        if (other.hasAggregateSnapshot()) {
+          mergeAggregateSnapshot(other.getAggregateSnapshot());
+        }
+        if (other.hasConfirmDeliveryRequest()) {
+          mergeConfirmDeliveryRequest(other.getConfirmDeliveryRequest());
+        }
+        if (other.hasEventPublication()) {
+          mergeEventPublication(other.getEventPublication());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.productfoundry.akka.serialization.PersistableProtos.Persistable parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.productfoundry.akka.serialization.PersistableProtos.Persistable) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .Commit commit = 1;
+      private com.productfoundry.akka.serialization.PersistableProtos.Commit commit_ = com.productfoundry.akka.serialization.PersistableProtos.Commit.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.Commit, com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder, com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder> commitBuilder_;
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public boolean hasCommit() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.Commit getCommit() {
+        if (commitBuilder_ == null) {
+          return commit_;
+        } else {
+          return commitBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public Builder setCommit(com.productfoundry.akka.serialization.PersistableProtos.Commit value) {
+        if (commitBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          commit_ = value;
+          onChanged();
+        } else {
+          commitBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public Builder setCommit(
+          com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder builderForValue) {
+        if (commitBuilder_ == null) {
+          commit_ = builderForValue.build();
+          onChanged();
+        } else {
+          commitBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public Builder mergeCommit(com.productfoundry.akka.serialization.PersistableProtos.Commit value) {
+        if (commitBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              commit_ != com.productfoundry.akka.serialization.PersistableProtos.Commit.getDefaultInstance()) {
+            commit_ =
+              com.productfoundry.akka.serialization.PersistableProtos.Commit.newBuilder(commit_).mergeFrom(value).buildPartial();
+          } else {
+            commit_ = value;
+          }
+          onChanged();
+        } else {
+          commitBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public Builder clearCommit() {
+        if (commitBuilder_ == null) {
+          commit_ = com.productfoundry.akka.serialization.PersistableProtos.Commit.getDefaultInstance();
+          onChanged();
+        } else {
+          commitBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder getCommitBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getCommitFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder getCommitOrBuilder() {
+        if (commitBuilder_ != null) {
+          return commitBuilder_.getMessageOrBuilder();
+        } else {
+          return commit_;
+        }
+      }
+      /**
+       * <code>optional .Commit commit = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.Commit, com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder, com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder> 
+          getCommitFieldBuilder() {
+        if (commitBuilder_ == null) {
+          commitBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.Commit, com.productfoundry.akka.serialization.PersistableProtos.Commit.Builder, com.productfoundry.akka.serialization.PersistableProtos.CommitOrBuilder>(
+                  commit_,
+                  getParentForChildren(),
+                  isClean());
+          commit_ = null;
+        }
+        return commitBuilder_;
+      }
+
+      // optional .ConfirmedDelivery confirmedDelivery = 2;
+      private com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery confirmedDelivery_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder> confirmedDeliveryBuilder_;
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public boolean hasConfirmedDelivery() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery getConfirmedDelivery() {
+        if (confirmedDeliveryBuilder_ == null) {
+          return confirmedDelivery_;
+        } else {
+          return confirmedDeliveryBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public Builder setConfirmedDelivery(com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery value) {
+        if (confirmedDeliveryBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          confirmedDelivery_ = value;
+          onChanged();
+        } else {
+          confirmedDeliveryBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public Builder setConfirmedDelivery(
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder builderForValue) {
+        if (confirmedDeliveryBuilder_ == null) {
+          confirmedDelivery_ = builderForValue.build();
+          onChanged();
+        } else {
+          confirmedDeliveryBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public Builder mergeConfirmedDelivery(com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery value) {
+        if (confirmedDeliveryBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              confirmedDelivery_ != com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.getDefaultInstance()) {
+            confirmedDelivery_ =
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.newBuilder(confirmedDelivery_).mergeFrom(value).buildPartial();
+          } else {
+            confirmedDelivery_ = value;
+          }
+          onChanged();
+        } else {
+          confirmedDeliveryBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public Builder clearConfirmedDelivery() {
+        if (confirmedDeliveryBuilder_ == null) {
+          confirmedDelivery_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.getDefaultInstance();
+          onChanged();
+        } else {
+          confirmedDeliveryBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder getConfirmedDeliveryBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getConfirmedDeliveryFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder getConfirmedDeliveryOrBuilder() {
+        if (confirmedDeliveryBuilder_ != null) {
+          return confirmedDeliveryBuilder_.getMessageOrBuilder();
+        } else {
+          return confirmedDelivery_;
+        }
+      }
+      /**
+       * <code>optional .ConfirmedDelivery confirmedDelivery = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder> 
+          getConfirmedDeliveryFieldBuilder() {
+        if (confirmedDeliveryBuilder_ == null) {
+          confirmedDeliveryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDelivery.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmedDeliveryOrBuilder>(
+                  confirmedDelivery_,
+                  getParentForChildren(),
+                  isClean());
+          confirmedDelivery_ = null;
+        }
+        return confirmedDeliveryBuilder_;
+      }
+
+      // optional .DeduplicationEntry deduplicationEntry = 3;
+      private com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry deduplicationEntry_ = com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder> deduplicationEntryBuilder_;
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public boolean hasDeduplicationEntry() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry getDeduplicationEntry() {
+        if (deduplicationEntryBuilder_ == null) {
+          return deduplicationEntry_;
+        } else {
+          return deduplicationEntryBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public Builder setDeduplicationEntry(com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry value) {
+        if (deduplicationEntryBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          deduplicationEntry_ = value;
+          onChanged();
+        } else {
+          deduplicationEntryBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public Builder setDeduplicationEntry(
+          com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder builderForValue) {
+        if (deduplicationEntryBuilder_ == null) {
+          deduplicationEntry_ = builderForValue.build();
+          onChanged();
+        } else {
+          deduplicationEntryBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public Builder mergeDeduplicationEntry(com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry value) {
+        if (deduplicationEntryBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              deduplicationEntry_ != com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.getDefaultInstance()) {
+            deduplicationEntry_ =
+              com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.newBuilder(deduplicationEntry_).mergeFrom(value).buildPartial();
+          } else {
+            deduplicationEntry_ = value;
+          }
+          onChanged();
+        } else {
+          deduplicationEntryBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public Builder clearDeduplicationEntry() {
+        if (deduplicationEntryBuilder_ == null) {
+          deduplicationEntry_ = com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.getDefaultInstance();
+          onChanged();
+        } else {
+          deduplicationEntryBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder getDeduplicationEntryBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getDeduplicationEntryFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder getDeduplicationEntryOrBuilder() {
+        if (deduplicationEntryBuilder_ != null) {
+          return deduplicationEntryBuilder_.getMessageOrBuilder();
+        } else {
+          return deduplicationEntry_;
+        }
+      }
+      /**
+       * <code>optional .DeduplicationEntry deduplicationEntry = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder> 
+          getDeduplicationEntryFieldBuilder() {
+        if (deduplicationEntryBuilder_ == null) {
+          deduplicationEntryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntry.Builder, com.productfoundry.akka.serialization.PersistableProtos.DeduplicationEntryOrBuilder>(
+                  deduplicationEntry_,
+                  getParentForChildren(),
+                  isClean());
+          deduplicationEntry_ = null;
+        }
+        return deduplicationEntryBuilder_;
+      }
+
+      // optional .AggregateEventRecord aggregateEventRecord = 4;
+      private com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord aggregateEventRecord_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder> aggregateEventRecordBuilder_;
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public boolean hasAggregateEventRecord() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord getAggregateEventRecord() {
+        if (aggregateEventRecordBuilder_ == null) {
+          return aggregateEventRecord_;
+        } else {
+          return aggregateEventRecordBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public Builder setAggregateEventRecord(com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord value) {
+        if (aggregateEventRecordBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          aggregateEventRecord_ = value;
+          onChanged();
+        } else {
+          aggregateEventRecordBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public Builder setAggregateEventRecord(
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder builderForValue) {
+        if (aggregateEventRecordBuilder_ == null) {
+          aggregateEventRecord_ = builderForValue.build();
+          onChanged();
+        } else {
+          aggregateEventRecordBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public Builder mergeAggregateEventRecord(com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord value) {
+        if (aggregateEventRecordBuilder_ == null) {
+          if (((bitField0_ & 0x00000008) == 0x00000008) &&
+              aggregateEventRecord_ != com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.getDefaultInstance()) {
+            aggregateEventRecord_ =
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.newBuilder(aggregateEventRecord_).mergeFrom(value).buildPartial();
+          } else {
+            aggregateEventRecord_ = value;
+          }
+          onChanged();
+        } else {
+          aggregateEventRecordBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public Builder clearAggregateEventRecord() {
+        if (aggregateEventRecordBuilder_ == null) {
+          aggregateEventRecord_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.getDefaultInstance();
+          onChanged();
+        } else {
+          aggregateEventRecordBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder getAggregateEventRecordBuilder() {
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return getAggregateEventRecordFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder getAggregateEventRecordOrBuilder() {
+        if (aggregateEventRecordBuilder_ != null) {
+          return aggregateEventRecordBuilder_.getMessageOrBuilder();
+        } else {
+          return aggregateEventRecord_;
+        }
+      }
+      /**
+       * <code>optional .AggregateEventRecord aggregateEventRecord = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder> 
+          getAggregateEventRecordFieldBuilder() {
+        if (aggregateEventRecordBuilder_ == null) {
+          aggregateEventRecordBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecord.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateEventRecordOrBuilder>(
+                  aggregateEventRecord_,
+                  getParentForChildren(),
+                  isClean());
+          aggregateEventRecord_ = null;
+        }
+        return aggregateEventRecordBuilder_;
+      }
+
+      // optional .AggregateSnapshot aggregateSnapshot = 5;
+      private com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot aggregateSnapshot_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder> aggregateSnapshotBuilder_;
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public boolean hasAggregateSnapshot() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot getAggregateSnapshot() {
+        if (aggregateSnapshotBuilder_ == null) {
+          return aggregateSnapshot_;
+        } else {
+          return aggregateSnapshotBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public Builder setAggregateSnapshot(com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot value) {
+        if (aggregateSnapshotBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          aggregateSnapshot_ = value;
+          onChanged();
+        } else {
+          aggregateSnapshotBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public Builder setAggregateSnapshot(
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder builderForValue) {
+        if (aggregateSnapshotBuilder_ == null) {
+          aggregateSnapshot_ = builderForValue.build();
+          onChanged();
+        } else {
+          aggregateSnapshotBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public Builder mergeAggregateSnapshot(com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot value) {
+        if (aggregateSnapshotBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
+              aggregateSnapshot_ != com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.getDefaultInstance()) {
+            aggregateSnapshot_ =
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.newBuilder(aggregateSnapshot_).mergeFrom(value).buildPartial();
+          } else {
+            aggregateSnapshot_ = value;
+          }
+          onChanged();
+        } else {
+          aggregateSnapshotBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public Builder clearAggregateSnapshot() {
+        if (aggregateSnapshotBuilder_ == null) {
+          aggregateSnapshot_ = com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.getDefaultInstance();
+          onChanged();
+        } else {
+          aggregateSnapshotBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder getAggregateSnapshotBuilder() {
+        bitField0_ |= 0x00000010;
+        onChanged();
+        return getAggregateSnapshotFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder getAggregateSnapshotOrBuilder() {
+        if (aggregateSnapshotBuilder_ != null) {
+          return aggregateSnapshotBuilder_.getMessageOrBuilder();
+        } else {
+          return aggregateSnapshot_;
+        }
+      }
+      /**
+       * <code>optional .AggregateSnapshot aggregateSnapshot = 5;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder> 
+          getAggregateSnapshotFieldBuilder() {
+        if (aggregateSnapshotBuilder_ == null) {
+          aggregateSnapshotBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshot.Builder, com.productfoundry.akka.serialization.PersistableProtos.AggregateSnapshotOrBuilder>(
+                  aggregateSnapshot_,
+                  getParentForChildren(),
+                  isClean());
+          aggregateSnapshot_ = null;
+        }
+        return aggregateSnapshotBuilder_;
+      }
+
+      // optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;
+      private com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest confirmDeliveryRequest_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder> confirmDeliveryRequestBuilder_;
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public boolean hasConfirmDeliveryRequest() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest getConfirmDeliveryRequest() {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          return confirmDeliveryRequest_;
+        } else {
+          return confirmDeliveryRequestBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public Builder setConfirmDeliveryRequest(com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest value) {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          confirmDeliveryRequest_ = value;
+          onChanged();
+        } else {
+          confirmDeliveryRequestBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public Builder setConfirmDeliveryRequest(
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder builderForValue) {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          confirmDeliveryRequest_ = builderForValue.build();
+          onChanged();
+        } else {
+          confirmDeliveryRequestBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public Builder mergeConfirmDeliveryRequest(com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest value) {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+              confirmDeliveryRequest_ != com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.getDefaultInstance()) {
+            confirmDeliveryRequest_ =
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.newBuilder(confirmDeliveryRequest_).mergeFrom(value).buildPartial();
+          } else {
+            confirmDeliveryRequest_ = value;
+          }
+          onChanged();
+        } else {
+          confirmDeliveryRequestBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public Builder clearConfirmDeliveryRequest() {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          confirmDeliveryRequest_ = com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.getDefaultInstance();
+          onChanged();
+        } else {
+          confirmDeliveryRequestBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        return this;
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder getConfirmDeliveryRequestBuilder() {
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return getConfirmDeliveryRequestFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder getConfirmDeliveryRequestOrBuilder() {
+        if (confirmDeliveryRequestBuilder_ != null) {
+          return confirmDeliveryRequestBuilder_.getMessageOrBuilder();
+        } else {
+          return confirmDeliveryRequest_;
+        }
+      }
+      /**
+       * <code>optional .ConfirmDeliveryRequest confirmDeliveryRequest = 6;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder> 
+          getConfirmDeliveryRequestFieldBuilder() {
+        if (confirmDeliveryRequestBuilder_ == null) {
+          confirmDeliveryRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequest.Builder, com.productfoundry.akka.serialization.PersistableProtos.ConfirmDeliveryRequestOrBuilder>(
+                  confirmDeliveryRequest_,
+                  getParentForChildren(),
+                  isClean());
+          confirmDeliveryRequest_ = null;
+        }
+        return confirmDeliveryRequestBuilder_;
+      }
+
+      // optional .EventPublication eventPublication = 7;
+      private com.productfoundry.akka.serialization.PersistableProtos.EventPublication eventPublication_ = com.productfoundry.akka.serialization.PersistableProtos.EventPublication.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.EventPublication, com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder, com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder> eventPublicationBuilder_;
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public boolean hasEventPublication() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.EventPublication getEventPublication() {
+        if (eventPublicationBuilder_ == null) {
+          return eventPublication_;
+        } else {
+          return eventPublicationBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public Builder setEventPublication(com.productfoundry.akka.serialization.PersistableProtos.EventPublication value) {
+        if (eventPublicationBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          eventPublication_ = value;
+          onChanged();
+        } else {
+          eventPublicationBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000040;
+        return this;
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public Builder setEventPublication(
+          com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder builderForValue) {
+        if (eventPublicationBuilder_ == null) {
+          eventPublication_ = builderForValue.build();
+          onChanged();
+        } else {
+          eventPublicationBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000040;
+        return this;
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public Builder mergeEventPublication(com.productfoundry.akka.serialization.PersistableProtos.EventPublication value) {
+        if (eventPublicationBuilder_ == null) {
+          if (((bitField0_ & 0x00000040) == 0x00000040) &&
+              eventPublication_ != com.productfoundry.akka.serialization.PersistableProtos.EventPublication.getDefaultInstance()) {
+            eventPublication_ =
+              com.productfoundry.akka.serialization.PersistableProtos.EventPublication.newBuilder(eventPublication_).mergeFrom(value).buildPartial();
+          } else {
+            eventPublication_ = value;
+          }
+          onChanged();
+        } else {
+          eventPublicationBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000040;
+        return this;
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public Builder clearEventPublication() {
+        if (eventPublicationBuilder_ == null) {
+          eventPublication_ = com.productfoundry.akka.serialization.PersistableProtos.EventPublication.getDefaultInstance();
+          onChanged();
+        } else {
+          eventPublicationBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000040);
+        return this;
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder getEventPublicationBuilder() {
+        bitField0_ |= 0x00000040;
+        onChanged();
+        return getEventPublicationFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      public com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder getEventPublicationOrBuilder() {
+        if (eventPublicationBuilder_ != null) {
+          return eventPublicationBuilder_.getMessageOrBuilder();
+        } else {
+          return eventPublication_;
+        }
+      }
+      /**
+       * <code>optional .EventPublication eventPublication = 7;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.productfoundry.akka.serialization.PersistableProtos.EventPublication, com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder, com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder> 
+          getEventPublicationFieldBuilder() {
+        if (eventPublicationBuilder_ == null) {
+          eventPublicationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.productfoundry.akka.serialization.PersistableProtos.EventPublication, com.productfoundry.akka.serialization.PersistableProtos.EventPublication.Builder, com.productfoundry.akka.serialization.PersistableProtos.EventPublicationOrBuilder>(
+                  eventPublication_,
+                  getParentForChildren(),
+                  isClean());
+          eventPublication_ = null;
+        }
+        return eventPublicationBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:Persistable)
+    }
+
+    static {
+      defaultInstance = new Persistable(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:Persistable)
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_AggregateTag_descriptor;
   private static
@@ -7870,6 +9529,11 @@ public final class PersistableProtos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_EventPublication_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_Persistable_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Persistable_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -7903,9 +9567,17 @@ public final class PersistableProtos {
       "eryId\030\002 \001(\003\"\200\001\n\020EventPublication\022*\n\013even" +
       "tRecord\030\001 \001(\0132\025.AggregateEventRecord\022-\n\014" +
       "confirmation\030\002 \001(\0132\027.ConfirmDeliveryRequ" +
-      "est\022\021\n\tcommander\030\003 \001(\tB<\n%com.productfou" +
-      "ndry.akka.serializationB\021PersistableProt" +
-      "osH\001"
+      "est\022\021\n\tcommander\030\003 \001(\t\"\320\002\n\013Persistable\022\027" +
+      "\n\006commit\030\001 \001(\0132\007.Commit\022-\n\021confirmedDeli" +
+      "very\030\002 \001(\0132\022.ConfirmedDelivery\022/\n\022dedupl" +
+      "icationEntry\030\003 \001(\0132\023.DeduplicationEntry\022" +
+      "3\n\024aggregateEventRecord\030\004 \001(\0132\025.Aggregat" +
+      "eEventRecord\022-\n\021aggregateSnapshot\030\005 \001(\0132",
+      "\022.AggregateSnapshot\0227\n\026confirmDeliveryRe" +
+      "quest\030\006 \001(\0132\027.ConfirmDeliveryRequest\022+\n\020" +
+      "eventPublication\030\007 \001(\0132\021.EventPublicatio" +
+      "nB<\n%com.productfoundry.akka.serializati" +
+      "onB\021PersistableProtosH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -7984,6 +9656,12 @@ public final class PersistableProtos {
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_EventPublication_descriptor,
               new java.lang.String[] { "EventRecord", "Confirmation", "Commander", });
+          internal_static_Persistable_descriptor =
+            getDescriptor().getMessageTypes().get(10);
+          internal_static_Persistable_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_Persistable_descriptor,
+              new java.lang.String[] { "Commit", "ConfirmedDelivery", "DeduplicationEntry", "AggregateEventRecord", "AggregateSnapshot", "ConfirmDeliveryRequest", "EventPublication", });
           return null;
         }
       };
