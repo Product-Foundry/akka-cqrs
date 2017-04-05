@@ -9,7 +9,7 @@ object AkkaCqrsBuild extends Build {
 
   lazy val buildSettings = Dependencies.Versions ++ Seq(
     organization := "com.productfoundry",
-    version := "0.8"
+    version := "0.9"
   )
 
   lazy val root = Project(
