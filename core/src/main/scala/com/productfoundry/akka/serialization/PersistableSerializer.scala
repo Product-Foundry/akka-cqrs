@@ -2,11 +2,12 @@ package com.productfoundry.akka.serialization
 
 import akka.actor.ExtendedActorSystem
 import akka.event.Logging
+import akka.persistence.AtLeastOnceDelivery.AtLeastOnceDeliverySnapshot
 import akka.serialization._
 import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.process.DeduplicationEntry
-import com.productfoundry.akka.cqrs.publish.EventPublication
+import com.productfoundry.akka.cqrs.publish.{EventPublication, ReliableEventPublisherSnapshot}
 import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDelivery}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
@@ -40,6 +41,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
       case persistable: AggregateSnapshot => builder.setAggregateSnapshot(persistentAggregateSnapshot(persistable))
       case persistable: ConfirmDeliveryRequest => builder.setConfirmDeliveryRequest(persistentConfirmDeliveryRequest(persistable))
       case persistable: EventPublication => builder.setEventPublication(persistentEventPublication(persistable))
+      case persistable: ReliableEventPublisherSnapshot => builder.setReliableEventPublisherSnapshot(persistentReliableEventPublisherSnapshot(persistable))
     }
 
     builder.build().toByteArray
@@ -65,6 +67,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
         case p if p.hasAggregateSnapshot => aggregateSnapshot(p.getAggregateSnapshot)
         case p if p.hasConfirmDeliveryRequest => confirmDeliveryRequest(p.getConfirmDeliveryRequest)
         case p if p.hasEventPublication => eventPublication(p.getEventPublication)
+        case p if p.hasReliableEventPublisherSnapshot => reliableEventPublisherSnapshot(p.getReliableEventPublisherSnapshot)
         case p => throw new NoSuchElementException(s"Unexpected persistable: $p")
       }
   }
@@ -190,33 +193,69 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def aggregateSnapshot(persistent: proto.AggregateSnapshot): AggregateSnapshot = {
-    val persistentSnapshot = persistent.getSnapshot
-
-    val snapshotAttempt = serialization.deserialize(
-      persistentSnapshot.getSnapshot.toByteArray,
-      persistentSnapshot.getSerializerId,
-      if (persistentSnapshot.hasSnapshotManifest) persistentSnapshot.getSnapshotManifest.toStringUtf8 else ""
+  private def deserializeSnapshot[A](persistent: proto.AggregateSnapshot.Snapshot): A = {
+    val snapshotAttempt: Try[AnyRef] = serialization.deserialize(
+      persistent.getSnapshot.toByteArray,
+      persistent.getSerializerId,
+      if (persistent.hasSnapshotManifest) persistent.getSnapshotManifest.toStringUtf8 else ""
     )
 
+    snapshotAttempt match {
+      case Success(value: A) =>
+        value
+
+      case Success(value) =>
+        val message = s"Unexpected result deserializing snapshot: ${value.getClass.getName}"
+        log.error(message)
+        throw new IllegalArgumentException(message)
+
+      case Failure(e) =>
+        log.error(e, "Unexpected error deserializing snapshot")
+        throw e
+    }
+  }
+
+  private def deserializeSnapshotOption[A](hasSnapshot: Boolean, persistentF: () => proto.AggregateSnapshot.Snapshot): Option[A] = {
+    if (hasSnapshot) {
+      Some(deserializeSnapshot[A](persistentF()))
+    } else {
+      None
+    }
+  }
+
+  private def serializeSnapshot(snapshot: AnyRef): proto.AggregateSnapshot.Snapshot.Builder = {
+    val serializer = serialization.findSerializerFor(snapshot)
+    val builder = proto.AggregateSnapshot.Snapshot.newBuilder()
+    builder.setSerializerId(serializer.identifier)
+    createManifestOption(serializer, snapshot).foreach(builder.setSnapshotManifest)
+    builder.setSnapshot(ByteString.copyFrom(serializer.toBinary(snapshot)))
+    builder
+  }
+
+  private def aggregateSnapshot(persistent: proto.AggregateSnapshot): AggregateSnapshot = {
     AggregateSnapshot(
       AggregateRevision(persistent.getRevision),
-      snapshotAttempt.get
+      deserializeSnapshotOption[AggregateStateSnapshot](persistent.hasStateSnapshot, persistent.getStateSnapshot),
+      deserializeSnapshotOption[AtLeastOnceDeliverySnapshot](persistent.hasAtLeastOnceDeliverySnapshot, persistent.getAtLeastOnceDeliverySnapshot),
+      deserializeSnapshotOption[ReliableEventPublisherSnapshot](persistent.hasReliableEventPublisherSnapshot, persistent.getReliableEventPublisherSnapshot)
+    )
+  }
+
+  private def reliableEventPublisherSnapshot(persistent: proto.ReliableEventPublisherSnapshot):ReliableEventPublisherSnapshot  = {
+    ReliableEventPublisherSnapshot(
+      if (persistent.hasCurrentPublication) Some(eventPublication(persistent.getCurrentPublication)) else None,
+      persistent.getPendingPublicationList.asScala.map(eventPublication).toVector
     )
   }
 
   private def persistentAggregateSnapshot(aggregateSnapshot: AggregateSnapshot): proto.AggregateSnapshot.Builder = {
     val builder = proto.AggregateSnapshot.newBuilder()
+
     builder.setRevision(aggregateSnapshot.revision.value)
 
-    val snapshot = aggregateSnapshot.snapshot.asInstanceOf[AnyRef]
-    val serializer = serialization.findSerializerFor(snapshot)
-    val snapshotBuilder = proto.AggregateSnapshot.Snapshot.newBuilder()
-    snapshotBuilder.setSerializerId(serializer.identifier)
-    createManifestOption(serializer, snapshot).foreach(snapshotBuilder.setSnapshotManifest)
-    snapshotBuilder.setSnapshot(ByteString.copyFrom(serializer.toBinary(snapshot)))
-
-    builder.setSnapshot(snapshotBuilder)
+    aggregateSnapshot.stateSnapshotOption.map(serializeSnapshot).foreach(builder.setStateSnapshot)
+    aggregateSnapshot.atLeastOnceDeliverySnapshotOption.map(serializeSnapshot).foreach(builder.setAtLeastOnceDeliverySnapshot)
+    aggregateSnapshot.reliableEventPublisherSnapshotOption.map(serializeSnapshot).foreach(builder.setReliableEventPublisherSnapshot)
 
     builder
   }
@@ -233,6 +272,13 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder.setEventRecord(persistentAggregateEventRecord(eventPublication.eventRecord))
     eventPublication.confirmationOption.foreach(confirmation => builder.setConfirmation(persistentConfirmDeliveryRequest(confirmation)))
     eventPublication.commanderOption.foreach(commander => builder.setCommander(Serialization.serializedActorPath(commander)))
+    builder
+  }
+
+  private def persistentReliableEventPublisherSnapshot(snapshot: ReliableEventPublisherSnapshot): proto.ReliableEventPublisherSnapshot.Builder = {
+    val builder = proto.ReliableEventPublisherSnapshot.newBuilder()
+    snapshot.currentPublicationOption.map(persistentEventPublication).foreach(builder.setCurrentPublication)
+    snapshot.pendingPublications.map(persistentEventPublication).foreach(builder.addPendingPublication)
     builder
   }
 

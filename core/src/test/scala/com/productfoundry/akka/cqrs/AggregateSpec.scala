@@ -322,7 +322,7 @@ class AggregateSpec extends AggregateTestSupport {
 
   "Aggregate snapshot" must {
 
-    "succeed" in new AggregateFixture {
+    "succeed with snapshot state" in new AggregateFixture {
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(2))
 
@@ -331,13 +331,34 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(4))
 
-      supervisor ! Snapshot(testId)
+      supervisor ! Snapshot(testId, includeState = true)
       fishForMessage() {
         case SnapshotComplete => true
       }
 
       supervisor ! GetCount(testId)
       expectMsg(3)
+
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(5))
+    }
+
+    "succeed without snapshot state" in new AggregateFixture {
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(2))
+
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(3))
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(4))
+
+      supervisor ! Snapshot(testId, includeState = false)
+      fishForMessage() {
+        case SnapshotComplete => true
+      }
+
+      supervisor ! GetCount(testId)
+      expectMsg(0)
 
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(5))

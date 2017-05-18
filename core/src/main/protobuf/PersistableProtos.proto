@@ -31,7 +31,9 @@ message AggregateSnapshot {
     }
 
     optional int64 revision = 1;
-    optional Snapshot snapshot = 2;
+    optional Snapshot stateSnapshot = 2;
+    optional Snapshot atLeastOnceDeliverySnapshot = 3;
+    optional Snapshot reliableEventPublisherSnapshot = 4;
 }
 
 message Commit {
@@ -71,6 +73,11 @@ message EventPublication {
     optional string commander = 3;
 }
 
+message ReliableEventPublisherSnapshot {
+    optional EventPublication currentPublication = 1;
+    repeated EventPublication pendingPublication = 2;
+}
+
 message Persistable {
     optional Commit commit = 1;
     optional ConfirmedDelivery confirmedDelivery = 2;
@@ -79,4 +86,5 @@ message Persistable {
     optional AggregateSnapshot aggregateSnapshot = 5;
     optional ConfirmDeliveryRequest confirmDeliveryRequest = 6;
     optional EventPublication eventPublication = 7;
+    optional ReliableEventPublisherSnapshot reliableEventPublisherSnapshot = 8;
 }

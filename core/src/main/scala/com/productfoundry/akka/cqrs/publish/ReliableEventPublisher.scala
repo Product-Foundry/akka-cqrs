@@ -1,7 +1,7 @@
 package com.productfoundry.akka.cqrs.publish
 
 import akka.actor.{ActorLogging, ActorPath, ActorSystem}
-import akka.persistence.{PersistentActor, AtLeastOnceDelivery}
+import akka.persistence.{AtLeastOnceDelivery, PersistentActor, SnapshotOffer}
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.messaging.{ConfirmDelivery, ConfirmedDelivery}
 
@@ -128,5 +128,25 @@ trait ReliableEventPublisher
       currentPublicationOption = Some(publication)
       publication
     })
+  }
+
+  /**
+    * State of the `ReliableEventPublisher`, except state from `AtLeastOnceDelivery`. It can be saved with [[PersistentActor#saveSnapshot]].
+    * During recovery the snapshot received in [[SnapshotOffer]] should be set
+    * with [[setReliableEventPublisherSnapshot]].
+    **/
+  def getReliableEventPublisherSnapshot: ReliableEventPublisherSnapshot =
+    ReliableEventPublisherSnapshot(
+      currentPublicationOption,
+      pendingPublications
+    )
+
+  /**
+    * If snapshot from [[getReliableEventPublisherSnapshot]] was saved it will be received during recovery
+    * in a [[SnapshotOffer]] message and should be set with this method.
+    */
+  def setReliableEventPublisherSnapshot(snapshot: ReliableEventPublisherSnapshot): Unit = {
+    currentPublicationOption = snapshot.currentPublicationOption
+    pendingPublications = snapshot.pendingPublications
   }
 }

@@ -1,7 +1,9 @@
 package com.productfoundry.akka.cqrs
 
 import akka.actor._
-import akka.persistence.{SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
+import akka.persistence.AtLeastOnceDelivery.AtLeastOnceDeliverySnapshot
+import akka.persistence.{AtLeastOnceDelivery, SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
+import com.productfoundry.akka.cqrs.publish.{ReliableEventPublisher, ReliableEventPublisherSnapshot}
 
 /**
   * Aggregate.
@@ -30,7 +32,7 @@ trait Aggregate
 
   type CommandHandler = PartialFunction[Any, Either[AggregateUpdateFailure, Changes]]
 
-  type SnapshotHandler = PartialFunction[Any, S]
+  type SnapshotHandler = PartialFunction[Option[AggregateStateSnapshot], S]
 
   /**
     * Creates aggregate state.
@@ -258,7 +260,7 @@ trait Aggregate
     */
   override def receiveRecover: Receive = {
     case commit: Commit => updateState(commit)
-    case SnapshotOffer(_, AggregateSnapshot(revision, snapshot)) => updateStateFromSnapshot(revision, snapshot)
+    case SnapshotOffer(_, aggregateSnapshot: AggregateSnapshot) => updateStateFromSnapshot(aggregateSnapshot)
   }
 
   /**
@@ -266,17 +268,6 @@ trait Aggregate
     */
   private def updateState(commit: Commit): Unit = {
     revisedState = revisedState.applyCommit(commit)
-  }
-
-  /**
-    * Use the snapshot to set the current aggregate state.
-    */
-  private def updateStateFromSnapshot(revision: AggregateRevision, snapshot: Any): Unit = {
-    if (handleSnapshot.isDefinedAt(snapshot)) {
-      revisedState = RevisedState(revision, Some(handleSnapshot(snapshot)))
-    } else {
-      throw AggregateInternalException(s"Unable to recover state from snapshot: $snapshot")
-    }
   }
 
   /**
@@ -298,18 +289,84 @@ trait Aggregate
     }
   }
 
+  private def asAtLeastOnceDeliveryOption: Option[AtLeastOnceDelivery] = {
+    this match {
+      case atLeastOnceDelivery: AtLeastOnceDelivery => Some(atLeastOnceDelivery)
+      case _ => None
+    }
+  }
+
+  private def asReliableEventPublisherOption: Option[ReliableEventPublisher] = {
+    this match {
+      case reliableEventPublisher: ReliableEventPublisher => Some(reliableEventPublisher)
+      case _ => None
+    }
+  }
+
+  /**
+    * Get the snapshot with the current aggregate state.
+    */
+  def getAggregateSnapshot(snapshot: Any): AggregateSnapshot = {
+
+    val stateSnapshotOption: Option[AggregateStateSnapshot] = snapshot match {
+      case stateSnapshot: AggregateStateSnapshot => Some(stateSnapshot)
+      case None => None
+      case _ => throw AggregateInternalException("Provided class should be None or have trait AggregateStateSnapshot, also make sure you have a serializer for your AggregateStateSnapshot")
+    }
+
+    val atLeastOnceDeliverySnapshotOption: Option[AtLeastOnceDeliverySnapshot] = asAtLeastOnceDeliveryOption.map(_.getDeliverySnapshot)
+    val reliableEventPublisherSnapshotOption: Option[ReliableEventPublisherSnapshot] = asReliableEventPublisherOption.map(_.getReliableEventPublisherSnapshot)
+
+    AggregateSnapshot(
+      revision,
+      stateSnapshotOption,
+      atLeastOnceDeliverySnapshotOption,
+      reliableEventPublisherSnapshotOption
+    )
+  }
+
+  /**
+    * Use the snapshot to set the current aggregate state.
+    */
+  def updateStateFromSnapshot(snapshot: AggregateSnapshot): Unit = {
+    val stateSnapshotOption: Option[AggregateStateSnapshot] = snapshot.stateSnapshotOption
+
+    if (handleSnapshot.isDefinedAt(stateSnapshotOption)) {
+
+      // Revision and state
+      revisedState = RevisedState(snapshot.revision, Some(handleSnapshot(stateSnapshotOption)))
+
+      // Reliable event publisher
+      for {
+        reliableEventPublisher <- asReliableEventPublisherOption
+        reliableEventPublisherSnapshot <- snapshot.reliableEventPublisherSnapshotOption
+      } {
+        reliableEventPublisher.setReliableEventPublisherSnapshot(reliableEventPublisherSnapshot)
+      }
+
+      // At least once delivery
+      for {
+        atLeastOnceDelivery <- asAtLeastOnceDeliveryOption
+        atLeastOnceDeliverySnapshot <- snapshot.atLeastOnceDeliverySnapshotOption
+      } {
+        atLeastOnceDelivery.setDeliverySnapshot(atLeastOnceDeliverySnapshot)
+      }
+
+    } else {
+      val message: String = s"Unable to recover state from snapshot at revision: ${snapshot.revision}"
+      log.error(message)
+      throw AggregateInternalException(message)
+    }
+  }
+
   /**
     * Saves a `snapshot` of this aggregate's state.
     *
     * The [[Aggregate]] will be notified about the success or failure of this
     * via an [[SaveSnapshotSuccess]] or [[SaveSnapshotFailure]] message.
     */
-  override def saveSnapshot(snapshot: Any): Unit = {
-    if (snapshot.isInstanceOf[AggregateState]) {
-      throw AggregateInternalException("Aggregate state should not be used as a snapshot directly")
-    }
-
-    super.saveSnapshot(AggregateSnapshot(revision, snapshot))
+  override def saveSnapshot(snapshot: Any = None): Unit = {
+    super.saveSnapshot(getAggregateSnapshot(snapshot))
   }
 
   /**
