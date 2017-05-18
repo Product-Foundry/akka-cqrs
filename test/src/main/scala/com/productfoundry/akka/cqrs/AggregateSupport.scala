@@ -26,7 +26,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   /**
     * Test local entities by default, requires implicit entity factory.
     */
-  implicit val supervisorFactory = new LocalEntityContext(system).entitySupervisorFactory[A]
+  implicit val supervisorFactory: EntitySupervisorFactory[A] = new LocalEntityContext(system).entitySupervisorFactory[A]
 
   /**
     * Entity supervisor for the actor under test.
@@ -97,10 +97,12 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   def expectEvent(event: AggregateEvent, headersOption: Option[CommitHeaders] = None)(implicit CommitTag: ClassTag[Commit]): Unit = {
     eventually {
       withCommitCollector { commitCollector =>
-        commitCollector.eventRecords.find(_.event == event) match {
-          case None => fail(s"Commit with event $event not found, does the aggregate under test have the LocalCommitPublisher mixin?")
-          case Some(eventRecord) if headersOption.exists(_ != eventRecord.headers) => fail(s"Unexpected headers: ${eventRecord.headers}")
-          case Some(eventRecord) =>
+        val exists: Boolean = commitCollector.eventRecords.exists { eventRecord =>
+          eventRecord.event == event && !headersOption.exists(headers => headers != eventRecord.headers)
+        }
+
+        if (!exists) {
+          fail(s"Commit with event $event and headers $headersOption not found, does the aggregate under test have the LocalCommitPublisher mixin?")
         }
       }
     }
@@ -189,7 +191,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
     *
     * @param message the expected validation message.
     */
-  def expectMsgValidationError(message: ValidationMessage) = {
+  def expectMsgValidationError(message: ValidationMessage): Unit = {
     assertValidationError(message, expectMsgType[AggregateStatus])
   }
 
@@ -224,7 +226,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
   def assertFailure[C: ClassTag](status: AggregateStatus): Unit = {
     status match {
       case success: AggregateStatus.Success => fail(s"Unexpected success: $success")
-      case AggregateStatus.Failure(cause: C) =>
+      case AggregateStatus.Failure(_: C) => // Success
       case AggregateStatus.Failure(cause) => fail(s"Unexpected cause: $cause")
     }
   }
@@ -255,7 +257,7 @@ abstract class AggregateSupport[A <: Aggregate](_system: ActorSystem)(implicit a
       */
     def command(cmd: AggregateCommandMessage): AggregateStatus = {
       atomic { implicit txn =>
-        val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(None)
+        val statusOptionRef: Ref[Option[AggregateStatus]] = Ref(Option.empty)
 
         supervisor ! defaultHeadersOption.foldLeft(cmd.commandRequest)(_ withHeaders _)
 
