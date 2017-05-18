@@ -70,37 +70,59 @@ trait Aggregate
     }
 
     /**
+      * Creates new state with the event in scope.
+      */
+    private def createState(event: AggregateEvent): Option[S] = {
+      if (factory.isDefinedAt(event)) {
+        Some(factory.apply(event))
+      } else {
+        throw AggregateNotInitializedException(s"Unable to initialize aggregate with $event")
+      }
+    }
+
+    /**
+      * Updates the state with the event in scope.
+      */
+    private def updateState(state: S, event: AggregateEvent): Option[S] = {
+      event match {
+        case _: AggregateDeleteEvent => None
+        case _ if state.update.isDefinedAt(event) => Some(state.update(event))
+        case _ => throw AggregateInternalException(s"Update not defined for $event")
+      }
+    }
+
+    private def applyEvent(event: AggregateEvent): Option[S] = {
+      stateOption match {
+        case None if revision == AggregateRevision.Initial =>
+          createState(event)
+
+        case Some(state) =>
+          if (!factory.isDefinedAt(event) || allowFactoryEventInUpdate.lift(event).getOrElse(false)) {
+            updateState(state, event)
+          } else {
+            throw AggregateAlreadyInitializedException(revision)
+          }
+
+        case _ =>
+          throw AggregateInternalException(s"Unable to update state using event $event")
+      }
+    }
+
+    /**
       * Creates a copy with the event applied to this state.
       */
     private def applyEntry(commitEntry: CommitEntry): RevisedState = {
 
-      val event = commitEntry.event
+      val event: AggregateEvent = commitEntry.event
 
       if (!event.hasType(messageClass)) {
-        throw new IllegalArgumentException(s"Unable to handle event $event in aggregate of type $getClass")
+        throw AggregateInvalidEventClassException(event)
+      } else {
+        copy(
+          revision = commitEntry.revision,
+          stateOption = applyEvent(event)
+        )
       }
-
-      // Creates new state with the event in scope.
-      def createState: Option[S] = {
-        if (factory.isDefinedAt(event)) {
-          Some(factory.apply(event))
-        } else {
-          throw AggregateNotInitializedException(s"Unable to initialize aggregate with $event")
-        }
-      }
-
-      // Updates the state with the event in scope.
-      def updateState(state: S): Option[S] = event match {
-        case e: AggregateDeleteEvent => None
-        case _ if state.update.isDefinedAt(event) => Some(state.update(event))
-        case _ if factory.isDefinedAt(event) => throw AggregateAlreadyInitializedException(revision)
-        case _ => throw AggregateInternalException(s"Update not defined for $event")
-      }
-
-      copy(
-        revision = commitEntry.revision,
-        stateOption = stateOption.fold(createState)(updateState)
-      )
     }
   }
 
@@ -174,7 +196,7 @@ trait Aggregate
       handleCommandRequest(message.commandRequest)
 
     case message: AggregateCommandMessage =>
-      throw new IllegalArgumentException(s"Unable to handle command $message aggregate of type $getClass")
+      throw AggregateInvalidMessageException(message)
 
     case SaveSnapshotSuccess(metadata) =>
       log.info("Snapshot saved successfully {}", metadata)
@@ -299,6 +321,13 @@ trait Aggregate
     * @return the commit headers to store with the commit.
     */
   def getDefaultHeaders: Option[CommitHeaders] = commandRequestOption.flatMap(_.headersOption)
+
+  /**
+    * Check if this event is handled in both factory and update methods, if so, check if that is allowed for this specific event.
+    *
+    * @return Partial function that decides if it is allowed based on the actual event.
+    */
+  def allowFactoryEventInUpdate: PartialFunction[AggregateEvent, Boolean] = PartialFunction.empty
 
   /**
     * Commit changes.

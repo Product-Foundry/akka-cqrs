@@ -2,6 +2,7 @@ package com.productfoundry.akka.cqrs
 
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.DummyAggregate._
+import com.productfoundry.akka.cqrs.CommandRequest._
 
 case class DummySnapshot(count: Int)
 

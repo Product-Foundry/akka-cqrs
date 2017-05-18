@@ -42,13 +42,13 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! UnsupportedCommand(DummyId.generate())
       val failure = expectMsgType[akka.actor.Status.Failure]
-      failure.cause.isInstanceOf[IllegalArgumentException] shouldBe true
+      failure.cause.isInstanceOf[AggregateInvalidMessageException] shouldBe true
     }
 
     "fail for other event type" in {
       supervisor ! CreateFailure(DummyId.generate())
       val failure = expectMsgType[akka.actor.Status.Failure]
-      failure.cause.isInstanceOf[IllegalArgumentException] shouldBe true
+      failure.cause.isInstanceOf[AggregateInvalidEventClassException] shouldBe true
     }
 
     "fail for existing" in {
