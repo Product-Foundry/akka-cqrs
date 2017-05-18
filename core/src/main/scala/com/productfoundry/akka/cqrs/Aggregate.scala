@@ -137,7 +137,7 @@ trait Aggregate
     *
     * @return true if this aggregate is initialized, otherwise false.
     */
-  def initialized = stateOption.isDefined
+  def initialized: Boolean = stateOption.isDefined
 
   /**
     * Keeps track of the current revision.
@@ -145,7 +145,7 @@ trait Aggregate
     * We are not using [[lastSequenceNr]] for this, since we need to make sure the revision is only incremented with
     * actual state changes.
     */
-  def revision = revisedState.revision
+  def revision: AggregateRevision = revisedState.revision
 
   /**
     * A tag uniquely identifies a specific revision of an aggregate.
@@ -175,6 +175,12 @@ trait Aggregate
 
     case message: AggregateCommandMessage =>
       throw new IllegalArgumentException(s"Unable to handle command $message aggregate of type $getClass")
+
+    case SaveSnapshotSuccess(metadata) =>
+      log.info("Snapshot saved successfully {}", metadata)
+
+    case SaveSnapshotFailure(metadata, reason) =>
+      log.error(reason, "Snapshot save failed {}", metadata)
 
     case message =>
       unhandled(message)
