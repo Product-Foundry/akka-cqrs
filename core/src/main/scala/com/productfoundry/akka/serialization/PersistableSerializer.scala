@@ -8,6 +8,7 @@ import com.google.protobuf.ByteString
 import com.productfoundry.akka.cqrs._
 import com.productfoundry.akka.cqrs.process.DeduplicationEntry
 import com.productfoundry.akka.cqrs.publish.{EventPublication, ReliableEventPublisherSnapshot}
+import com.productfoundry.akka.cqrs.snapshot.{AggregateSnapshot, AggregateStateSnapshot}
 import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDelivery}
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 

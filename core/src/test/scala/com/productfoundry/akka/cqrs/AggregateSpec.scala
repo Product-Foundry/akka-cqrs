@@ -331,7 +331,7 @@ class AggregateSpec extends AggregateTestSupport {
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(4))
 
-      supervisor ! Snapshot(testId, includeState = true)
+      supervisor ! Snapshot(testId)
       fishForMessage() {
         case SnapshotCompleteAndTerminated => true
       }
