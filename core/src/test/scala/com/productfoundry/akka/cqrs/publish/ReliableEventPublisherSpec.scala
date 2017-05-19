@@ -72,7 +72,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
 
       // Sending any message will restart the actor
       supervisor ! GetCount(testId)
-      expectMsgType[Int]
+      expectMsgType[Int] shouldBe 1
 
       // Commit should be republished as part of the recovery process
       val republished = publishedEventProbe.expectMsgType[EventPublication]
@@ -80,15 +80,44 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
       republished.eventRecord.tag.revision should be(AggregateRevision(2L))
     }
 
+    "republish after snapshotted aggregate termination" in new fixture {
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success]
+
+      // Commit should be published, but we are not confirming
+      publishedEventProbe.expectMsgType[EventPublication]
+
+      // Save snapshot
+      supervisor ! Snapshot(testId)
+      expectMsg(SnapshotCompleteAndTerminated)
+
+      // Sending any message will restart the actor
+      supervisor ! GetCount(testId)
+      expectMsgType[Int] shouldBe 1
+
+      // Commit should be republished as part of the recovery process
+      val republished = publishedEventProbe.expectMsgType[EventPublication]
+      republished.confirmIfRequested()
+      republished.eventRecord.tag.revision should be(AggregateRevision(2L))
+
+      // Continue
+      supervisor ! Count(testId)
+      expectMsgType[AggregateStatus.Success]
+      publishedEventProbe.expectMsgType[EventPublication].confirmIfRequested()
+
+      supervisor ! GetCount(testId)
+      expectMsgType[Int] shouldBe 2
+    }
+
     "maintain revision order when publishing" in new fixture {
       // Send a lot of updates and make sure they are all successful
-      val tags = 1 to 5 map { _ =>
+      val tags: Seq[AggregateTag] = 1 to 5 map { _ =>
         supervisor ! Count(testId)
         expectMsgType[AggregateStatus.Success].response.tag
       }
 
       // Force redelivery and make sure events on higher revisions are only published after the previous event
-      tags.foreach { snapshot =>
+      tags.foreach { tag =>
         val publications = 1 to 3 map { _ =>
           publishedEventProbe.expectMsgType[EventPublication]
         }
@@ -97,7 +126,7 @@ class ReliableEventPublisherSpec extends AggregateTestSupport with BeforeAndAfte
         publications.head.confirmIfRequested()
 
         // The published events should match the expected revision and should all be identical
-        publications.head.eventRecord.tag.revision should be(snapshot.revision)
+        publications.head.eventRecord.tag.revision should be(tag.revision)
         publications.toSet.size should be(1)
       }
     }

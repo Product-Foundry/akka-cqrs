@@ -333,7 +333,7 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! Snapshot(testId, includeState = true)
       fishForMessage() {
-        case SnapshotComplete => true
+        case SnapshotCompleteAndTerminated => true
       }
 
       supervisor ! GetCount(testId)
@@ -354,7 +354,7 @@ class AggregateSpec extends AggregateTestSupport {
 
       supervisor ! Snapshot(testId, includeState = false)
       fishForMessage() {
-        case SnapshotComplete => true
+        case SnapshotCompleteAndTerminated => true
       }
 
       supervisor ! GetCount(testId)

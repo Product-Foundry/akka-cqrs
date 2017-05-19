@@ -3,7 +3,9 @@ package com.productfoundry.akka.cqrs
 import akka.actor._
 import akka.persistence.AtLeastOnceDelivery.AtLeastOnceDeliverySnapshot
 import akka.persistence.{AtLeastOnceDelivery, SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
-import com.productfoundry.akka.cqrs.publish.{ReliableEventPublisher, ReliableEventPublisherSnapshot}
+import com.productfoundry.akka.cqrs.publish.{EventPublication, ReliableEventPublisher, ReliableEventPublisherSnapshot}
+
+import scala.collection.immutable
 
 /**
   * Aggregate.
@@ -349,7 +351,20 @@ trait Aggregate
         atLeastOnceDelivery <- asAtLeastOnceDeliveryOption
         atLeastOnceDeliverySnapshot <- snapshot.atLeastOnceDeliverySnapshotOption
       } {
-        atLeastOnceDelivery.setDeliverySnapshot(atLeastOnceDeliverySnapshot)
+        val updatedUnconfirmedDeliveries: immutable.Seq[AtLeastOnceDelivery.UnconfirmedDelivery] = atLeastOnceDeliverySnapshot.unconfirmedDeliveries.map { unconfirmedDelivery =>
+
+          val updatedMessageOption: Option[Any] = unconfirmedDelivery.message match {
+            case publication@EventPublication(_, Some(confirmDeliveryRequest), _) =>
+              // We need to update the target for the confirm delivery request as the actor ref has changed
+              Some(publication.copy(confirmationOption = Some(confirmDeliveryRequest.copy(target = context.self))))
+
+            case _ => None
+          }
+
+          updatedMessageOption.fold(unconfirmedDelivery)(updatedMessage => unconfirmedDelivery.copy(message = updatedMessage))
+        }
+
+        atLeastOnceDelivery.setDeliverySnapshot(atLeastOnceDeliverySnapshot.copy(unconfirmedDeliveries = updatedUnconfirmedDeliveries))
       }
 
     } else {

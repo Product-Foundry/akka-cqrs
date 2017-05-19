@@ -39,7 +39,7 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
     case Delete(aggregateId) =>
       Right(Changes(Deleted(aggregateId)))
 
-    case NoOp(aggregateId) =>
+    case NoOp(_) =>
       Right(Changes())
   }
 
@@ -60,7 +60,7 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
       }
 
       requestPassivation()
-      sender() ! SnapshotComplete
+      sender() ! SnapshotCompleteAndTerminated
 
     case _ =>
       super.unhandled(message)
@@ -75,13 +75,16 @@ class DummyAggregate(val passivationConfig: PassivationConfig) extends Aggregate
   }
 
   override val factory: StateModifications = {
-    case Created(_) => DummyState(0)
+    case Created(_) =>
+      DummyState(0)
   }
 
   case class DummyState(count: Int) extends AggregateState {
     override def update: StateModifications = {
-      case Counted(_, _count) => copy(count = _count)
-      case Incremented(_, amount) => copy(count = count + amount)
+      case Counted(_, _count) =>
+        copy(count = _count)
+      case Incremented(_, amount) =>
+        copy(count = count + amount)
     }
   }
 
@@ -131,9 +134,9 @@ object DummyAggregate {
 
   case class GetCount(id: DummyId) extends DummyMessage
 
-  case class Snapshot(id: DummyId, includeState: Boolean) extends DummyMessage
+  case class Snapshot(id: DummyId, includeState: Boolean = true) extends DummyMessage
 
-  case object SnapshotComplete
+  case object SnapshotCompleteAndTerminated
 
   case class DummyStateSnapshot(count: Int) extends AggregateStateSnapshot
 
