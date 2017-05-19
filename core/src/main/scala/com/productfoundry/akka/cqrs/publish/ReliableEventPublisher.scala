@@ -53,7 +53,9 @@ trait ReliableEventPublisher
    *
    * Already confirmed published commits will not be published thanks to persisted Confirmed messages.
    */
-  abstract override def receiveRecover: Receive = {
+  abstract override def receiveRecover: Receive = receiveReliablePublisherRecover orElse  super.receiveRecover
+
+  private def receiveReliablePublisherRecover: Receive = {
 
     case commit: Commit =>
       super.receiveRecover(commit)
@@ -61,9 +63,6 @@ trait ReliableEventPublisher
 
     case ConfirmedDelivery(deliveryId) =>
       handleConfirmation(deliveryId)
-
-    case event if super.receiveRecover.isDefinedAt(event) =>
-      super.receiveRecover(event)
   }
 
   /**

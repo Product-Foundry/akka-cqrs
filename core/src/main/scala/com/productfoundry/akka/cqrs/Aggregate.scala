@@ -171,7 +171,7 @@ trait Aggregate
   /**
     * A tag uniquely identifies a specific revision of an aggregate.
     */
-  def tag = AggregateTag(entityName, entityId, revision)
+  def tag: AggregateTag = AggregateTag(entityName, entityId, revision)
 
   /**
     * The current command request.
