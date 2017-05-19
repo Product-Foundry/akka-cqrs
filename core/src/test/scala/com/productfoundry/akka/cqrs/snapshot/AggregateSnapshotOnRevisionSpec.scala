@@ -15,7 +15,7 @@ case class AggregateSnapshotOnRevisionTestAggregateSnapshot() extends AggregateS
 class AggregateSnapshotOnRevisionTestAggregate(val passivationConfig: PassivationConfig, listener: ActorRef)
   extends Aggregate
     with AggregateSnapshotRecovery
-    with AggregateSnapshotOnRevisionInterval {
+    with AggregateSnapshotOnRevision {
 
   override def snapshotInterval: Int = AggregateSnapshotOnRevisionTestAggregate.snapshotInterval
 
