@@ -5,4 +5,5 @@ package com.productfoundry.akka.cqrs
   *
   * Users needs to define their own headers structure and ensure there is a proper Akka serializer configured.
   */
-trait CommitHeaders extends Serializable
+trait CommitHeaders
+  extends EntityState
