@@ -29,6 +29,7 @@ trait AggregateSnapshotStrategy
       log.info("Creating snapshot")
       saveSnapshot(getStateSnapshot)
       lastSnapshotRevision = revision
+      cancellableSnapshotOption = None
   }
 
   abstract override def receiveRecover: Receive = receiveSnapshotStrategyRecover orElse super.receiveRecover

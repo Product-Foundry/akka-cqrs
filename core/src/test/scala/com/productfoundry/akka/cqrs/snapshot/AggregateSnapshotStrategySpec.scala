@@ -120,6 +120,28 @@ class AggregateSnapshotStrategySpec extends AggregateTestSupport {
     "delay snapshot on crossing interval multiple times" in {
       testConfiguredSnapshot(AggregateSnapshotStrategyTestAggregate.snapshotInterval * 10, expectSnapshot = true)
     }
+
+    "create multiple snapshots" in {
+      val id: AggregateSnapshotStrategyTestAggregate.AggregateId = AggregateSnapshotStrategyTestAggregate.AggregateId.generate()
+      supervisor ! AggregateSnapshotStrategyTestAggregate.Create(id)
+      expectMsgType[AggregateStatus.Success]
+
+      (1 until AggregateSnapshotStrategyTestAggregate.snapshotInterval).foreach { _ =>
+        supervisor ! AggregateSnapshotStrategyTestAggregate.Update(id)
+        expectMsgType[AggregateStatus.Success]
+      }
+
+      expectMsgType[GetSnapshotRequested].revision shouldBe AggregateRevision(AggregateSnapshotStrategyTestAggregate.snapshotInterval)
+
+      (1 to AggregateSnapshotStrategyTestAggregate.snapshotInterval).foreach { _ =>
+        supervisor ! AggregateSnapshotStrategyTestAggregate.Update(id)
+        expectMsgType[AggregateStatus.Success]
+      }
+
+      expectMsgType[GetSnapshotRequested].revision shouldBe AggregateRevision(AggregateSnapshotStrategyTestAggregate.snapshotInterval * 2)
+
+      expectNoMsg()
+    }
   }
 
   def testConfiguredSnapshot(count: Int, expectSnapshot: Boolean): Unit = {
