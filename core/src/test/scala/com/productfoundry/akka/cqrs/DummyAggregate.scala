@@ -4,13 +4,15 @@ import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.DummyAggregate._
 import com.productfoundry.akka.cqrs.snapshot.{AggregateSnapshotRecovery, AggregateStateSnapshot}
 
-case class DummySnapshot(count: Int)
+case class DummySnapshot(count: Int) extends AggregateStateSnapshot
 
 class DummyAggregate(val passivationConfig: PassivationConfig)
   extends Aggregate
     with AggregateSnapshotRecovery {
 
-  type S = DummyState
+  override type S = DummyState
+
+  override type SnapshotType = DummySnapshot
 
   override val messageClass: Class[DummyMessage] = classOf[DummyMessage]
 
@@ -53,13 +55,8 @@ class DummyAggregate(val passivationConfig: PassivationConfig)
     case GetCount(_) =>
       sender() ! state.count
 
-    case Snapshot(_, includeState) =>
-      if (includeState) {
-        saveSnapshot(DummyStateSnapshot(state.count))
-      } else {
-        saveSnapshot()
-      }
-
+    case Snapshot(_) =>
+      saveAggregateSnapshot()
       requestPassivation()
       sender() ! SnapshotCompleteAndTerminated
 
@@ -67,12 +64,13 @@ class DummyAggregate(val passivationConfig: PassivationConfig)
       super.unhandled(message)
   }
 
-  /**
-    * Handles all saved snapshots.
-    */
-  override def recoverStateFromSnapshot: StateSnapshotHandler = {
-    case Some(DummyStateSnapshot(count)) => DummyState(count)
-    case None => DummyState(0)
+
+  override def getStateSnapshot(state: DummyState): DummySnapshot = {
+    DummySnapshot(state.count)
+  }
+
+  override def getStateFromSnapshot(snapshot: DummySnapshot): DummyState = {
+    DummyState(snapshot.count)
   }
 
   override val factory: StateModifications = {
@@ -135,7 +133,7 @@ object DummyAggregate {
 
   case class GetCount(id: DummyId) extends DummyMessage
 
-  case class Snapshot(id: DummyId, includeState: Boolean = true) extends DummyMessage
+  case class Snapshot(id: DummyId) extends DummyMessage
 
   case object SnapshotCompleteAndTerminated
 

@@ -12,8 +12,6 @@ trait RuleBasedSnapshotRecovery
 
   this: Aggregate with AggregateSnapshotRecovery =>
 
-  def getStateSnapshot: Option[AggregateStateSnapshot]
-
   private var lastSnapshotRevisionInternal: AggregateRevision = AggregateRevision.Initial
 
   def lastSnapshotRevision: AggregateRevision = lastSnapshotRevisionInternal
@@ -29,7 +27,7 @@ trait RuleBasedSnapshotRecovery
     case SnapshotProtocol.CreateSnapshot =>
 
       log.info("Creating snapshot")
-      saveSnapshot(getStateSnapshot)
+      saveAggregateSnapshot()
       lastSnapshotRevisionInternal = revision
       cancellableSnapshotOption = None
 

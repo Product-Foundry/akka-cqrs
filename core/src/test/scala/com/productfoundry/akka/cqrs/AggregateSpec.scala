@@ -1,5 +1,6 @@
 package com.productfoundry.akka.cqrs
 
+import akka.actor.Status.Failure
 import akka.actor.{ActorRef, Props, Status}
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.CommandRequest._
@@ -343,25 +344,23 @@ class AggregateSpec extends AggregateTestSupport {
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(5))
     }
 
-    "succeed without snapshot state" in new AggregateFixture {
+    "succeed after deleted event" in new AggregateFixture {
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(2))
 
       supervisor ! Count(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(3))
-      supervisor ! Count(testId)
+
+      supervisor ! Delete(testId)
       expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(4))
 
-      supervisor ! Snapshot(testId, includeState = false)
+      supervisor ! Snapshot(testId)
       fishForMessage() {
         case SnapshotCompleteAndTerminated => true
       }
 
       supervisor ! GetCount(testId)
-      expectMsg(0)
-
-      supervisor ! Count(testId)
-      expectMsgType[AggregateStatus.Success].response.tag.revision should be(AggregateRevision(5))
+      expectMsgType[Failure]
     }
   }
 
