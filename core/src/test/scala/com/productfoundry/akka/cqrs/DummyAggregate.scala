@@ -12,9 +12,7 @@ class DummyAggregate(val passivationConfig: PassivationConfig)
 
   type S = DummyState
 
-  override type M = DummyMessage
-
-  override val messageClass = classOf[DummyMessage]
+  override val messageClass: Class[DummyMessage] = classOf[DummyMessage]
 
   override def handleCommand: CommandHandler = {
     case Create(aggregateId) =>

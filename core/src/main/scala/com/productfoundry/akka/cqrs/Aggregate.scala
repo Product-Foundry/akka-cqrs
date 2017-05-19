@@ -18,14 +18,9 @@ trait Aggregate
   type S <: AggregateState
 
   /**
-    * Aggregate messages that are supported to update this aggregate.
-    */
-  type M <: AggregateMessage
-
-  /**
     * @return Class of aggregate messages that are supported to update this aggregate
     */
-  def messageClass: Class[M]
+  def messageClass: Class[_ <: AggregateMessage]
 
   type StateModifications = PartialFunction[AggregateEvent, S]
 

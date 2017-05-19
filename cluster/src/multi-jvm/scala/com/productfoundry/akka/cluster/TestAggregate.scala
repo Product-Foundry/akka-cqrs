@@ -25,9 +25,7 @@ class TestAggregate(val passivationConfig: PassivationConfig) extends Aggregate 
 
   override type S = TestState
 
-  override type M = TestMessage
-
-  override val messageClass = classOf[M]
+  override val messageClass = classOf[TestMessage]
 
   case class TestState(counter: Int = 0) extends AggregateState {
 

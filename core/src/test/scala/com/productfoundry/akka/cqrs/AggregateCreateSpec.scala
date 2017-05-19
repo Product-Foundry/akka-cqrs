@@ -18,10 +18,6 @@ trait CreateEventInUpdateAggregate extends Aggregate {
     * Aggregate state definition
     */
   override type S = State
-  /**
-    * Aggregate messages that are supported to update this aggregate.
-    */
-  override type M = AggregateMessage
 
   /**
     * @return Class of aggregate messages that are supported to update this aggregate

@@ -40,9 +40,7 @@ class UserAggregate(override val passivationConfig: PassivationConfig) extends A
 
   override type S = UserState
 
-  override type M = UserMessage
-
-  override val messageClass = classOf[UserMessage]
+  override val messageClass: Class[UserMessage] = classOf[UserMessage]
 
   override val factory: StateModifications = {
     case UserCreated(_, name) => UserState(name)
