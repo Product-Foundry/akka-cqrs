@@ -13,6 +13,7 @@ import com.productfoundry.akka.messaging.{ConfirmDeliveryRequest, ConfirmedDeliv
 import com.productfoundry.akka.serialization.{PersistableProtos => proto}
 
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -194,7 +195,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     builder
   }
 
-  private def deserializeSnapshot[A](persistent: proto.AggregateSnapshot.Snapshot): A = {
+  private def deserializeSnapshot[A](persistent: proto.AggregateSnapshot.Snapshot)(implicit classTag: ClassTag[A]): A = {
     val snapshotAttempt: Try[AnyRef] = serialization.deserialize(
       persistent.getSnapshot.toByteArray,
       persistent.getSerializerId,
@@ -202,8 +203,8 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     )
 
     snapshotAttempt match {
-      case Success(value: A) =>
-        value
+      case Success(value) if classTag.runtimeClass.isAssignableFrom(value.getClass) =>
+        value.asInstanceOf[A]
 
       case Success(value) =>
         val message = s"Unexpected result deserializing snapshot: ${value.getClass.getName}"
@@ -216,7 +217,7 @@ class PersistableSerializer(val system: ExtendedActorSystem) extends SerializerW
     }
   }
 
-  private def deserializeSnapshotOption[A](hasSnapshot: Boolean, persistentF: () => proto.AggregateSnapshot.Snapshot): Option[A] = {
+  private def deserializeSnapshotOption[A : ClassTag](hasSnapshot: Boolean, persistentF: () => proto.AggregateSnapshot.Snapshot): Option[A] = {
     if (hasSnapshot) {
       Some(deserializeSnapshot[A](persistentF()))
     } else {
