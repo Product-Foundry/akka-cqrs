@@ -7,17 +7,17 @@ import com.productfoundry.akka.cqrs.publish.{EventPublication, ReliableEventPubl
 
 import scala.collection.immutable
 
-trait AggregateSnapshotSupport
+trait AggregateSnapshotRecovery
   extends PersistentActor {
 
   this: Aggregate =>
 
-  type SnapshotHandler = PartialFunction[Option[AggregateStateSnapshot], S]
+  type StateSnapshotHandler = PartialFunction[Option[AggregateStateSnapshot], S]
 
   /**
     * Handles all saved snapshots.
     */
-  def handleSnapshot: SnapshotHandler
+  def recoverStateFromSnapshot: StateSnapshotHandler
 
   abstract override def receiveCommand: Receive = receiveSnapshotCommand orElse super.receiveCommand
 
@@ -74,10 +74,10 @@ trait AggregateSnapshotSupport
   def setAggregateSnapshot(snapshot: AggregateSnapshot): Unit = {
     val stateSnapshotOption: Option[AggregateStateSnapshot] = snapshot.stateSnapshotOption
 
-    if (handleSnapshot.isDefinedAt(stateSnapshotOption)) {
+    if (recoverStateFromSnapshot.isDefinedAt(stateSnapshotOption)) {
 
       // Revision and state
-      revisedState = RevisedState(snapshot.revision, Some(handleSnapshot(stateSnapshotOption)))
+      revisedState = RevisedState(snapshot.revision, Some(recoverStateFromSnapshot(stateSnapshotOption)))
 
       // Reliable event publisher
       for {

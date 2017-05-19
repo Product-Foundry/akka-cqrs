@@ -2,13 +2,13 @@ package com.productfoundry.akka.cqrs
 
 import com.productfoundry.akka.PassivationConfig
 import com.productfoundry.akka.cqrs.DummyAggregate._
-import com.productfoundry.akka.cqrs.snapshot.{AggregateSnapshotSupport, AggregateStateSnapshot}
+import com.productfoundry.akka.cqrs.snapshot.{AggregateSnapshotRecovery, AggregateStateSnapshot}
 
 case class DummySnapshot(count: Int)
 
 class DummyAggregate(val passivationConfig: PassivationConfig)
   extends Aggregate
-    with AggregateSnapshotSupport {
+    with AggregateSnapshotRecovery {
 
   type S = DummyState
 
@@ -70,7 +70,7 @@ class DummyAggregate(val passivationConfig: PassivationConfig)
   /**
     * Handles all saved snapshots.
     */
-  override def handleSnapshot: SnapshotHandler = {
+  override def recoverStateFromSnapshot: StateSnapshotHandler = {
     case Some(DummyStateSnapshot(count)) => DummyState(count)
     case None => DummyState(0)
   }

@@ -12,8 +12,8 @@ import scala.concurrent.duration._
 
 class AggregateSnapshotStrategyTestAggregate(val passivationConfig: PassivationConfig, listener: ActorRef)
   extends Aggregate
-    with AggregateSnapshotSupport
-    with AggregateSnapshotStrategy {
+    with AggregateSnapshotRecovery
+    with AggregateSnapshotOnRevisionInterval {
 
   override def snapshotInterval: Int = AggregateSnapshotStrategyTestAggregate.snapshotInterval
 
@@ -25,7 +25,7 @@ class AggregateSnapshotStrategyTestAggregate(val passivationConfig: PassivationC
     }
   }
 
-  override def handleSnapshot: SnapshotHandler = {
+  override def recoverStateFromSnapshot: StateSnapshotHandler = {
     case _ => State()
   }
 
@@ -91,7 +91,7 @@ object AggregateSnapshotStrategyTestAggregate {
 }
 
 
-class AggregateSnapshotStrategySpec extends AggregateTestSupport {
+class AggregateSnapshotOnRevisionIntervalSpec extends AggregateTestSupport {
 
   implicit object TestFactory extends AggregateFactory[AggregateSnapshotStrategyTestAggregate] {
     override def props(config: PassivationConfig): Props = {
