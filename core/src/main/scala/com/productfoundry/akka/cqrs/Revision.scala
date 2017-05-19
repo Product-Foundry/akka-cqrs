@@ -35,5 +35,5 @@ abstract class RevisionCompanion[R <: Revision[R] : ClassTag] {
 
   implicit val RevisionCompanionObject: RevisionCompanion[R] = this
 
-  lazy val Initial = apply(0L)
+  lazy val Initial: R = apply(0L)
 }

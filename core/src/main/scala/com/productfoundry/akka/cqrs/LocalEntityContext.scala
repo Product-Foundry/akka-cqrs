@@ -95,7 +95,7 @@ class LocalEntitySupervisor[E <: Entity](inactivityTimeout: Duration = 30.minute
  */
 class LocalEntityContext(actorRefFactory: ActorRefFactory, actorName: String = "Domain-Local") extends EntityContext {
 
-  val actor = actorRefFactory.actorOf(Props[EntityContextActor], actorName)
+  val actor: ActorRef = actorRefFactory.actorOf(Props[EntityContextActor], actorName)
 
   override def entitySupervisorFactory[E <: Entity : EntityFactory : EntityIdResolution : ClassTag]: EntitySupervisorFactory[E] = {
     new EntitySupervisorFactory[E] {

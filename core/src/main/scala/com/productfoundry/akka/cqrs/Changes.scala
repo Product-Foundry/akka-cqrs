@@ -75,7 +75,7 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @param response to set.
    * @return changes with updated payload.
    */
-  override def withResponse(response: Any) = copy(response = Some(response))
+  override def withResponse(response: Any): AggregateChanges = copy(response = Some(response))
 
   /**
    * Specifies headers to store.
@@ -83,7 +83,7 @@ private[this] case class AggregateChanges(events: Seq[AggregateEvent], response:
    * @param headers to store.
    * @return changes with updated headers.
    */
-  override def withHeaders(headers: CommitHeaders) = copy(headersOption = Some(headers))
+  override def withHeaders(headers: CommitHeaders): AggregateChanges = copy(headersOption = Some(headers))
 
   /**
    * Creates a commit from the specified changes.

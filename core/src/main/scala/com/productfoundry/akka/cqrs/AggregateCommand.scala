@@ -134,7 +134,7 @@ private[this] case class AggregateCommandRequest(command: AggregateCommand,
   /**
     * @return id of the aggregate.
     */
-  override def id = command.id
+  override def id: command.Id = command.id
 
   /**
     * @param clazz to check.

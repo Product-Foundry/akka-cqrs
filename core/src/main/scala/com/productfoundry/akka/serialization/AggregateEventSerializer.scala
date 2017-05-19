@@ -20,7 +20,7 @@ trait AggregateEventSerializer[T <: AggregateEvent]
     if (eventFromBinary.isDefinedAt(manifest)) {
       eventFromBinary(manifest)(bytes)
     } else {
-      throw new UnknownEventException(manifest)
+      throw UnknownEventException(manifest)
     }
   }
 }

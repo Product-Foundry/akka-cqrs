@@ -19,5 +19,5 @@ abstract class EntitySupervisorFactory[E <: Entity : EntityFactory : ClassTag] {
    * The supervisor name is based on the entity type and can be used in the actor name.
    * @return Supervisor name.
    */
-  def supervisorName = implicitly[ClassTag[E]].runtimeClass.getSimpleName
+  def supervisorName: String = implicitly[ClassTag[E]].runtimeClass.getSimpleName
 }

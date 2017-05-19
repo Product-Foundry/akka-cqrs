@@ -8,11 +8,11 @@ import com.productfoundry.akka.GracefulPassivation
  */
 trait Entity extends PersistentActor with GracefulPassivation {
 
-  final val entityName = context.parent.path.name
+  final val entityName: String = context.parent.path.name
 
-  final val entityId = self.path.name
+  final val entityId: String = self.path.name
 
-  final val _persistenceId = s"$entityName/$entityId"
+  final val _persistenceId: String = s"$entityName/$entityId"
 
   override def persistenceId: String = _persistenceId
 
