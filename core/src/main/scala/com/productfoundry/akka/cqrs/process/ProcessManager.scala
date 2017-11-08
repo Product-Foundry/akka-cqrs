@@ -1,6 +1,6 @@
 package com.productfoundry.akka.cqrs.process
 
-import akka.actor.ActorLogging
+import akka.actor.{ActorLogging, ReceiveTimeout}
 import akka.persistence.fsm.PersistentFSM
 import akka.persistence.fsm.PersistentFSM.FSMState
 import akka.productfoundry.contrib.pattern.ReceivePipeline
@@ -51,4 +51,11 @@ trait FsmProcessManager[S <: FSMState, D, E <: ProcessManagerEvent]
   extends ProcessManager
   with PersistentFSM[S, D, E]
   with ReceivePipeline
-  with EventPublicationInterceptor
+  with EventPublicationInterceptor {
+
+  def passivationStateFunction: StateFunction = {
+    case Event(ReceiveTimeout, _) => stop()
+  }
+
+  whenUnhandled(passivationStateFunction)
+}
