@@ -1,5 +1,3 @@
-package akka.cqrs
-
 import sbt.Keys._
 import sbt._
 

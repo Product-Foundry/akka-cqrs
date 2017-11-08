@@ -1,5 +1,3 @@
-package akka.cqrs
-
 import sbt._
 import Keys._
 
@@ -7,7 +5,7 @@ object Dependencies {
 
   lazy val akkaVersion = settingKey[String]("The version of Akka to use.")
 
-  val Versions = Seq(
+  val versions = Seq(
     akkaVersion := "2.4.19"
   )
 
